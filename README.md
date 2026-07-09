@@ -48,6 +48,20 @@ This re-reads the spreadsheet, rebuilds `js/data.js`, and the map picks it up
 on the next page load. (First run downloads a free city-coordinates database
 and caches it.)
 
+### Weekly update plan
+
+Once a week, the map is refreshed from the Piano Log:
+
+1. Run `python3 tools/build_data.py`
+2. Commit and push the updated `js/data.js`
+
+**The after-video trigger:** a *new* piano is only added to the map once it
+has an **after video** (column R in the log) — that's the signal a piano's
+story is ready to show. Pianos that were already on the map when this rule
+was adopted are grandfathered in via `tools/baseline.json` and stay put.
+To make the rule strict for everyone (drop grandfathered pianos without
+videos too), delete `tools/baseline.json` and rerun the build.
+
 ## Embedding in Shopify
 
 1. Enable **GitHub Pages** on this repo (Settings → Pages → deploy from

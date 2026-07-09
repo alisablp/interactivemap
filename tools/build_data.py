@@ -28,9 +28,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CITIES_CACHE = os.path.join(HERE, "cities500.txt")
 OUT_PATH = os.path.join(HERE, "..", "js", "data.js")
 
-# Column indexes (0-based): B=1 owner, E=4 year, F=5 make, G=6 model,
-# J=9 category tags, BO=66 marketing title, BV=73 Shopify URL
-COL_OWNER, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT, COL_TITLE, COL_URL = 1, 4, 5, 6, 9, 66, 73
+# Column indexes (0-based): B=1 owner, C=2 serial, E=4 year, F=5 make, G=6 model,
+# J=9 category tags, R=17 after video, BO=66 marketing title, BV=73 Shopify URL
+COL_OWNER, COL_SERIAL, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT = 1, 2, 4, 5, 6, 9
+COL_AFTER_VIDEO, COL_TITLE, COL_URL = 17, 66, 73
+
+# Trigger rule: a NEW piano is only added to the map once it has an after
+# video (column R). Pianos already on the map when this rule was adopted are
+# grandfathered in via tools/baseline.json.
+BASELINE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "baseline.json")
 
 PROVO = (40.2338, -111.6585)  # delivery rule reference point
 
@@ -83,15 +89,36 @@ def dist(a, b):
     return math.hypot(a[0] - b[0], (a[1] - b[1]) * 0.78)
 
 
+def piano_key(r):
+    """Stable identity for a row: serial number when present, else title-ish."""
+    serial = re.sub(r"\W", "", r[COL_SERIAL]).lower() if len(r) > COL_SERIAL else ""
+    if serial:
+        return "sn:" + serial
+    return "t:" + "|".join(x.strip().lower() for x in (r[COL_YEAR], r[COL_MAKE], r[COL_MODEL], r[COL_OWNER][:20]))
+
+
+def has_after_video(r):
+    v = r[COL_AFTER_VIDEO].lower() if len(r) > COL_AFTER_VIDEO else ""
+    return "http" in v or "youtu" in v or "drive" in v
+
+
 def main():
     lookup = load_cities()
     print("fetching piano log …")
     raw = urllib.request.urlopen(CSV_URL, timeout=120).read().decode("utf-8")
     rows = list(csv.reader(io.StringIO(raw)))
 
-    out = []
+    baseline = set()
+    if os.path.exists(BASELINE_PATH):
+        baseline = set(json.load(open(BASELINE_PATH)))
+
+    out, skipped_no_video = [], 0
     for r in rows[2:]:
         if len(r) <= COL_URL or not r[COL_OWNER].strip():
+            continue
+        # Trigger rule: new pianos need an after video; grandfathered ones don't.
+        if piano_key(r) not in baseline and not has_after_video(r):
+            skipped_no_video += 1
             continue
         locs = []
         for m in CITY_PAT.finditer(r[COL_OWNER]):
@@ -129,6 +156,8 @@ def main():
         f.write("// Regenerate with tools/build_data.py\n")
         f.write("const PIANOS = " + json.dumps(out, separators=(",", ":")) + ";\n")
     print("wrote %d pianos to js/data.js" % len(out))
+    if skipped_no_video:
+        print("held back %d rows that are new since the baseline and have no after video yet" % skipped_no_video)
 
 
 if __name__ == "__main__":
