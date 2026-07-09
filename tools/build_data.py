@@ -152,24 +152,49 @@ def has_after_photo(r):
     return True
 
 
+PICKUP_WORDS = re.compile(r"pick\s?-?up|picked\s+up|pickup", re.I)
+DELIVERY_WORDS = re.compile(r"deliver|ship", re.I)
+
+# "pick up in Denver" / "DELIVERY: Miami" — a keyword followed by a bare
+# city name with no state; accepted only when the whole fragment is a known
+# city (so "delivered to Sandy Johnson" never matches Sandy, UT)
+KEYWORD_CITY_PAT = re.compile(
+    r"(pick\s?-?up|picked\s+up|pickup|deliver(?:y|ed)?|ship(?:ping|ped)?)"
+    r"\s*(?:to|in|from|at)?\s*:?\s*([A-Z][A-Za-z .'-]{2,25}?)\s*(?:$|[|,;(\n-])", re.M)
+
+
+def kind_of(owner, pos):
+    """Classify a location match as pickup / delivery / plain by the words
+    just before it."""
+    before = owner[max(0, pos - 30):pos]
+    if PICKUP_WORDS.search(before):
+        return "pickup"
+    if DELIVERY_WORDS.search(before):
+        return "delivery"
+    return "plain"
+
+
 def find_locations(lookup, zips, owner):
-    """All location candidates in an owner cell: 'City, ST' patterns,
-    zip codes, and street addresses ending in a bare Utah city name."""
+    """All location candidates in an owner cell — 'City, ST' patterns, zip
+    codes, street addresses ending in a bare Utah city name, and bare cities
+    right after pickup/delivery keywords — each tagged with its kind."""
     locs = []
 
-    def add(city, st, lat, lng):
-        if (city, st) not in [(l[0], l[1]) for l in locs]:
-            locs.append((city, st, lat, lng))
+    def add(city, st, lat, lng, kind):
+        for l in locs:
+            if (l[0], l[1]) == (city, st):
+                return
+        locs.append((city, st, lat, lng, kind))
 
     for m in CITY_PAT.finditer(owner):
         hit = match_city(lookup, m.group(1), m.group(2))
         if hit:
-            add(hit[0], m.group(2), hit[1], hit[2])
+            add(hit[0], m.group(2), hit[1], hit[2], kind_of(owner, m.start()))
     for m in ZIP_PAT.finditer(owner):
         word, z = m.group(1).strip(".,").lower(), m.group(2)
         if word not in ZIP_WORD_BLACKLIST and "#" not in word and z in zips:
             city, st, lat, lng = zips[z]
-            add(city, st, lat, lng)
+            add(city, st, lat, lng, kind_of(owner, m.start()))
     for m in ADDR_PAT.finditer(owner):
         words = m.group(1).strip().lower().split()
         for n in (3, 2, 1):
@@ -177,8 +202,21 @@ def find_locations(lookup, zips, owner):
                 cand = " ".join(words[:n])
                 if (cand, "UT") in lookup:
                     lat, lng, _ = lookup[(cand, "UT")]
-                    add(" ".join(w.capitalize() for w in cand.split()), "UT", lat, lng)
+                    add(" ".join(w.capitalize() for w in cand.split()), "UT", lat, lng,
+                        kind_of(owner, m.start()))
                     break
+    for m in KEYWORD_CITY_PAT.finditer(owner):
+        frag = m.group(2).strip().lower()
+        if len(frag) < 3:
+            continue
+        # whole fragment must be a known city; pick the most populous state
+        best = None
+        for (name, st), (lat, lng, pop) in lookup.items():
+            if name == frag and (best is None or pop > best[4]):
+                best = (name, st, lat, lng, pop)
+        if best and best[4] >= 20000:
+            kind = "pickup" if PICKUP_WORDS.search(m.group(1)) else "delivery"
+            add(frag.title(), best[1], best[2], best[3], kind)
     return locs
 
 
@@ -204,8 +242,13 @@ def main():
         locs = find_locations(lookup, zips, r[COL_OWNER])
         if not locs:
             continue
-        # Delivery rule: with multiple addresses, pin the one farthest from Utah.
-        city, st, lat, lng = max(locs, key=lambda l: dist((l[2], l[3]), PROVO))
+        # Delivery-first rule: an explicit delivery city wins; otherwise any
+        # plainly listed city; a pickup city only as a stand-in until the
+        # delivery city is added to the log. Ties break farthest from Utah.
+        tier = ([l for l in locs if l[4] == "delivery"]
+                or [l for l in locs if l[4] == "plain"]
+                or locs)
+        city, st, lat, lng = max(tier, key=lambda l: dist((l[2], l[3]), PROVO))[:4]
 
         year, make, model = r[COL_YEAR].strip(), r[COL_MAKE].strip(), r[COL_MODEL].strip()
         summary = r[COL_SUMMARY].strip()
