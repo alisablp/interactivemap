@@ -45,6 +45,26 @@ STATES = ("AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN 
           "MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC").split()
 CITY_PAT = re.compile(r"([A-Za-z][A-Za-z .'-]{2,32}?),?\s+(" + "|".join(STATES) + r")\b")
 
+# "Ewa Beach, Hawaii" — full state names, comma required to stay conservative
+STATE_NAMES = {
+    "alabama": "AL", "alaska": "AK", "arizona": "AZ", "arkansas": "AR",
+    "california": "CA", "colorado": "CO", "connecticut": "CT", "delaware": "DE",
+    "florida": "FL", "georgia": "GA", "hawaii": "HI", "idaho": "ID",
+    "illinois": "IL", "indiana": "IN", "iowa": "IA", "kansas": "KS",
+    "kentucky": "KY", "louisiana": "LA", "maine": "ME", "maryland": "MD",
+    "massachusetts": "MA", "michigan": "MI", "minnesota": "MN", "mississippi": "MS",
+    "missouri": "MO", "montana": "MT", "nebraska": "NE", "nevada": "NV",
+    "new hampshire": "NH", "new jersey": "NJ", "new mexico": "NM", "new york": "NY",
+    "north carolina": "NC", "north dakota": "ND", "ohio": "OH", "oklahoma": "OK",
+    "oregon": "OR", "pennsylvania": "PA", "rhode island": "RI", "south carolina": "SC",
+    "south dakota": "SD", "tennessee": "TN", "texas": "TX", "utah": "UT",
+    "vermont": "VT", "virginia": "VA", "washington": "WA", "west virginia": "WV",
+    "wisconsin": "WI", "wyoming": "WY"
+}
+FULLSTATE_PAT = re.compile(
+    r"([A-Za-z][A-Za-z .'-]{2,32}?),\s*(" +
+    "|".join(sorted(STATE_NAMES, key=len, reverse=True)) + r")\b", re.I)
+
 UPRIGHT_CATS = {"upright", "tall upright", "console", "spinet", "studio"}
 
 
@@ -190,6 +210,11 @@ def find_locations(lookup, zips, owner):
         hit = match_city(lookup, m.group(1), m.group(2))
         if hit:
             add(hit[0], m.group(2), hit[1], hit[2], kind_of(owner, m.start()))
+    for m in FULLSTATE_PAT.finditer(owner):
+        st = STATE_NAMES[m.group(2).lower()]
+        hit = match_city(lookup, m.group(1), st)
+        if hit:
+            add(hit[0], st, hit[1], hit[2], kind_of(owner, m.start()))
     for m in ZIP_PAT.finditer(owner):
         word, z = m.group(1).strip(".,").lower(), m.group(2)
         if word not in ZIP_WORD_BLACKLIST and "#" not in word and z in zips:

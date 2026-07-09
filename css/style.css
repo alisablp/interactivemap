@@ -136,7 +136,6 @@ body {
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(40, 25, 0, .25);
   background: var(--parch);
-  pointer-events: none;
 }
 .map-inset-label {
   position: absolute;

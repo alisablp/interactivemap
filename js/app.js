@@ -61,7 +61,30 @@
   }
 
   // Alaska & Hawaii live in framed insets at the bottom left, like a
-  // classic classroom map.
+  // classic classroom map. Their pianos render as gold dots inside the
+  // frame; clicking one opens the piano's page.
+  var insetMarkers = [];
+
+  function addInsetPins(mini, stCode) {
+    PIANOS.forEach(function (p) {
+      if (p.st !== stCode) return;
+      var m = L.marker([p.la, p.lo], {
+        icon: L.divIcon({
+          className: "gold-pin",
+          html: dotSVG(13),
+          iconSize: [13, 13],
+          iconAnchor: [6.5, 6.5]
+        }),
+        title: p.t + " — " + p.ct + ", " + p.st
+      });
+      if (p.u) {
+        m.on("click", function () { window.open(p.u, "_blank", "noopener"); });
+      }
+      m.addTo(mini);
+      insetMarkers.push({ m: m, p: p, mini: mini });
+    });
+  }
+
   function buildInset(label, rings, bounds, w, h) {
     var el = L.DomUtil.create("div", "map-inset", map.getContainer());
     el.style.width = w + "px";
@@ -78,7 +101,7 @@
     }).addTo(mini);
     mini.fitBounds(bounds);
     L.polygon([WORLD_RING].concat(rings), MASK_STYLE).addTo(mini);
-    return el;
+    return { el: el, mini: mini };
   }
 
   fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/nation-10m.json")
@@ -125,13 +148,16 @@
         .catch(function () { /* cosmetic */ });
 
       // insets (hidden once the visitor zooms in past country level)
-      var akEl = buildInset("Alaska", alaska, [[52, -170], [71.5, -129.5]], 180, 120);
-      var hiEl = buildInset("Hawaii", hawaii, [[18.6, -160.4], [22.4, -154.6]], 130, 88);
-      hiEl.style.left = "202px";
+      var ak = buildInset("Alaska", alaska, [[52, -170], [71.5, -129.5]], 180, 120);
+      var hi = buildInset("Hawaii", hawaii, [[18.6, -160.4], [22.4, -154.6]], 130, 88);
+      hi.el.style.left = "202px";
+      addInsetPins(ak.mini, "AK");
+      addInsetPins(hi.mini, "HI");
+      apply(false); // sync inset pins with any active filters
       function toggleInsets() {
         var show = map.getZoom() < 6;
-        akEl.style.display = show ? "" : "none";
-        hiEl.style.display = show ? "" : "none";
+        ak.el.style.display = show ? "" : "none";
+        hi.el.style.display = show ? "" : "none";
       }
       toggleInsets();
       map.on("zoomend", toggleInsets);
@@ -245,8 +271,11 @@
   // ---------- markers ----------
   // Same-city pianos fan out in a golden-angle spiral around the city center,
   // so every piano stays individually visible and clickable.
+  // Alaska & Hawaii pianos live in the insets instead of the main map.
   var cityCounts = {};
-  var markers = PIANOS.map(function (p, i) {
+  var markers = PIANOS.filter(function (p) {
+    return p.st !== "AK" && p.st !== "HI";
+  }).map(function (p, i) {
     var key = p.ct + "|" + p.st;
     var k = cityCounts[key] = (cityCounts[key] || 0) + 1;
     var ang = k * 2.39996, r = 0.006 * Math.sqrt(k);
@@ -298,7 +327,16 @@
     var ic = iconForZoom(map.getZoom());
     pianoLayer.clearLayers();
     visible.forEach(function (m) { m.setIcon(ic); pianoLayer.addLayer(m); });
-    countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
+    var insetVisible = 0;
+    insetMarkers.forEach(function (im) {
+      if (matches(im.p)) {
+        insetVisible++;
+        if (!im.mini.hasLayer(im.m)) im.m.addTo(im.mini);
+      } else {
+        im.mini.removeLayer(im.m);
+      }
+    });
+    countEl.textContent = "Showing " + (visible.length + insetVisible) + " of " + PIANOS.length + " pianos";
     if (fit && visible.length) {
       var b = L.latLngBounds(visible.map(function (m) { return m.getLatLng(); }));
       map.fitBounds(b.pad(0.2), { maxZoom: 10 });
