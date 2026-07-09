@@ -30,7 +30,7 @@ OUT_PATH = os.path.join(HERE, "..", "js", "data.js")
 
 # Column indexes (0-based): B=1 owner, C=2 serial, E=4 year, F=5 make, G=6 model,
 # J=9 category tags, P=15 after photos, BO=66 marketing title, BV=73 Shopify URL
-COL_OWNER, COL_SERIAL, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT = 1, 2, 4, 5, 6, 9
+COL_OWNER, COL_SERIAL, COL_SUMMARY, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT = 1, 2, 3, 4, 5, 6, 9
 COL_AFTER_PHOTOS, COL_TITLE, COL_URL = 15, 66, 73
 
 # Trigger rule: a NEW piano is only added to the map once it has an after
@@ -61,12 +61,21 @@ def load_cities():
         if f[8] != "US":
             continue
         name, lat, lng, admin1, pop = f[1], float(f[4]), float(f[5]), f[10], int(f[14] or 0)
-        keys = [(name.lower(), admin1)]
+        names = {name.lower()}
         for alt in f[3].split(","):
             alt = alt.strip().lower()
             if alt and re.fullmatch(r"[a-z .'-]+", alt):
-                keys.append((alt, admin1))
-        for k in keys:
+                names.add(alt)
+        # normalize: strip periods, and index both St/Saint spellings
+        for n in list(names):
+            plain = n.replace(".", "")
+            names.add(plain)
+            if plain.startswith("saint "):
+                names.add("st " + plain[6:])
+            elif plain.startswith("st "):
+                names.add("saint " + plain[3:])
+        for n in names:
+            k = (n, admin1)
             if k not in lookup or pop > lookup[k][2]:
                 lookup[k] = (lat, lng, pop)
     lookup[("slc", "UT")] = lookup[("salt lake city", "UT")]
@@ -94,7 +103,7 @@ def load_zips():
 # address ("12173 N Royal Troon Rd") or a dollar/invoice figure.
 ZIP_PAT = re.compile(
     r"([A-Za-z][A-Za-z.,]*)[,\s]+(\d{5})(?:-\d{4})?\b"
-    r"(?!\s+(?:[NSEW]\b|North\b|South\b|East\b|West\b|\d|"
+    r"(?!\s+(?:[NSEW]\b|North\b|South\b|East\b|West\b|"
     r"(?:[A-Za-z'-]+\s+){0,3}(?:St|Street|Dr|Drive|Ln|Lane|Rd|Road|Ave|Avenue|"
     r"Way|Ct|Court|Cir|Circle|Blvd|Loop|Pl|Place|Pkwy|Parkway)\b))", re.I)
 
@@ -199,7 +208,8 @@ def main():
         city, st, lat, lng = max(locs, key=lambda l: dist((l[2], l[3]), PROVO))
 
         year, make, model = r[COL_YEAR].strip(), r[COL_MAKE].strip(), r[COL_MODEL].strip()
-        if not (year or make):
+        summary = r[COL_SUMMARY].strip()
+        if not (year or make or summary):
             continue
         if not re.fullmatch(r"(18|19|20)\d\d", year):
             year = ""
@@ -207,9 +217,11 @@ def main():
         url = r[COL_URL].strip()
         if not url.startswith("http") or url.rstrip("/").endswith("/products"):
             url = ""
-        title = r[COL_TITLE].strip() or " ".join(x for x in [year, make, model] if x) or "Piano"
-        typ = ("Grand" if any("grand" in c.lower() for c in cats)
-               else "Upright" if any(c.lower() in UPRIGHT_CATS for c in cats)
+        title = (r[COL_TITLE].strip() or " ".join(x for x in [year, make, model] if x)
+                 or summary or "Piano")
+        typehints = " ".join(cats).lower() or (title + " " + summary).lower()
+        typ = ("Grand" if "grand" in typehints
+               else "Upright" if any(w in typehints for w in UPRIGHT_CATS)
                else "")
         out.append(dict(t=title[:80], y=year, mk=make[:30], md=model[:30], tp=typ,
                         c=cats[:8], u=url, ct=city, st=st,
