@@ -334,7 +334,7 @@
       // no photos yet — tell the restoration story instead
       h += "<p class='resto'>Every piano we place passes through our Utah workshop — " +
         "where family heirlooms are rebuilt by hand and every instrument is tuned, " +
-        "regulated, and voiced until it sings — before making the journey to its new home.</p>";
+        "regulated, and voiced until it sings — before making its journey home.</p>";
       h += "<a class='btn' href='https://www.brighamlarsonpianos.com/pages/piano-restoration' " +
         "target='_blank' rel='noopener'>Explore Piano Restoration</a>";
     }
