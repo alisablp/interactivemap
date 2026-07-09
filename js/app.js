@@ -8,8 +8,9 @@
 
   // ---------- map ----------
   // USA only: panning is locked to the composed map (lower 48 with Alaska
-  // and Hawaii pulled in below the Southwest, albers-atlas style)
-  var US_BOUNDS = L.latLngBounds([16, -135], [51.5, -64.5]);
+  // and Hawaii pulled in below the Southwest, albers-atlas style).
+  // Slightly padded so popups near the edges have room to auto-pan into view.
+  var US_BOUNDS = L.latLngBounds([15, -136], [54, -63]);
 
   var map = L.map("map", {
     center: [39.5, -98.35],
@@ -214,12 +215,68 @@
     return ic;
   }
 
+  // ---------- device-aware card opening ----------
+  // Phones get a bottom sheet (always fully visible); larger screens get a
+  // map popup that auto-pans fully into view.
+  function isPhone() {
+    return window.matchMedia("(max-width: 680px)").matches;
+  }
+
+  var sheetBackdrop = L.DomUtil.create("div", "sheet-backdrop", document.body);
+  var sheet = L.DomUtil.create("div", "sheet", document.body);
+  function closeSheet() {
+    sheet.classList.remove("open");
+    sheetBackdrop.classList.remove("open");
+  }
+  sheetBackdrop.addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeSheet();
+  });
+
+  function openCard(latlng, html) {
+    if (isPhone()) {
+      sheet.innerHTML = "<button class='sheet-close' aria-label='Close'>&times;</button>" + html;
+      sheet.querySelector(".sheet-close").addEventListener("click", closeSheet);
+      sheetBackdrop.classList.add("open");
+      sheet.classList.add("open");
+    } else {
+      var pop = L.popup({
+        maxWidth: 270,
+        autoPanPaddingTopLeft: L.point(16, 16),
+        autoPanPaddingBottomRight: L.point(16, 16)
+      }).setLatLng(latlng).setContent(html).openOn(map);
+      // Near the top edge the locked bounds can stop auto-pan short, which
+      // would clip the card — flip it to open below the pin instead.
+      var el = pop.getElement();
+      if (el) {
+        var h = el.offsetHeight;
+        var y = map.latLngToContainerPoint(pop.getLatLng()).y;
+        var mapH = map.getSize().y;
+        if (y - h - 20 < 0) {
+          if (y + h + 60 < mapH) {
+            pop.options.offset = L.point(0, h + 52);
+            L.DomUtil.addClass(el, "popup-flipped");
+            pop.update();
+          } else {
+            // no room above or below (short window) — use the sheet
+            map.closePopup(pop);
+            sheet.innerHTML = "<button class='sheet-close' aria-label='Close'>&times;</button>" + html;
+            sheet.querySelector(".sheet-close").addEventListener("click", closeSheet);
+            sheetBackdrop.classList.add("open");
+            sheet.classList.add("open");
+          }
+        }
+      }
+    }
+  }
+
   // workshop star
+  var workshopHTML = "<div class='pcard'><div class='strip'></div><div class='pad'><h3>The Workshop</h3><div class='meta'>" + WORKSHOP.label + "</div><a class='btn' href='https://www.brighamlarsonpianos.com' target='_blank' rel='noopener'>Visit Us</a></div></div>";
   L.marker([WORKSHOP.lat, WORKSHOP.lng], {
     icon: L.divIcon({ className: "home-star", html: "<span>&#9733;</span>", iconSize: [22, 22], iconAnchor: [11, 11] }),
     zIndexOffset: 1000,
     title: WORKSHOP.label
-  }).addTo(map).bindPopup("<div class='pcard'><div class='strip'></div><div class='pad'><h3>The Workshop</h3><div class='meta'>" + WORKSHOP.label + "</div><a class='btn' href='https://www.brighamlarsonpianos.com' target='_blank' rel='noopener'>Visit Us</a></div></div>");
+  }).addTo(map).on("click", function () { openCard([WORKSHOP.lat, WORKSHOP.lng], workshopHTML); });
 
   // ---------- marker layer (no clustering — every piano stays visible) ----------
   var pianoLayer = L.layerGroup().addTo(map);
@@ -284,7 +341,7 @@
     var base = displayLatLng(p);
     var m = L.marker([base.lat + r * Math.sin(ang), base.lng + r * Math.cos(ang) * 1.3],
       { icon: iconForZoom(4), title: p.t });
-    m.bindPopup(cardHTML(p));
+    m.on("click", function () { openCard(m.getLatLng(), cardHTML(p)); });
     m._piano = p;
     return m;
   });

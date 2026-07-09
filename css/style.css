@@ -276,6 +276,61 @@ body {
 .pcard a.btn:hover { background: var(--gold-hi); }
 .pcard .nolink { font-size: .7rem; color: var(--muted); font-style: italic; }
 
+/* popup opened below a pin near the top edge — hide the pointer tip */
+.popup-flipped .leaflet-popup-tip-container { display: none; }
+
+/* ---------- mobile bottom sheet ---------- */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  z-index: 3000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.sheet-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3001;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -10px 34px rgba(0, 0, 0, .35);
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(105%);
+  transition: transform .25s ease-out;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.sheet.open { transform: none; }
+.sheet .pcard .ba, .sheet .pcard-photo { height: 210px; }
+.sheet .pcard h3 { font-size: 1.2rem; }
+.sheet .pcard .pad { padding: 14px 18px 20px; }
+.sheet-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(19, 17, 16, .65);
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .sheet-backdrop { transition: none; }
+}
+
 /* ---------- footer ---------- */
 .site-foot {
   background: var(--black);
