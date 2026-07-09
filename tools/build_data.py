@@ -33,10 +33,9 @@ OUT_PATH = os.path.join(HERE, "..", "js", "data.js")
 COL_OWNER, COL_SERIAL, COL_SUMMARY, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT = 1, 2, 3, 4, 5, 6, 9
 COL_AFTER_PHOTOS, COL_TITLE, COL_URL = 15, 66, 73
 
-# Trigger rule: a NEW piano is only added to the map once it has an after
-# photo (column P). Pianos already on the map when this rule was adopted are
-# grandfathered in via tools/baseline.json.
-BASELINE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "baseline.json")
+# Trigger rule: a piano appears on the map only when it has a showable
+# AFTER photo (column P must yield a real image) — no exceptions.
+TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ZIPS_URL = "https://download.geonames.org/export/zip/US.zip"
 
 PROVO = (40.2338, -111.6585)  # delivery rule reference point
@@ -256,13 +255,9 @@ def main():
     raw = urllib.request.urlopen(CSV_URL, timeout=120).read().decode("utf-8")
     rows = list(csv.reader(io.StringIO(raw)))
 
-    baseline = set()
-    if os.path.exists(BASELINE_PATH):
-        baseline = set(json.load(open(BASELINE_PATH)))
-
     # showcase photos resolved by tools/fetch_photos.py (piano_key -> {b, a})
     photos = {}
-    photos_path = os.path.join(os.path.dirname(BASELINE_PATH), "photos.json")
+    photos_path = os.path.join(TOOLS_DIR, "photos.json")
     if os.path.exists(photos_path):
         photos = json.load(open(photos_path)).get("pianos", {})
 
@@ -270,8 +265,8 @@ def main():
     for r in rows[2:]:
         if len(r) <= COL_URL or not r[COL_OWNER].strip():
             continue
-        # Trigger rule: new pianos need an after photo; grandfathered ones don't.
-        if piano_key(r) not in baseline and not has_after_photo(r):
+        # Trigger rule: no after photo in the log, no pin.
+        if not has_after_photo(r):
             skipped_no_photo += 1
             continue
         locs = find_locations(lookup, zips, r[COL_OWNER])
@@ -316,8 +311,13 @@ def main():
                     continue
                 # prefer the local (name-blurred) copy in photos/; fall back
                 # to the Drive CDN only if no local copy exists
-                local = os.path.join(os.path.dirname(BASELINE_PATH), "..", "photos", fid + ".jpg")
+                local = os.path.join(TOOLS_DIR, "..", "photos", fid + ".jpg")
                 rec[field] = ("photos/" + fid + ".jpg") if os.path.exists(local) else fid
+        # the card must be able to SHOW the after photo — a log entry that
+        # doesn't resolve to a real image doesn't earn a pin
+        if "ap" not in rec:
+            skipped_no_photo += 1
+            continue
         out.append(rec)
 
     # Safety net: refuse to write anything that smells like PII.
@@ -330,7 +330,7 @@ def main():
         f.write("const PIANOS = " + json.dumps(out, separators=(",", ":")) + ";\n")
     print("wrote %d pianos to js/data.js" % len(out))
     if skipped_no_photo:
-        print("held back %d rows that are new since the baseline and have no after photo yet" % skipped_no_photo)
+        print("held back %d rows without a showable after photo yet" % skipped_no_photo)
 
 
 if __name__ == "__main__":

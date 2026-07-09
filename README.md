@@ -56,12 +56,11 @@ Once a week, the map is refreshed from the Piano Log:
 1. Run `python3 tools/build_data.py`
 2. Commit and push the updated `js/data.js`
 
-**The after-photo trigger:** a *new* piano is only added to the map once it
-has an **after photo** (column P in the log) — that's the signal a piano's
-story is ready to show. Pianos that were already on the map when this rule
-was adopted are grandfathered in via `tools/baseline.json` and stay put.
-To make the rule strict for everyone (drop grandfathered pianos without
-photos too), delete `tools/baseline.json` and rerun the build.
+**The after-photo trigger:** a piano appears on the map only when it has a
+**showable after photo** (column P in the log must resolve to a real image) —
+that's the signal a piano's story is ready to show. No exceptions: every pin's
+card displays its after photo. Add an after-photo Drive link to a row and the
+piano joins the map on the next build.
 
 Locations are read three ways: "City, ST" patterns, zip codes (validated so
 house numbers and invoice figures don't masquerade as zips), and street
