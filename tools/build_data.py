@@ -330,8 +330,9 @@ def main():
         if "ap" not in rec:
             rec.pop("bp", None)
         # qualify: showable after photo, OR below the SOLD divider with a
-        # product URL (those get a restoration-story card)
-        if "ap" not in rec and not (below_sold and rec["u"]):
+        # product URL, OR tagged Family Heirloom — the latter two without
+        # photos get a restoration-story card
+        if "ap" not in rec and not (below_sold and rec["u"]) and "Family Heirloom" not in cats:
             skipped += 1
             continue
         out.append(rec)
