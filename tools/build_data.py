@@ -33,8 +33,11 @@ OUT_PATH = os.path.join(HERE, "..", "js", "data.js")
 COL_OWNER, COL_SERIAL, COL_SUMMARY, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT = 1, 2, 3, 4, 5, 6, 9
 COL_AFTER_PHOTOS, COL_TITLE, COL_URL = 15, 66, 73
 
-# Trigger rule: a piano appears on the map only when it has a showable
-# AFTER photo (column P must yield a real image) — no exceptions.
+# Trigger rule: a piano appears on the map when it has a showable AFTER
+# photo, OR when it sits below the log's "SOLD" divider row and has a
+# product URL in column BV. Pianos without a showable after photo get a
+# restoration-story card instead of photos (before-only photos are never
+# shown — pre-restoration pianos don't photograph well).
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 ZIPS_URL = "https://download.geonames.org/export/zip/US.zip"
 
@@ -261,14 +264,23 @@ def main():
     if os.path.exists(photos_path):
         photos = json.load(open(photos_path)).get("pianos", {})
 
-    out, skipped_no_photo = [], 0
-    for r in rows[2:]:
+    # locate the "SOLD" divider row — a section header whose only content in
+    # the first columns is the word SOLD (currently in the owner column)
+    sold_idx = None
+    for i, r in enumerate(rows):
+        first = [c.strip() for c in r[:8]]
+        if "SOLD" in (c.upper() for c in first) and sum(1 for c in first if c) == 1:
+            sold_idx = i
+            break
+    print("SOLD divider at spreadsheet row", (sold_idx + 1) if sold_idx is not None else "NOT FOUND")
+
+    out, skipped = [], 0
+    for i, r in enumerate(rows):
+        if i < 2:
+            continue
         if len(r) <= COL_URL or not r[COL_OWNER].strip():
             continue
-        # Trigger rule: no after photo in the log, no pin.
-        if not has_after_photo(r):
-            skipped_no_photo += 1
-            continue
+        below_sold = sold_idx is not None and i > sold_idx
         locs = find_locations(lookup, zips, r[COL_OWNER])
         if not locs:
             continue
@@ -313,10 +325,14 @@ def main():
                 # to the Drive CDN only if no local copy exists
                 local = os.path.join(TOOLS_DIR, "..", "photos", fid + ".jpg")
                 rec[field] = ("photos/" + fid + ".jpg") if os.path.exists(local) else fid
-        # the card must be able to SHOW the after photo — a log entry that
-        # doesn't resolve to a real image doesn't earn a pin
+        # before-only photos are never shown — pre-restoration pianos don't
+        # photograph well
         if "ap" not in rec:
-            skipped_no_photo += 1
+            rec.pop("bp", None)
+        # qualify: showable after photo, OR below the SOLD divider with a
+        # product URL (those get a restoration-story card)
+        if "ap" not in rec and not (below_sold and rec["u"]):
+            skipped += 1
             continue
         out.append(rec)
 
@@ -329,8 +345,8 @@ def main():
         f.write("// Regenerate with tools/build_data.py\n")
         f.write("const PIANOS = " + json.dumps(out, separators=(",", ":")) + ";\n")
     print("wrote %d pianos to js/data.js" % len(out))
-    if skipped_no_photo:
-        print("held back %d rows without a showable after photo yet" % skipped_no_photo)
+    if skipped:
+        print("held back %d rows (no after photo and not sold-with-URL)" % skipped)
 
 
 if __name__ == "__main__":

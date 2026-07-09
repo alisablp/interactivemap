@@ -275,6 +275,14 @@ body {
 }
 .pcard a.btn:hover { background: var(--gold-hi); }
 .pcard .nolink { font-size: .7rem; color: var(--muted); font-style: italic; }
+.pcard .resto {
+  font-size: .78rem;
+  line-height: 1.55;
+  color: #5d543f;
+  margin: 2px 0 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--parch);
+}
 
 /* popup opened below a pin near the top edge — hide the pointer tip */
 .popup-flipped .leaflet-popup-tip-container { display: none; }

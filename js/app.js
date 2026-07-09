@@ -317,8 +317,8 @@
         "<input type='range' min='3' max='97' value='50' aria-label='Slide to compare before and after' " +
         "oninput=\"this.parentNode.style.setProperty('--cut', this.value + '%')\">" +
         "</div>";
-    } else if (p.ap || p.bp) {
-      h += "<img class='pcard-photo' src='" + photoURL(p.ap || p.bp) + "' alt='" + esc(p.t) + "' loading='lazy'>";
+    } else if (p.ap) {
+      h += "<img class='pcard-photo' src='" + photoURL(p.ap) + "' alt='" + esc(p.t) + "' loading='lazy'>";
     }
     h += "<div class='pad'>";
     h += "<h3>" + esc(p.t) + "</h3>";
@@ -326,9 +326,18 @@
     if (tags.length) {
       h += "<div class='tags'>" + tags.map(function (t) { return "<span class='tag'>" + esc(t) + "</span>"; }).join("") + "</div>";
     }
-    h += p.u
-      ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>View This Piano</a>"
-      : "<span class='nolink'>Story page coming soon</span>";
+    if (p.ap) {
+      h += p.u
+        ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>View This Piano</a>"
+        : "<span class='nolink'>Story page coming soon</span>";
+    } else {
+      // no photos yet — tell the restoration story instead
+      h += "<p class='resto'>Every piano we place passes through our Utah workshop — " +
+        "where family heirlooms are rebuilt by hand and every instrument is tuned, " +
+        "regulated, and voiced until it sings — before making the journey to its new home.</p>";
+      h += "<a class='btn' href='https://www.brighamlarsonpianos.com/pages/piano-restoration' " +
+        "target='_blank' rel='noopener'>Explore Piano Restoration</a>";
+    }
     h += "</div></div>";
     return h;
   }
