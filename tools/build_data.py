@@ -288,6 +288,10 @@ def main():
         if not re.fullmatch(r"(18|19|20)\d\d", year):
             year = ""
         cats = [c.strip() for c in r[COL_CAT].split(",") if c.strip()]
+        # QRS = modern player system: pianos not tagged Player in column J
+        # but mentioning QRS in owner (B) or summary (D) count as players
+        if "Player" not in cats and re.search(r"\bQRS\b", r[COL_OWNER] + " " + summary, re.I):
+            cats.append("Player")
         url = r[COL_URL].strip()
         if not url.startswith("http") or url.rstrip("/").endswith("/products"):
             url = ""
