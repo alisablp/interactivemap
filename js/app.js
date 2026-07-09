@@ -65,7 +65,8 @@
     })
     .catch(function () { /* mask is cosmetic — map still works without it */ });
 
-  // ---------- gold pin ----------
+  // ---------- gold markers ----------
+  // Far out: every piano is a 3D gold dot. Zooming in, dots become gold pins.
   function pinSVG(w, h) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="1">' +
@@ -75,13 +76,42 @@
       '<circle cx="60" cy="55" r="21" fill="#f9f7ee" stroke="#8a6a14" stroke-width="3"/></svg>';
   }
 
-  var goldIcon = L.divIcon({
-    className: "gold-pin",
-    html: pinSVG(26, 37),
-    iconSize: [26, 37],
-    iconAnchor: [13, 37],
-    popupAnchor: [0, -34]
-  });
+  function dotSVG(d) {
+    return '<svg width="' + d + '" height="' + d + '" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><radialGradient id="gd" cx=".35" cy=".28" r=".85">' +
+      '<stop offset="0" stop-color="#fff6cf"/><stop offset=".3" stop-color="#f2d270"/>' +
+      '<stop offset=".62" stop-color="#c9a227"/><stop offset="1" stop-color="#6e5210"/></radialGradient></defs>' +
+      '<circle cx="12" cy="12" r="10.4" fill="url(#gd)" stroke="#6e5210" stroke-width="1"/>' +
+      '<ellipse cx="8.6" cy="7.6" rx="3.2" ry="1.9" fill="#ffffff" opacity=".8" transform="rotate(-24 8.6 7.6)"/></svg>';
+  }
+
+  var iconCache = {};
+  function iconForZoom(z) {
+    var key, ic;
+    if (z < 7) {
+      var d = z <= 5 ? 11 : 15;
+      key = "dot" + d;
+      ic = iconCache[key] || (iconCache[key] = L.divIcon({
+        className: "gold-pin",
+        html: dotSVG(d),
+        iconSize: [d, d],
+        iconAnchor: [d / 2, d / 2],
+        popupAnchor: [0, -d / 2 - 2]
+      }));
+    } else {
+      var h = z < 9 ? 28 : 37;
+      var w = Math.round(h * 120 / 170);
+      key = "pin" + h;
+      ic = iconCache[key] || (iconCache[key] = L.divIcon({
+        className: "gold-pin",
+        html: pinSVG(w, h),
+        iconSize: [w, h],
+        iconAnchor: [w / 2, h],
+        popupAnchor: [0, -h + 3]
+      }));
+    }
+    return ic;
+  }
 
   // workshop star
   L.marker([WORKSHOP.lat, WORKSHOP.lng], {
@@ -90,21 +120,13 @@
     title: WORKSHOP.label
   }).addTo(map).bindPopup("<div class='pcard'><div class='strip'></div><div class='pad'><h3>The Workshop</h3><div class='meta'>" + WORKSHOP.label + "</div><a class='btn' href='https://www.brighamlarsonpianos.com' target='_blank' rel='noopener'>Visit Us</a></div></div>");
 
-  // ---------- clusters ----------
-  var cluster = L.markerClusterGroup({
-    showCoverageOnHover: false,
-    maxClusterRadius: 44,
-    iconCreateFunction: function (c) {
-      var n = c.getChildCount();
-      var size = n < 10 ? 34 : n < 50 ? 42 : 50;
-      return L.divIcon({
-        html: "<div class='piano-cluster' style='width:" + size + "px;height:" + size + "px'>" + n + "</div>",
-        className: "",
-        iconSize: [size, size]
-      });
-    }
+  // ---------- marker layer (no clustering — every piano stays visible) ----------
+  var pianoLayer = L.layerGroup().addTo(map);
+
+  map.on("zoomend", function () {
+    var ic = iconForZoom(map.getZoom());
+    markers.forEach(function (m) { m.setIcon(ic); });
   });
-  map.addLayer(cluster);
 
   // ---------- popup card ----------
   function esc(s) {
@@ -132,11 +154,17 @@
     return h;
   }
 
-  // ---------- markers (deterministic jitter so same-city pins spread) ----------
+  // ---------- markers ----------
+  // Same-city pianos fan out in a golden-angle spiral around the city center,
+  // so every piano stays individually visible and clickable.
+  var cityCounts = {};
   var markers = PIANOS.map(function (p, i) {
-    var dLat = ((i * 137) % 21 - 10) * 0.0016;
-    var dLng = ((i * 149) % 21 - 10) * 0.0021;
-    var m = L.marker([p.la + dLat, p.lo + dLng], { icon: goldIcon, title: p.t });
+    var key = p.ct + "|" + p.st;
+    var k = cityCounts[key] = (cityCounts[key] || 0) + 1;
+    var ang = k * 2.39996, r = 0.006 * Math.sqrt(k);
+    var dLat = r * Math.sin(ang);
+    var dLng = r * Math.cos(ang) * 1.3;
+    var m = L.marker([p.la + dLat, p.lo + dLng], { icon: iconForZoom(4), title: p.t });
     m.bindPopup(cardHTML(p));
     m._piano = p;
     return m;
@@ -179,8 +207,9 @@
 
   function apply(fit) {
     var visible = markers.filter(function (m) { return matches(m._piano); });
-    cluster.clearLayers();
-    cluster.addLayers(visible);
+    var ic = iconForZoom(map.getZoom());
+    pianoLayer.clearLayers();
+    visible.forEach(function (m) { m.setIcon(ic); pianoLayer.addLayer(m); });
     countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
     if (fit && visible.length) {
       var b = L.latLngBounds(visible.map(function (m) { return m.getLatLng(); }));

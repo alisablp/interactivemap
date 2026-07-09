@@ -8,8 +8,9 @@ Piano Log spreadsheet.
 
 - **Real map** — pan, pinch, and zoom from coast to coast down to street level
   (CARTO/OpenStreetMap basemap, no API key required)
-- **Gold pins** at the city each piano now calls home; clusters of nearby pianos
-  merge into gold badges that split apart as you zoom in
+- **Every piano visible** — all pianos appear at once as 3D gold dots at
+  country level; as you zoom in, each dot becomes a gold map pin. Same-city
+  pianos fan out in a spiral so each one stays clickable
 - **Red star** marks the Utah workshop
 - **Search bar** — try "Steinway", "Grand", "1910", "Utah"
 - **Filters** — Grand/Upright, Restoration, Heirloom, Player, Vintage Player,

@@ -139,19 +139,6 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,.4);
 }
 
-/* clusters */
-.piano-cluster {
-  background: radial-gradient(circle at 35% 30%, var(--gold-hi), var(--gold) 60%, var(--gold-dk));
-  border: 2px solid #fff;
-  border-radius: 50%;
-  color: var(--black);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 8px rgba(40,25,0,.4);
-}
-
 /* ---------- popup card ---------- */
 .leaflet-popup-content-wrapper {
   border-radius: 10px;
