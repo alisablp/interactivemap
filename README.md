@@ -56,12 +56,16 @@ Once a week, the map is refreshed from the Piano Log:
 1. Run `python3 tools/build_data.py`
 2. Commit and push the updated `js/data.js`
 
-**The after-video trigger:** a *new* piano is only added to the map once it
-has an **after video** (column R in the log) — that's the signal a piano's
+**The after-photo trigger:** a *new* piano is only added to the map once it
+has an **after photo** (column P in the log) — that's the signal a piano's
 story is ready to show. Pianos that were already on the map when this rule
 was adopted are grandfathered in via `tools/baseline.json` and stay put.
 To make the rule strict for everyone (drop grandfathered pianos without
-videos too), delete `tools/baseline.json` and rerun the build.
+photos too), delete `tools/baseline.json` and rerun the build.
+
+Locations are read three ways: "City, ST" patterns, zip codes (validated so
+house numbers and invoice figures don't masquerade as zips), and street
+addresses ending in a bare Utah city name.
 
 ## Embedding in Shopify
 

@@ -29,14 +29,15 @@ CITIES_CACHE = os.path.join(HERE, "cities500.txt")
 OUT_PATH = os.path.join(HERE, "..", "js", "data.js")
 
 # Column indexes (0-based): B=1 owner, C=2 serial, E=4 year, F=5 make, G=6 model,
-# J=9 category tags, R=17 after video, BO=66 marketing title, BV=73 Shopify URL
+# J=9 category tags, P=15 after photos, BO=66 marketing title, BV=73 Shopify URL
 COL_OWNER, COL_SERIAL, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT = 1, 2, 4, 5, 6, 9
-COL_AFTER_VIDEO, COL_TITLE, COL_URL = 17, 66, 73
+COL_AFTER_PHOTOS, COL_TITLE, COL_URL = 15, 66, 73
 
 # Trigger rule: a NEW piano is only added to the map once it has an after
-# video (column R). Pianos already on the map when this rule was adopted are
+# photo (column P). Pianos already on the map when this rule was adopted are
 # grandfathered in via tools/baseline.json.
 BASELINE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "baseline.json")
+ZIPS_URL = "https://download.geonames.org/export/zip/US.zip"
 
 PROVO = (40.2338, -111.6585)  # delivery rule reference point
 
@@ -72,6 +73,44 @@ def load_cities():
     return lookup
 
 
+def load_zips():
+    cache = os.path.join(HERE, "USzips.txt")
+    if not os.path.exists(cache):
+        print("downloading GeoNames US zip codes …")
+        data = urllib.request.urlopen(ZIPS_URL, timeout=120).read()
+        with zipfile.ZipFile(io.BytesIO(data)) as z:
+            with open(cache, "wb") as f:
+                f.write(z.read("US.txt"))
+    zips = {}
+    for line in open(cache, encoding="utf-8"):
+        f = line.split("\t")
+        if len(f) > 10 and f[9] and f[10]:
+            zips[f[1]] = (f[2].title(), f[4], float(f[9]), float(f[10]))
+    return zips
+
+
+# A 5-digit number only counts as a zip when it reads like the END of an
+# address: preceded by a word (city or state), and not the start of a street
+# address ("12173 N Royal Troon Rd") or a dollar/invoice figure.
+ZIP_PAT = re.compile(
+    r"([A-Za-z][A-Za-z.,]*)[,\s]+(\d{5})(?:-\d{4})?\b"
+    r"(?!\s+(?:[NSEW]\b|North\b|South\b|East\b|West\b|\d|"
+    r"(?:[A-Za-z'-]+\s+){0,3}(?:St|Street|Dr|Drive|Ln|Lane|Rd|Road|Ave|Avenue|"
+    r"Way|Ct|Court|Cir|Circle|Blvd|Loop|Pl|Place|Pkwy|Parkway)\b))", re.I)
+
+ZIP_WORD_BLACKLIST = {"invoice", "inv", "cogs", "qbo", "check", "tag", "po", "order",
+                      "acct", "account", "deposit", "paid", "owes", "balance", "total",
+                      "price", "quote", "serial", "sn", "phone", "call", "text", "job"}
+
+# street address that ends in a bare city name with no state or zip,
+# e.g. "1234 Main St Orem" — matched against Utah cities only
+STREET_SUFFIX = (r"(?:St|Street|Dr|Drive|Ln|Lane|Rd|Road|Ave|Avenue|Way|Ct|Court|Cir|Circle|"
+                 r"Blvd|Loop|Cove|Pl|Place|Pkwy|Parkway|Trail|Bend|Ridge|View|N|S|E|W|"
+                 r"North|South|East|West)\.?,?")
+ADDR_PAT = re.compile(r"\d{2,5}\s+[A-Za-z0-9 .'-]{2,40}?" + STREET_SUFFIX +
+                      r"\s+([A-Za-z .'-]{3,25})", re.I)
+
+
 def match_city(lookup, raw, st):
     """Match the tail words of a raw fragment against known city names,
     so street fragments like 'Bocowood Dr Dallas' resolve to Dallas."""
@@ -97,13 +136,46 @@ def piano_key(r):
     return "t:" + "|".join(x.strip().lower() for x in (r[COL_YEAR], r[COL_MAKE], r[COL_MODEL], r[COL_OWNER][:20]))
 
 
-def has_after_video(r):
-    v = r[COL_AFTER_VIDEO].lower() if len(r) > COL_AFTER_VIDEO else ""
-    return "http" in v or "youtu" in v or "drive" in v
+def has_after_photo(r):
+    v = r[COL_AFTER_PHOTOS].strip().lower() if len(r) > COL_AFTER_PHOTOS else ""
+    if not v or v in ("x", "no", "n/a", "na", "-", "none", "tbd"):
+        return False
+    return True
+
+
+def find_locations(lookup, zips, owner):
+    """All location candidates in an owner cell: 'City, ST' patterns,
+    zip codes, and street addresses ending in a bare Utah city name."""
+    locs = []
+
+    def add(city, st, lat, lng):
+        if (city, st) not in [(l[0], l[1]) for l in locs]:
+            locs.append((city, st, lat, lng))
+
+    for m in CITY_PAT.finditer(owner):
+        hit = match_city(lookup, m.group(1), m.group(2))
+        if hit:
+            add(hit[0], m.group(2), hit[1], hit[2])
+    for m in ZIP_PAT.finditer(owner):
+        word, z = m.group(1).strip(".,").lower(), m.group(2)
+        if word not in ZIP_WORD_BLACKLIST and "#" not in word and z in zips:
+            city, st, lat, lng = zips[z]
+            add(city, st, lat, lng)
+    for m in ADDR_PAT.finditer(owner):
+        words = m.group(1).strip().lower().split()
+        for n in (3, 2, 1):
+            if len(words) >= n:
+                cand = " ".join(words[:n])
+                if (cand, "UT") in lookup:
+                    lat, lng, _ = lookup[(cand, "UT")]
+                    add(" ".join(w.capitalize() for w in cand.split()), "UT", lat, lng)
+                    break
+    return locs
 
 
 def main():
     lookup = load_cities()
+    zips = load_zips()
     print("fetching piano log …")
     raw = urllib.request.urlopen(CSV_URL, timeout=120).read().decode("utf-8")
     rows = list(csv.reader(io.StringIO(raw)))
@@ -112,19 +184,15 @@ def main():
     if os.path.exists(BASELINE_PATH):
         baseline = set(json.load(open(BASELINE_PATH)))
 
-    out, skipped_no_video = [], 0
+    out, skipped_no_photo = [], 0
     for r in rows[2:]:
         if len(r) <= COL_URL or not r[COL_OWNER].strip():
             continue
-        # Trigger rule: new pianos need an after video; grandfathered ones don't.
-        if piano_key(r) not in baseline and not has_after_video(r):
-            skipped_no_video += 1
+        # Trigger rule: new pianos need an after photo; grandfathered ones don't.
+        if piano_key(r) not in baseline and not has_after_photo(r):
+            skipped_no_photo += 1
             continue
-        locs = []
-        for m in CITY_PAT.finditer(r[COL_OWNER]):
-            hit = match_city(lookup, m.group(1), m.group(2))
-            if hit and (hit[0], m.group(2)) not in [(l[0], l[1]) for l in locs]:
-                locs.append((hit[0], m.group(2), hit[1], hit[2]))
+        locs = find_locations(lookup, zips, r[COL_OWNER])
         if not locs:
             continue
         # Delivery rule: with multiple addresses, pin the one farthest from Utah.
@@ -156,8 +224,8 @@ def main():
         f.write("// Regenerate with tools/build_data.py\n")
         f.write("const PIANOS = " + json.dumps(out, separators=(",", ":")) + ";\n")
     print("wrote %d pianos to js/data.js" % len(out))
-    if skipped_no_video:
-        print("held back %d rows that are new since the baseline and have no after video yet" % skipped_no_video)
+    if skipped_no_photo:
+        print("held back %d rows that are new since the baseline and have no after photo yet" % skipped_no_photo)
 
 
 if __name__ == "__main__":
