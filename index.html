@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pianos Across America — Brigham Larson Pianos</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-head">
+  <div class="brand">
+    <span class="brand-script">Brigham Larson</span>
+    <span class="brand-serif">PIANOS</span>
+  </div>
+  <div class="tagline">Pianos we've restored &amp; placed across America</div>
+</header>
+
+<section class="controls">
+  <div class="searchwrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
+    </svg>
+    <input id="search" type="search" placeholder='Search — try "Steinway", "Grand", "1910", "Utah"…' aria-label="Search pianos">
+  </div>
+
+  <div class="chiprow" id="chips">
+    <button class="chip on" data-filter="*">All Pianos</button>
+    <button class="chip" data-filter="type:Grand">Grand</button>
+    <button class="chip" data-filter="type:Upright">Upright</button>
+    <button class="chip" data-filter="cat:Restoration">Restoration</button>
+    <button class="chip" data-filter="cat:Family Heirloom">Heirloom</button>
+    <button class="chip" data-filter="cat:Player">Player</button>
+    <button class="chip" data-filter="cat:Vintage Player">Vintage Player</button>
+    <button class="chip" data-filter="cat:Antique">Antique</button>
+    <select id="makeSelect" class="chip select" aria-label="Filter by make">
+      <option value="">Any Make</option>
+    </select>
+  </div>
+
+  <div class="statusrow">
+    <span id="count"></span>
+    <button id="reset" class="linkbtn">Reset map</button>
+  </div>
+</section>
+
+<div id="map" role="application" aria-label="Interactive map of pianos across America"></div>
+
+<footer class="site-foot">
+  Pins mark the city each piano now calls home — never an exact address.
+  <a href="https://www.brighamlarsonpianos.com" target="_blank" rel="noopener">brighamlarsonpianos.com</a>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
