@@ -7,13 +7,18 @@
   var WORKSHOP = { lat: 40.2969, lng: -111.6946, label: "Brigham Larson Pianos — Orem, Utah" };
 
   // ---------- map ----------
+  // USA only: panning is locked to the United States
+  var US_BOUNDS = L.latLngBounds([22.5, -128.5], [51.5, -64.5]);
+
   var map = L.map("map", {
     center: [39.5, -98.35],
     zoom: 4,
-    minZoom: 3,
+    minZoom: 4,
     maxZoom: 18,
+    zoomSnap: 0.25,
     scrollWheelZoom: true,
-    worldCopyJump: true
+    maxBounds: US_BOUNDS,
+    maxBoundsViscosity: 1.0
   });
 
   // CARTO Voyager: clean, Google-style basemap (no API key required)
@@ -24,6 +29,41 @@
   }).addTo(map);
 
   map.zoomControl.setPosition("topright");
+
+  // open with the lower 48 filling the view
+  var LOWER48 = L.latLngBounds([24.5, -124.8], [49.4, -66.9]);
+  map.fitBounds(LOWER48);
+
+  // Mask out everything beyond the US border (Canada, Mexico, oceans)
+  // with the site's cream, leaving a fine gold outline around the country.
+  fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/nation-10m.json")
+    .then(function (r) { return r.json(); })
+    .then(function (topo) {
+      var nation = topojson.feature(topo, topo.objects.nation);
+      var geoms = nation.type === "FeatureCollection"
+        ? nation.features.map(function (f) { return f.geometry; })
+        : [nation.geometry];
+      var world = [[-89.9, -179.9], [-89.9, 179.9], [89.9, 179.9], [89.9, -179.9]];
+      var holes = [];
+      geoms.forEach(function (g) {
+        var polys = g.type === "Polygon" ? [g.coordinates] : g.coordinates;
+        polys.forEach(function (poly) {
+          poly.forEach(function (ring) {
+            holes.push(ring.map(function (pt) { return [pt[1], pt[0]]; }));
+          });
+        });
+      });
+      L.polygon([world].concat(holes), {
+        stroke: true,
+        color: "#c9a227",
+        weight: 1.2,
+        fill: true,
+        fillColor: "#f2ecdd",
+        fillOpacity: 1,
+        interactive: false
+      }).addTo(map);
+    })
+    .catch(function () { /* mask is cosmetic — map still works without it */ });
 
   // ---------- gold pin ----------
   function pinSVG(w, h) {
@@ -200,7 +240,7 @@
       c.classList.toggle("on", c.getAttribute("data-filter") === "*");
     });
     apply(false);
-    map.setView([39.5, -98.35], 4);
+    map.fitBounds(LOWER48);
   });
 
   apply(false);
