@@ -125,6 +125,17 @@ body {
   background: #dfe8e8;
 }
 
+/* relocated Alaska/Hawaii labels, styled like the basemap's state names */
+.region-label {
+  font-size: 10px;
+  letter-spacing: .18em;
+  font-weight: 600;
+  color: #a8a290;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 /* gold pin marker */
 .gold-pin { background: none; border: none; }
 .gold-pin svg {

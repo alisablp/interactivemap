@@ -7,19 +7,41 @@
   var WORKSHOP = { lat: 40.2969, lng: -111.6946, label: "Brigham Larson Pianos — Orem, Utah" };
 
   // ---------- map ----------
-  // USA only: panning is locked to the United States (including AK & HI)
-  var US_BOUNDS = L.latLngBounds([15, -180], [72, -60]);
+  // USA only: panning is locked to the composed map (lower 48 with Alaska
+  // and Hawaii pulled in below the Southwest, albers-atlas style)
+  var US_BOUNDS = L.latLngBounds([16, -135], [51.5, -64.5]);
 
   var map = L.map("map", {
     center: [39.5, -98.35],
     zoom: 4,
-    minZoom: 3,
+    minZoom: 4,
     maxZoom: 18,
     zoomSnap: 0.25,
     scrollWheelZoom: true,
     maxBounds: US_BOUNDS,
     maxBoundsViscosity: 1.0
   });
+
+  // ---------- Alaska & Hawaii relocation ----------
+  // Their geometry and pins are translated + scaled in Mercator space to
+  // sit aesthetically below the Southwest while staying fully interactive.
+  var MERC = L.Projection.SphericalMercator;
+  function makeRelocator(anchor, target, scale) {
+    var A = MERC.project(L.latLng(anchor[0], anchor[1]));
+    var T = MERC.project(L.latLng(target[0], target[1]));
+    return function (lat, lng) {
+      var p = MERC.project(L.latLng(lat, lng));
+      return MERC.unproject(L.point(T.x + (p.x - A.x) * scale, T.y + (p.y - A.y) * scale));
+    };
+  }
+  var relocateAK = makeRelocator([63, -152], [24.3, -117.5], 0.24);
+  var relocateHI = makeRelocator([20.7, -157.0], [23.8, -105.5], 1.55);
+
+  function displayLatLng(p) {
+    if (p.st === "AK") return relocateAK(p.la, p.lo);
+    if (p.st === "HI") return relocateHI(p.la, p.lo);
+    return L.latLng(p.la, p.lo);
+  }
 
   // CARTO Voyager: clean, Google-style basemap (no API key required).
   // Terrain and labels are separate layers: the US mask sits between them,
@@ -42,9 +64,9 @@
 
   map.zoomControl.setPosition("topright");
 
-  // open with the lower 48 filling the view
-  var LOWER48 = L.latLngBounds([24.5, -124.8], [49.4, -66.9]);
-  map.fitBounds(LOWER48);
+  // open with the full composition — lower 48 plus the pulled-in AK & HI
+  var HOME_VIEW = L.latLngBounds([19.5, -126], [49.4, -66.9]);
+  map.fitBounds(HOME_VIEW);
 
   // Mask out everything beyond the US border (Canada, Mexico, oceans)
   // with the site's cream, leaving a fine gold outline around the country.
@@ -88,9 +110,31 @@
         // anything else (Puerto Rico, far Aleutians) stays under the mask
       });
 
-      // the whole country shows through the cream, in its true geography
-      var usRings = lower48.concat(alaska, hawaii);
-      L.polygon([WORLD_RING].concat(usRings), MASK_STYLE).addTo(map);
+      // only the lower 48 shows through the cream — AK & HI are drawn
+      // relocated below as clean land-colored shapes
+      L.polygon([WORLD_RING].concat(lower48), MASK_STYLE).addTo(map);
+
+      var RELOC_STYLE = {
+        stroke: true, color: "#c9a227", weight: 1.2,
+        fill: true, fillColor: "#fcfaf4", fillOpacity: 1, interactive: false
+      };
+      function drawRelocated(rings, relocate) {
+        var moved = rings.map(function (ring) {
+          return ring.map(function (ll) { return relocate(ll[0], ll[1]); });
+        });
+        L.polygon(moved, RELOC_STYLE).addTo(map);
+      }
+      drawRelocated(alaska, relocateAK);
+      drawRelocated(hawaii, relocateHI);
+
+      // state-style labels for the relocated regions
+      [["ALASKA", [19.2, -117.5]], ["HAWAII", [21.2, -105.5]]].forEach(function (t) {
+        L.marker(t[1], {
+          icon: L.divIcon({ className: "region-label", html: t[0], iconSize: [80, 14], iconAnchor: [40, 7] }),
+          interactive: false,
+          keyboard: false
+        }).addTo(map);
+      });
 
       // hide the Great Lakes' open water under the same cream
       fetch("https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_lakes.geojson")
@@ -109,7 +153,7 @@
       // render — foreign labels never float over the cream surround.
       var labelsPane = map.getPane("labels");
       function updateLabelClip() {
-        var d = usRings.map(function (ring) {
+        var d = lower48.map(function (ring) {
           return "M" + ring.map(function (ll) {
             var pt = map.latLngToLayerPoint(ll);
             return Math.round(pt.x) + " " + Math.round(pt.y);
@@ -237,9 +281,9 @@
     var key = p.ct + "|" + p.st;
     var k = cityCounts[key] = (cityCounts[key] || 0) + 1;
     var ang = k * 2.39996, r = 0.006 * Math.sqrt(k);
-    var dLat = r * Math.sin(ang);
-    var dLng = r * Math.cos(ang) * 1.3;
-    var m = L.marker([p.la + dLat, p.lo + dLng], { icon: iconForZoom(4), title: p.t });
+    var base = displayLatLng(p);
+    var m = L.marker([base.lat + r * Math.sin(ang), base.lng + r * Math.cos(ang) * 1.3],
+      { icon: iconForZoom(4), title: p.t });
     m.bindPopup(cardHTML(p));
     m._piano = p;
     return m;
@@ -344,7 +388,7 @@
       c.classList.toggle("on", c.getAttribute("data-filter") === "*");
     });
     apply(false);
-    map.fitBounds(LOWER48);
+    map.fitBounds(HOME_VIEW);
   });
 
   apply(false);
