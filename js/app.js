@@ -332,9 +332,9 @@
         : "<span class='nolink'>Story page coming soon</span>";
     } else {
       // no photos yet — tell the restoration story instead
-      h += "<p class='resto'>Every piano we place or restore goes through our Utah workshop — " +
-        "where family heirlooms are rebuilt by hand and every instrument is tuned, " +
-        "regulated, and voiced until it sings before the journey home.</p>";
+      h += "<p class='resto'>Every piano we place or restore goes through our Utah workshop. " +
+        "Here, family heirloom pianos are rebuilt by hand, and every instrument is tuned, " +
+        "regulated, and voiced until it sings before making the journey home.</p>";
       h += "<a class='btn' href='https://www.brighamlarsonpianos.com/pages/piano-restoration' " +
         "target='_blank' rel='noopener'>Explore Piano Restoration</a>";
     }
