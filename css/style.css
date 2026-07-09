@@ -125,35 +125,6 @@ body {
   background: #dfe8e8;
 }
 
-/* Alaska & Hawaii insets */
-.map-inset {
-  position: absolute;
-  bottom: 14px;
-  left: 14px;
-  z-index: 1000;
-  border: 1.5px solid var(--gold);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 6px 18px rgba(40, 25, 0, .25);
-  background: var(--parch);
-}
-.map-inset-label {
-  position: absolute;
-  left: 7px;
-  bottom: 5px;
-  z-index: 1001;
-  font-size: .58rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: #7c6a4c;
-  background: rgba(249, 247, 238, .8);
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-@media (max-width: 640px) {
-  .map-inset { transform: scale(.72); transform-origin: bottom left; }
-}
-
 /* gold pin marker */
 .gold-pin { background: none; border: none; }
 .gold-pin svg {
@@ -180,6 +151,80 @@ body {
 .pcard .strip {
   height: 6px;
   background: linear-gradient(90deg, var(--gold-hi), var(--gold), var(--gold-dk));
+}
+.pcard-photo {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  background: #e8e2d2;
+}
+
+/* before/after slider */
+.pcard .ba {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  background: #e8e2d2;
+}
+.pcard .ba img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pcard .ba .ba-before {
+  clip-path: inset(0 calc(100% - var(--cut, 50%)) 0 0);
+}
+.pcard .ba .ba-lbl {
+  position: absolute;
+  top: 8px;
+  font-size: .56rem;
+  letter-spacing: .12em;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  pointer-events: none;
+}
+.pcard .ba .ba-lbl.l { left: 8px; }
+.pcard .ba .ba-lbl.r { right: 8px; }
+.pcard .ba .ba-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--cut, 50%);
+  width: 2px;
+  background: var(--gold-hi);
+  pointer-events: none;
+}
+.pcard .ba .ba-handle::after {
+  content: "\25C2 \25B8";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--gold);
+  color: var(--black);
+  font-size: .6rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+}
+.pcard .ba input[type="range"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: ew-resize;
+  margin: 0;
+  -webkit-appearance: none;
+  touch-action: none;
 }
 .pcard .pad { padding: 12px 14px 14px; }
 .pcard h3 {

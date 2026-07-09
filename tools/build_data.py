@@ -256,6 +256,12 @@ def main():
     if os.path.exists(BASELINE_PATH):
         baseline = set(json.load(open(BASELINE_PATH)))
 
+    # showcase photos resolved by tools/fetch_photos.py (piano_key -> {b, a})
+    photos = {}
+    photos_path = os.path.join(os.path.dirname(BASELINE_PATH), "photos.json")
+    if os.path.exists(photos_path):
+        photos = json.load(open(photos_path)).get("pianos", {})
+
     out, skipped_no_photo = [], 0
     for r in rows[2:]:
         if len(r) <= COL_URL or not r[COL_OWNER].strip():
@@ -291,9 +297,16 @@ def main():
         typ = ("Grand" if "grand" in typehints
                else "Upright" if any(w in typehints for w in UPRIGHT_CATS)
                else "")
-        out.append(dict(t=title[:80], y=year, mk=make[:30], md=model[:30], tp=typ,
-                        c=cats[:8], u=url, ct=city, st=st,
-                        la=round(lat, 4), lo=round(lng, 4)))
+        rec = dict(t=title[:80], y=year, mk=make[:30], md=model[:30], tp=typ,
+                   c=cats[:8], u=url, ct=city, st=st,
+                   la=round(lat, 4), lo=round(lng, 4))
+        ph = photos.get(piano_key(r))
+        if ph:
+            if ph.get("b"):
+                rec["bp"] = ph["b"]
+            if ph.get("a"):
+                rec["ap"] = ph["a"]
+        out.append(rec)
 
     # Safety net: refuse to write anything that smells like PII.
     blob = json.dumps(out)

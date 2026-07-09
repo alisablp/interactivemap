@@ -7,13 +7,13 @@
   var WORKSHOP = { lat: 40.2969, lng: -111.6946, label: "Brigham Larson Pianos — Orem, Utah" };
 
   // ---------- map ----------
-  // USA only: panning is locked to the United States
-  var US_BOUNDS = L.latLngBounds([22.5, -128.5], [51.5, -64.5]);
+  // USA only: panning is locked to the United States (including AK & HI)
+  var US_BOUNDS = L.latLngBounds([15, -180], [72, -60]);
 
   var map = L.map("map", {
     center: [39.5, -98.35],
     zoom: 4,
-    minZoom: 4,
+    minZoom: 3,
     maxZoom: 18,
     zoomSnap: 0.25,
     scrollWheelZoom: true,
@@ -48,7 +48,8 @@
 
   // Mask out everything beyond the US border (Canada, Mexico, oceans)
   // with the site's cream, leaving a fine gold outline around the country.
-  var WORLD_RING = [[-89.9, -179.9], [-89.9, 179.9], [89.9, 179.9], [89.9, -179.9]];
+  // spans three world-widths so no ocean peeks past the date line
+  var WORLD_RING = [[-89.9, -540], [-89.9, 540], [89.9, 540], [89.9, -540]];
   var MASK_STYLE = {
     stroke: true, color: "#c9a227", weight: 1.2,
     fill: true, fillColor: "#f2ecdd", fillOpacity: 1, interactive: false
@@ -58,50 +59,6 @@
     var la = 0, lo = 0;
     ring.forEach(function (ll) { la += ll[0]; lo += ll[1]; });
     return { lat: la / ring.length, lng: lo / ring.length };
-  }
-
-  // Alaska & Hawaii live in framed insets at the bottom left, like a
-  // classic classroom map. Their pianos render as gold dots inside the
-  // frame; clicking one opens the piano's page.
-  var insetMarkers = [];
-
-  function addInsetPins(mini, stCode) {
-    PIANOS.forEach(function (p) {
-      if (p.st !== stCode) return;
-      var m = L.marker([p.la, p.lo], {
-        icon: L.divIcon({
-          className: "gold-pin",
-          html: dotSVG(13),
-          iconSize: [13, 13],
-          iconAnchor: [6.5, 6.5]
-        }),
-        title: p.t + " — " + p.ct + ", " + p.st
-      });
-      if (p.u) {
-        m.on("click", function () { window.open(p.u, "_blank", "noopener"); });
-      }
-      m.addTo(mini);
-      insetMarkers.push({ m: m, p: p, mini: mini });
-    });
-  }
-
-  function buildInset(label, rings, bounds, w, h) {
-    var el = L.DomUtil.create("div", "map-inset", map.getContainer());
-    el.style.width = w + "px";
-    el.style.height = h + "px";
-    var tag = L.DomUtil.create("span", "map-inset-label", el);
-    tag.textContent = label;
-    var mini = L.map(el, {
-      zoomControl: false, attributionControl: false, dragging: false,
-      scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false,
-      keyboard: false, touchZoom: false, zoomSnap: 0.1
-    });
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
-      subdomains: "abcd", maxZoom: 19
-    }).addTo(mini);
-    mini.fitBounds(bounds);
-    L.polygon([WORLD_RING].concat(rings), MASK_STYLE).addTo(mini);
-    return { el: el, mini: mini };
   }
 
   fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/nation-10m.json")
@@ -131,8 +88,9 @@
         // anything else (Puerto Rico, far Aleutians) stays under the mask
       });
 
-      // main map: only the lower 48 shows through the cream
-      L.polygon([WORLD_RING].concat(lower48), MASK_STYLE).addTo(map);
+      // the whole country shows through the cream, in its true geography
+      var usRings = lower48.concat(alaska, hawaii);
+      L.polygon([WORLD_RING].concat(usRings), MASK_STYLE).addTo(map);
 
       // hide the Great Lakes' open water under the same cream
       fetch("https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_lakes.geojson")
@@ -147,26 +105,11 @@
         })
         .catch(function () { /* cosmetic */ });
 
-      // insets (hidden once the visitor zooms in past country level)
-      var ak = buildInset("Alaska", alaska, [[52, -170], [71.5, -129.5]], 180, 120);
-      var hi = buildInset("Hawaii", hawaii, [[18.6, -160.4], [22.4, -154.6]], 130, 88);
-      hi.el.style.left = "202px";
-      addInsetPins(ak.mini, "AK");
-      addInsetPins(hi.mini, "HI");
-      apply(false); // sync inset pins with any active filters
-      function toggleInsets() {
-        var show = map.getZoom() < 6;
-        ak.el.style.display = show ? "" : "none";
-        hi.el.style.display = show ? "" : "none";
-      }
-      toggleInsets();
-      map.on("zoomend", toggleInsets);
-
       // Clip the label layer to the US border so only American city names
       // render — foreign labels never float over the cream surround.
       var labelsPane = map.getPane("labels");
       function updateLabelClip() {
-        var d = lower48.map(function (ring) {
+        var d = usRings.map(function (ring) {
           return "M" + ring.map(function (ll) {
             var pt = map.latLngToLayerPoint(ll);
             return Math.round(pt.x) + " " + Math.round(pt.y);
@@ -251,11 +194,29 @@
 
   var CARD_TAGS = ["Restoration", "Family Heirloom", "Player", "Vintage Player", "Antique", "Premier", "Art Case", "Concert Grand"];
 
+  function photoURL(id, w) {
+    return "https://lh3.googleusercontent.com/d/" + id + "=w" + (w || 500);
+  }
+
   function cardHTML(p) {
     var meta = [p.y, p.mk, p.tp].filter(Boolean).join(" · ");
     var place = p.ct + ", " + p.st;
     var tags = p.c.filter(function (c) { return CARD_TAGS.indexOf(c) !== -1; }).slice(0, 4);
-    var h = "<div class='pcard'><div class='strip'></div><div class='pad'>";
+    var h = "<div class='pcard'><div class='strip'></div>";
+    if (p.ap && p.bp) {
+      // before/after slider — drag to sweep across the piano
+      h += "<div class='ba' style='--cut:50%'>" +
+        "<img class='ba-after' src='" + photoURL(p.ap) + "' alt='After restoration' loading='lazy'>" +
+        "<img class='ba-before' src='" + photoURL(p.bp) + "' alt='Before restoration' loading='lazy'>" +
+        "<span class='ba-lbl l'>BEFORE</span><span class='ba-lbl r'>AFTER</span>" +
+        "<div class='ba-handle'></div>" +
+        "<input type='range' min='3' max='97' value='50' aria-label='Slide to compare before and after' " +
+        "oninput=\"this.parentNode.style.setProperty('--cut', this.value + '%')\">" +
+        "</div>";
+    } else if (p.ap || p.bp) {
+      h += "<img class='pcard-photo' src='" + photoURL(p.ap || p.bp) + "' alt='" + esc(p.t) + "' loading='lazy'>";
+    }
+    h += "<div class='pad'>";
     h += "<h3>" + esc(p.t) + "</h3>";
     h += "<div class='meta'>" + esc(meta ? meta + " · " + place : place) + "</div>";
     if (tags.length) {
@@ -271,11 +232,8 @@
   // ---------- markers ----------
   // Same-city pianos fan out in a golden-angle spiral around the city center,
   // so every piano stays individually visible and clickable.
-  // Alaska & Hawaii pianos live in the insets instead of the main map.
   var cityCounts = {};
-  var markers = PIANOS.filter(function (p) {
-    return p.st !== "AK" && p.st !== "HI";
-  }).map(function (p, i) {
+  var markers = PIANOS.map(function (p, i) {
     var key = p.ct + "|" + p.st;
     var k = cityCounts[key] = (cityCounts[key] || 0) + 1;
     var ang = k * 2.39996, r = 0.006 * Math.sqrt(k);
@@ -327,16 +285,7 @@
     var ic = iconForZoom(map.getZoom());
     pianoLayer.clearLayers();
     visible.forEach(function (m) { m.setIcon(ic); pianoLayer.addLayer(m); });
-    var insetVisible = 0;
-    insetMarkers.forEach(function (im) {
-      if (matches(im.p)) {
-        insetVisible++;
-        if (!im.mini.hasLayer(im.m)) im.m.addTo(im.mini);
-      } else {
-        im.mini.removeLayer(im.m);
-      }
-    });
-    countEl.textContent = "Showing " + (visible.length + insetVisible) + " of " + PIANOS.length + " pianos";
+    countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
     if (fit && visible.length) {
       var b = L.latLngBounds(visible.map(function (m) { return m.getLatLng(); }));
       map.fitBounds(b.pad(0.2), { maxZoom: 10 });
