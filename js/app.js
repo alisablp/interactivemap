@@ -48,6 +48,39 @@
 
   // Mask out everything beyond the US border (Canada, Mexico, oceans)
   // with the site's cream, leaving a fine gold outline around the country.
+  var WORLD_RING = [[-89.9, -179.9], [-89.9, 179.9], [89.9, 179.9], [89.9, -179.9]];
+  var MASK_STYLE = {
+    stroke: true, color: "#c9a227", weight: 1.2,
+    fill: true, fillColor: "#f2ecdd", fillOpacity: 1, interactive: false
+  };
+
+  function ringCentroid(ring) {
+    var la = 0, lo = 0;
+    ring.forEach(function (ll) { la += ll[0]; lo += ll[1]; });
+    return { lat: la / ring.length, lng: lo / ring.length };
+  }
+
+  // Alaska & Hawaii live in framed insets at the bottom left, like a
+  // classic classroom map.
+  function buildInset(label, rings, bounds, w, h) {
+    var el = L.DomUtil.create("div", "map-inset", map.getContainer());
+    el.style.width = w + "px";
+    el.style.height = h + "px";
+    var tag = L.DomUtil.create("span", "map-inset-label", el);
+    tag.textContent = label;
+    var mini = L.map(el, {
+      zoomControl: false, attributionControl: false, dragging: false,
+      scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false,
+      keyboard: false, touchZoom: false, zoomSnap: 0.1
+    });
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
+      subdomains: "abcd", maxZoom: 19
+    }).addTo(mini);
+    mini.fitBounds(bounds);
+    L.polygon([WORLD_RING].concat(rings), MASK_STYLE).addTo(mini);
+    return el;
+  }
+
   fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/nation-10m.json")
     .then(function (r) { return r.json(); })
     .then(function (topo) {
@@ -55,31 +88,59 @@
       var geoms = nation.type === "FeatureCollection"
         ? nation.features.map(function (f) { return f.geometry; })
         : [nation.geometry];
-      var world = [[-89.9, -179.9], [-89.9, 179.9], [89.9, 179.9], [89.9, -179.9]];
-      var holes = [];
+      var rings = [];
       geoms.forEach(function (g) {
         var polys = g.type === "Polygon" ? [g.coordinates] : g.coordinates;
         polys.forEach(function (poly) {
           poly.forEach(function (ring) {
-            holes.push(ring.map(function (pt) { return [pt[1], pt[0]]; }));
+            rings.push(ring.map(function (pt) { return [pt[1], pt[0]]; }));
           });
         });
       });
-      L.polygon([world].concat(holes), {
-        stroke: true,
-        color: "#c9a227",
-        weight: 1.2,
-        fill: true,
-        fillColor: "#f2ecdd",
-        fillOpacity: 1,
-        interactive: false
-      }).addTo(map);
+
+      // split the country's outlines into lower 48 / Alaska / Hawaii
+      var lower48 = [], alaska = [], hawaii = [];
+      rings.forEach(function (ring) {
+        var c = ringCentroid(ring);
+        if (c.lat > 24 && c.lat < 50 && c.lng > -125.5 && c.lng < -66) lower48.push(ring);
+        else if (c.lat > 50 && c.lng < -129) alaska.push(ring);
+        else if (c.lat > 18 && c.lat < 23.5 && c.lng > -161 && c.lng < -154) hawaii.push(ring);
+        // anything else (Puerto Rico, far Aleutians) stays under the mask
+      });
+
+      // main map: only the lower 48 shows through the cream
+      L.polygon([WORLD_RING].concat(lower48), MASK_STYLE).addTo(map);
+
+      // hide the Great Lakes' open water under the same cream
+      fetch("https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_lakes.geojson")
+        .then(function (r) { return r.json(); })
+        .then(function (lakes) {
+          var GREAT = ["Lake Superior", "Lake Michigan", "Lake Huron", "Lake Erie", "Lake Ontario"];
+          L.geoJSON(lakes, {
+            filter: function (f) { return GREAT.indexOf(f.properties.name) !== -1; },
+            style: { stroke: true, color: "#c9a227", weight: 1, fill: true, fillColor: "#f2ecdd", fillOpacity: 1 },
+            interactive: false
+          }).addTo(map);
+        })
+        .catch(function () { /* cosmetic */ });
+
+      // insets (hidden once the visitor zooms in past country level)
+      var akEl = buildInset("Alaska", alaska, [[52, -170], [71.5, -129.5]], 180, 120);
+      var hiEl = buildInset("Hawaii", hawaii, [[18.6, -160.4], [22.4, -154.6]], 130, 88);
+      hiEl.style.left = "202px";
+      function toggleInsets() {
+        var show = map.getZoom() < 6;
+        akEl.style.display = show ? "" : "none";
+        hiEl.style.display = show ? "" : "none";
+      }
+      toggleInsets();
+      map.on("zoomend", toggleInsets);
 
       // Clip the label layer to the US border so only American city names
       // render — foreign labels never float over the cream surround.
       var labelsPane = map.getPane("labels");
       function updateLabelClip() {
-        var d = holes.map(function (ring) {
+        var d = lower48.map(function (ring) {
           return "M" + ring.map(function (ll) {
             var pt = map.latLngToLayerPoint(ll);
             return Math.round(pt.x) + " " + Math.round(pt.y);
