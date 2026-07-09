@@ -310,10 +310,14 @@ def main():
                    la=round(lat, 4), lo=round(lng, 4))
         ph = photos.get(piano_key(r))
         if ph:
-            if ph.get("b"):
-                rec["bp"] = ph["b"]
-            if ph.get("a"):
-                rec["ap"] = ph["a"]
+            for side, field in (("b", "bp"), ("a", "ap")):
+                fid = ph.get(side)
+                if not fid:
+                    continue
+                # prefer the local (name-blurred) copy in photos/; fall back
+                # to the Drive CDN only if no local copy exists
+                local = os.path.join(os.path.dirname(BASELINE_PATH), "..", "photos", fid + ".jpg")
+                rec[field] = ("photos/" + fid + ".jpg") if os.path.exists(local) else fid
         out.append(rec)
 
     # Safety net: refuse to write anything that smells like PII.

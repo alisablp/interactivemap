@@ -297,8 +297,9 @@
 
   var CARD_TAGS = ["Restoration", "Family Heirloom", "Player", "Vintage Player", "Antique", "Premier", "Art Case", "Concert Grand"];
 
-  function photoURL(id, w) {
-    return "https://lh3.googleusercontent.com/d/" + id + "=w" + (w || 500);
+  function photoURL(idOrPath, w) {
+    if (idOrPath.indexOf("/") !== -1) return idOrPath; // local, name-blurred copy
+    return "https://lh3.googleusercontent.com/d/" + idOrPath + "=w" + (w || 500);
   }
 
   function cardHTML(p) {
