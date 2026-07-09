@@ -21,11 +21,23 @@
     maxBoundsViscosity: 1.0
   });
 
-  // CARTO Voyager: clean, Google-style basemap (no API key required)
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+  // CARTO Voyager: clean, Google-style basemap (no API key required).
+  // Terrain and labels are separate layers: the US mask sits between them,
+  // so city names near borders and coasts never get sliced off.
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: "abcd",
     maxZoom: 19
+  }).addTo(map);
+
+  map.createPane("labels");
+  map.getPane("labels").style.zIndex = 450;      // above the mask (400)…
+  map.getPane("labels").style.pointerEvents = "none"; // …but never blocks clicks
+
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png", {
+    subdomains: "abcd",
+    maxZoom: 19,
+    pane: "labels"
   }).addTo(map);
 
   map.zoomControl.setPosition("topright");
@@ -62,6 +74,21 @@
         fillOpacity: 1,
         interactive: false
       }).addTo(map);
+
+      // Clip the label layer to the US border so only American city names
+      // render — foreign labels never float over the cream surround.
+      var labelsPane = map.getPane("labels");
+      function updateLabelClip() {
+        var d = holes.map(function (ring) {
+          return "M" + ring.map(function (ll) {
+            var pt = map.latLngToLayerPoint(ll);
+            return Math.round(pt.x) + " " + Math.round(pt.y);
+          }).join(" L ") + " Z";
+        }).join(" ");
+        labelsPane.style.clipPath = 'path("' + d + '")';
+      }
+      updateLabelClip();
+      map.on("zoomend viewreset", updateLabelClip);
     })
     .catch(function () { /* mask is cosmetic — map still works without it */ });
 
