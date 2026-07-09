@@ -37,11 +37,12 @@
       return MERC.unproject(L.point(T.x + (p.x - A.x) * scale, T.y + (p.y - A.y) * scale));
     };
   }
-  var relocateAK = makeRelocator([63, -152], [24.3, -117.5], 0.24);
+  // Hawaii is pulled in below the Southwest (it has pianos); Alaska stays
+  // at its true far-north position — with no pianos there, it isn't drawn
+  // in the composition.
   var relocateHI = makeRelocator([20.7, -157.0], [23.8, -105.5], 1.55);
 
   function displayLatLng(p) {
-    if (p.st === "AK") return relocateAK(p.la, p.lo);
     if (p.st === "HI") return relocateHI(p.la, p.lo);
     return L.latLng(p.la, p.lo);
   }
@@ -127,11 +128,10 @@
         });
         L.polygon(moved, RELOC_STYLE).addTo(map);
       }
-      drawRelocated(alaska, relocateAK);
       drawRelocated(hawaii, relocateHI);
 
-      // state-style labels for the relocated regions
-      [["ALASKA", [19.2, -117.5]], ["HAWAII", [21.2, -105.5]]].forEach(function (t) {
+      // state-style label for the relocated region
+      [["HAWAII", [21.2, -105.5]]].forEach(function (t) {
         L.marker(t[1], {
           icon: L.divIcon({ className: "region-label", html: t[0], iconSize: [80, 14], iconAnchor: [40, 7] }),
           interactive: false,
