@@ -219,6 +219,10 @@ def find_locations(lookup, zips, owner):
         word, z = m.group(1).strip(".,").lower(), m.group(2)
         if word not in ZIP_WORD_BLACKLIST and "#" not in word and z in zips:
             city, st, lat, lng = zips[z]
+            # snap to the city's public center — a zip area's own centroid
+            # is neighborhood-level, which is more precision than we want
+            if (city.lower(), st) in lookup:
+                lat, lng, _ = lookup[(city.lower(), st)]
             add(city, st, lat, lng, kind_of(owner, m.start()))
     for m in ADDR_PAT.finditer(owner):
         words = m.group(1).strip().lower().split()

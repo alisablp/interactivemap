@@ -12,11 +12,13 @@
   // Slightly padded so popups near the edges have room to auto-pan into view.
   var US_BOUNDS = L.latLngBounds([15, -136], [54, -63]);
 
+  // maxZoom stops at city scale — visitors can never zoom to house level,
+  // reinforcing that pins mark cities, not addresses
   var map = L.map("map", {
     center: [39.5, -98.35],
     zoom: 4,
     minZoom: 4,
-    maxZoom: 18,
+    maxZoom: 11,
     zoomSnap: 0.25,
     scrollWheelZoom: true,
     maxBounds: US_BOUNDS,
