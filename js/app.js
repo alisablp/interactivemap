@@ -174,21 +174,28 @@
 
   // ---------- gold markers ----------
   // Far out: every piano is a 3D gold dot. Zooming in, dots become gold pins.
-  // brushed satin-gold teardrop: dome top, straight taper to the point,
-  // soft left edge extrusion — matte designer finish, no hard specular
+  // polished gold/brass teardrop: dome top, straight taper — high-gloss
+  // metal banding, hard specular streak, sky highlight on the dome
   function pinSVG(w, h) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="0">' +
-      '<stop offset="0" stop-color="#b58f28"/><stop offset=".28" stop-color="#dcb954"/>' +
-      '<stop offset=".55" stop-color="#caa63c"/><stop offset=".8" stop-color="#b08a24"/>' +
-      '<stop offset="1" stop-color="#96731a"/></linearGradient>' +
-      '<linearGradient id="gpv" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#f4dd8e" stop-opacity=".55"/><stop offset=".3" stop-color="#f4dd8e" stop-opacity="0"/>' +
-      '<stop offset=".85" stop-color="#7a5d10" stop-opacity="0"/><stop offset="1" stop-color="#7a5d10" stop-opacity=".45"/></linearGradient></defs>' +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#8a6a14" opacity=".55"/>' +
+      '<stop offset="0" stop-color="#7c5c0e"/><stop offset=".16" stop-color="#c9a227"/>' +
+      '<stop offset=".33" stop-color="#ffe9a0"/><stop offset=".47" stop-color="#e7c256"/>' +
+      '<stop offset=".62" stop-color="#a5811f"/><stop offset=".78" stop-color="#6e5210"/>' +
+      '<stop offset=".92" stop-color="#a5811f"/><stop offset="1" stop-color="#77590e"/></linearGradient>' +
+      '<radialGradient id="gpd" cx=".5" cy=".1" r=".5">' +
+      '<stop offset="0" stop-color="#fff8dc" stop-opacity=".95"/><stop offset=".6" stop-color="#fff8dc" stop-opacity=".2"/>' +
+      '<stop offset="1" stop-color="#fff8dc" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="gps" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".75" stop-color="#ffffff" stop-opacity=".25"/>' +
+      '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#6e5210" opacity=".5"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gp)"/>' +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gpv)"/>' +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#8a6a14" stroke-width="1.4" stroke-opacity=".65"/></svg>';
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gpd)"/>' +
+      '<path d="M42 26 C37 44 38 78 45 108 L52 116 C47 84 46 46 50 24 Z" fill="url(#gps)"/>' +
+      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#fff4cd" opacity=".38"/>' +
+      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#ffe9a0" opacity=".55"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5f470c" stroke-width="1.4" stroke-opacity=".7"/></svg>';
   }
 
   function dotSVG(d) {
