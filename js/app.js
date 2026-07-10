@@ -488,20 +488,25 @@
     if (tags.length) {
       h += "<div class='tags'>" + tags.map(function (t) { return "<span class='tag'>" + esc(t) + "</span>"; }).join("") + "</div>";
     }
+    var isHeirloom = p.c.indexOf("Family Heirloom") !== -1;
+    var what = [p.mk, p.tp].filter(Boolean).join(" ") || "piano";
+    var story = "<p class='resto'>A beautiful piece of musical history. " +
+      (p.y
+        ? "Built in " + esc(p.y) + ", this " + esc(what) + " represents an era of exceptional piano craftsmanship. "
+        : "This " + esc(what) + " represents exceptional piano craftsmanship. ") +
+      (isHeirloom
+        ? "Preserved across generations as a cherished family heirloom, we are proud to restore " +
+          "its brilliance and keep this instrument's legacy alive in "
+        : "Whether receiving dedicated service in our Utah workshop or being delivered to its " +
+          "new home, we are proud to keep this instrument's legacy alive in ") +
+      esc(p.ct + ", " + p.st) + ".</p>";
     if (p.ap) {
+      if (isHeirloom) h += story; // heirlooms tell their story even with photos
       h += p.u
         ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>View This Piano</a>"
         : "<span class='nolink'>Story page coming soon</span>";
     } else {
-      // no photos yet — tell this piano's own story instead
-      var what = [p.mk, p.tp].filter(Boolean).join(" ") || "piano";
-      h += "<p class='resto'>A beautiful piece of musical history. " +
-        (p.y
-          ? "Built in " + esc(p.y) + ", this " + esc(what) + " represents an era of exceptional piano craftsmanship. "
-          : "This " + esc(what) + " represents exceptional piano craftsmanship. ") +
-        "Whether receiving dedicated service in our Utah workshop or being delivered to its " +
-        "new home, we are proud to keep this instrument's legacy alive in " +
-        esc(p.ct + ", " + p.st) + ".</p>";
+      h += story;
       h += "<a class='btn' href='https://www.brighamlarsonpianos.com/pages/piano-restoration' " +
         "target='_blank' rel='noopener'>Explore Piano Restoration</a>";
     }
