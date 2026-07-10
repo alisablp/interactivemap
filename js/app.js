@@ -305,6 +305,7 @@
   function closeSheet() {
     sheet.classList.remove("open");
     sheetBackdrop.classList.remove("open");
+    routeGlow.clearLayers();
   }
   sheetBackdrop.addEventListener("click", closeSheet);
   document.addEventListener("keydown", function (e) {
@@ -356,12 +357,60 @@
     title: WORKSHOP.label
   }).addTo(map).on("click", function () { openCard([WORKSHOP.lat, WORKSHOP.lng], workshopHTML); });
 
+  // ---------- delivery routes ----------
+  // A faint gold spiderweb radiates from the Orem workshop to every visible
+  // pin at country zoom; clicking a pin lights its route with a glowing arc.
+  var routeWeb = L.layerGroup().addTo(map);
+  var routeGlow = L.layerGroup().addTo(map);
+  var lastVisibleMarkers = [];
+  var WORKSHOP_LL = L.latLng(WORKSHOP.lat, WORKSHOP.lng);
+
+  function arcPoints(from, to) {
+    var P1 = MERC.project(from), P2 = MERC.project(to);
+    var dx = P2.x - P1.x, dy = P2.y - P1.y;
+    var len = Math.sqrt(dx * dx + dy * dy) || 1;
+    var mx = (P1.x + P2.x) / 2 - (dy / len) * len * 0.18;
+    var my = (P1.y + P2.y) / 2 + (dx / len) * len * 0.18;
+    var pts = [];
+    for (var i = 0; i <= 32; i++) {
+      var t = i / 32, u = 1 - t;
+      pts.push(MERC.unproject(L.point(
+        u * u * P1.x + 2 * u * t * mx + t * t * P2.x,
+        u * u * P1.y + 2 * u * t * my + t * t * P2.y
+      )));
+    }
+    return pts;
+  }
+
+  function rebuildWeb() {
+    routeWeb.clearLayers();
+    if (map.getZoom() > 6) return; // the web is a country-view effect
+    lastVisibleMarkers.forEach(function (m) {
+      routeWeb.addLayer(L.polyline(arcPoints(WORKSHOP_LL, m.getLatLng()), {
+        color: "#c9a227", weight: 0.8, opacity: 0.14, interactive: false
+      }));
+    });
+  }
+
+  function drawGlowRoute(dest) {
+    routeGlow.clearLayers();
+    var pts = arcPoints(WORKSHOP_LL, dest);
+    routeGlow.addLayer(L.polyline(pts, {
+      color: "#e8c96a", weight: 5, opacity: 0.22, interactive: false, className: "route-glow-under"
+    }));
+    routeGlow.addLayer(L.polyline(pts, {
+      color: "#ffe9a0", weight: 1.8, opacity: 0.95, interactive: false, className: "route-glow"
+    }));
+  }
+  map.on("popupclose", function () { routeGlow.clearLayers(); });
+
   // ---------- marker layer (no clustering — every piano stays visible) ----------
   var pianoLayer = L.layerGroup().addTo(map);
 
   map.on("zoomend", function () {
     var z = map.getZoom();
     markers.forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); });
+    rebuildWeb();
   });
 
   // ---------- popup card ----------
@@ -458,7 +507,20 @@
     var ruby = !!(p.bp && p.ap); // Ruby Crown marks a before/after gallery
     var m = L.marker([base.lat + r * Math.sin(ang), base.lng + r * Math.cos(ang) * 1.3],
       { icon: iconForZoom(4, ruby), title: p.t });
-    m.on("click", function () { openCard(m.getLatLng(), cardHTML(p)); });
+    m.on("click", function () {
+      drawGlowRoute(m.getLatLng());
+      openCard(m.getLatLng(), cardHTML(p));
+    });
+    if (ruby) {
+      // hover bait: a tiny split before/after medallion above the pin
+      m.bindTooltip(
+        "<div class='peek'>" +
+        "<img src='" + photoURL(p.ap) + "' alt=''>" +
+        "<img class='pk-before' src='" + photoURL(p.bp) + "' alt=''>" +
+        "<span class='pk-seam'></span></div>",
+        { direction: "top", offset: [0, -26], className: "peek-tip", opacity: 1 }
+      );
+    }
     m._piano = p;
     m._ruby = ruby;
     return m;
@@ -509,6 +571,8 @@
     var z = map.getZoom();
     pianoLayer.clearLayers();
     visible.forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); pianoLayer.addLayer(m); });
+    lastVisibleMarkers = visible;
+    rebuildWeb();
     if (countEl) countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
     if (fit && visible.length) {
       var b = L.latLngBounds(visible.map(function (m) { return m.getLatLng(); }));

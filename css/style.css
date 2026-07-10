@@ -496,6 +496,56 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
   touch-action: none;
 }
 
+/* hover peek: tiny split before/after medallion above gallery pins */
+.peek-tip {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.peek-tip::before { display: none !important; }
+.peek {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2.5px solid var(--gold);
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, .2), 0 8px 20px rgba(0, 0, 0, .55);
+  background: #2a241b;
+}
+.peek img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.peek .pk-before { clip-path: inset(0 50% 0 0); }
+.peek .pk-seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1.5px;
+  background: var(--gold-hi);
+}
+
+/* glowing delivery route */
+.route-glow {
+  filter: drop-shadow(0 0 4px rgba(255, 233, 160, .9));
+  stroke-dasharray: 7 9;
+  animation: routeflow 1.4s linear infinite;
+}
+.route-glow-under { filter: blur(1.5px); }
+@keyframes routeflow {
+  to { stroke-dashoffset: -16; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-glow { animation: none; stroke-dasharray: none; }
+}
+
 /* popup opened below a pin near the top edge — hide the pointer tip */
 .popup-flipped .leaflet-popup-tip-container { display: none; }
 
