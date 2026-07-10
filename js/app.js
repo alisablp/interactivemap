@@ -78,7 +78,7 @@
   var WORLD_RING = [[-89.9, -540], [-89.9, 540], [89.9, 540], [89.9, -540]];
   var MASK_STYLE = {
     stroke: true, color: "#c9a227", weight: 1.2,
-    fill: true, fillColor: "#f2ecdd", fillOpacity: 1, interactive: false
+    fill: true, fillColor: "#ffffff", fillOpacity: 1, interactive: false
   };
 
   function ringCentroid(ring) {
@@ -120,7 +120,7 @@
 
       var RELOC_STYLE = {
         stroke: true, color: "#c9a227", weight: 1.2,
-        fill: true, fillColor: "#fcfaf4", fillOpacity: 1, interactive: false
+        fill: true, fillColor: "#ede8db", fillOpacity: 1, interactive: false
       };
       function drawRelocated(rings, relocate) {
         var moved = rings.map(function (ring) {
@@ -146,7 +146,7 @@
           var GREAT = ["Lake Superior", "Lake Michigan", "Lake Huron", "Lake Erie", "Lake Ontario"];
           L.geoJSON(lakes, {
             filter: function (f) { return GREAT.indexOf(f.properties.name) !== -1; },
-            style: { stroke: true, color: "#c9a227", weight: 1, fill: true, fillColor: "#f2ecdd", fillOpacity: 1 },
+            style: { stroke: true, color: "#c9a227", weight: 1, fill: true, fillColor: "#ffffff", fillOpacity: 1 },
             interactive: false
           }).addTo(map);
         })
@@ -173,11 +173,15 @@
   // Far out: every piano is a 3D gold dot. Zooming in, dots become gold pins.
   function pinSVG(w, h) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
-      '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="1">' +
-      '<stop offset="0" stop-color="#fdeaa0"/><stop offset=".35" stop-color="#e7c256"/>' +
-      '<stop offset=".7" stop-color="#b18a1f"/><stop offset="1" stop-color="#7c5c0e"/></linearGradient></defs>' +
-      '<path d="M60 6C31 6 10 28 10 56c0 36 41 96 50 104 9-8 50-68 50-104C110 28 89 6 60 6Z" fill="url(#gp)" stroke="#6e5210" stroke-width="4"/>' +
-      '<circle cx="60" cy="55" r="19" fill="#8a6a14" opacity=".85"/></svg>';
+      '<defs><radialGradient id="gp" cx=".42" cy=".34" r=".78">' +
+      '<stop offset="0" stop-color="#ffe9a4"/><stop offset=".38" stop-color="#e7c256"/>' +
+      '<stop offset=".7" stop-color="#bd9421"/><stop offset="1" stop-color="#775a0e"/></radialGradient>' +
+      '<linearGradient id="gpr" x1="1" y1="0" x2="0" y2=".3">' +
+      '<stop offset="0" stop-color="#fff6d6" stop-opacity=".8"/><stop offset=".25" stop-color="#fff6d6" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="M60 12C38 12 20 31 20 54c0 29 30 82 40 94 10-12 40-65 40-94 0-23-18-42-40-42Z" fill="url(#gp)" stroke="#6e5210" stroke-width="3"/>' +
+      '<path d="M60 12C38 12 20 31 20 54c0 29 30 82 40 94 10-12 40-65 40-94 0-23-18-42-40-42Z" fill="url(#gpr)"/>' +
+      '<ellipse cx="47" cy="38" rx="15" ry="10" fill="#ffffff" opacity=".8" transform="rotate(-30 47 38)"/>' +
+      '<ellipse cx="55" cy="58" rx="5" ry="3.4" fill="#fff4cd" opacity=".55" transform="rotate(-24 55 58)"/></svg>';
   }
 
   function dotSVG(d) {
@@ -189,7 +193,7 @@
       '<ellipse cx="8.6" cy="7.6" rx="3.2" ry="1.9" fill="#ffffff" opacity=".8" transform="rotate(-24 8.6 7.6)"/></svg>';
   }
 
-  // classic gold teardrop pins at every zoom level, scaled with the view
+  // "Molten Drop" — solid 3D gold teardrops at every zoom, scaled with the view
   var iconCache = {};
   function iconForZoom(z) {
     var h = z <= 5 ? 19 : z < 7 ? 24 : z < 9 ? 29 : 37;
