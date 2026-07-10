@@ -132,6 +132,25 @@ body {
 .leaflet-tile-pane { filter: grayscale(1) sepia(.06) brightness(.965) contrast(.92); }
 .leaflet-labels-pane { filter: grayscale(1) sepia(.08) brightness(1.02); }
 
+/* geolocation control */
+.locate-ctrl a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: #1c1a17;
+}
+.locate-ctrl a:hover { color: var(--gold-deep, #8a6a14); }
+.locate-ctrl.locating a svg { animation: locpulse 1s ease-in-out infinite; }
+@keyframes locpulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .locate-ctrl.locating a svg { animation: none; }
+}
+
 /* gold pin marker */
 .gold-pin { background: none; border: none; }
 .gold-pin svg {

@@ -69,6 +69,41 @@
   map.zoomControl.setPosition("topright");
   map.attributionControl.setPrefix(""); // required tile credits only, no Leaflet branding
 
+  // ---------- geolocation: fly the map to the visitor's neighborhood ----------
+  var LocateControl = L.Control.extend({
+    options: { position: "topright" },
+    onAdd: function () {
+      var box = L.DomUtil.create("div", "leaflet-bar locate-ctrl");
+      var a = L.DomUtil.create("a", "", box);
+      a.href = "#";
+      a.title = "Pianos near you";
+      a.setAttribute("aria-label", "Show the map near your location");
+      a.innerHTML =
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+        '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>' +
+        '<line x1="12" y1="1.5" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22.5"/>' +
+        '<line x1="1.5" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22.5" y2="12"/></svg>';
+      L.DomEvent.on(a, "click", function (e) {
+        L.DomEvent.stop(e);
+        if (!navigator.geolocation) return;
+        box.classList.add("locating");
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          box.classList.remove("locating");
+          var here = L.latLng(pos.coords.latitude, pos.coords.longitude);
+          if (US_BOUNDS.contains(here)) {
+            map.flyTo(here, 9, { duration: 1.8 });
+          } else {
+            map.flyTo([39.5, -98.35], 4.5, { duration: 1.4 }); // abroad — show the whole story
+          }
+        }, function () {
+          box.classList.remove("locating");
+        }, { timeout: 8000, maximumAge: 300000 });
+      });
+      return box;
+    }
+  });
+  map.addControl(new LocateControl());
+
   // open with the full composition — lower 48 plus the pulled-in AK & HI
   var HOME_VIEW = L.latLngBounds([19.5, -126], [49.4, -66.9]);
   map.fitBounds(HOME_VIEW);
