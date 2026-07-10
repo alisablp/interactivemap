@@ -649,6 +649,10 @@ body.lead-closed .timebar { left: 14px; }
 @media (max-width: 640px) {
   .controls { padding: 12px 12px 0; }
   .leaflet-top.leaflet-right { top: 96px; }
+  /* inputs must be >=16px on phones or iOS auto-zooms on focus,
+     shoving the layout sideways (the vanishing Go button bug) */
+  #zipInput, .searchwrap input { font-size: 16px; }
+  #zipForm button { flex-shrink: 0; }
   #map { min-height: 0; }
   .leaflet-popup-content { width: 225px !important; }
   .pcard .ba { width: 165px; height: 165px; }
