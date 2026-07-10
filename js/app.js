@@ -521,6 +521,22 @@
         "<span class='pk-seam'></span></div>",
         { direction: "top", offset: [0, -26], className: "peek-tip", opacity: 1, interactive: true }
       );
+      // keep the peek open while the cursor travels from pin to medallion,
+      // so it can actually be hovered and clicked
+      m.off("mouseout"); // drop Leaflet's instant-close
+      var peekTimer;
+      var peekClose = function () { peekTimer = setTimeout(function () { m.closeTooltip(); }, 280); };
+      var peekStay = function () { clearTimeout(peekTimer); };
+      m.on("mouseover", peekStay);
+      m.on("mouseout", peekClose);
+      m.on("tooltipopen", function (e) {
+        var el = e.tooltip.getElement();
+        if (el && !el._hoverWired) {
+          el._hoverWired = true;
+          el.addEventListener("mouseenter", peekStay);
+          el.addEventListener("mouseleave", peekClose);
+        }
+      });
     }
     m._piano = p;
     m._ruby = ruby;
