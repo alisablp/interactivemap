@@ -700,7 +700,7 @@
     var ts = document.getElementById("timeSlider");
     if (ts) {
       ts.value = 2026;
-      document.getElementById("tbLabel").textContent = "Every Era of American Piano History";
+      document.getElementById("tbLabel").textContent = "Every Era of Piano History";
     }
     chipsEl.querySelectorAll(".chip[data-filter]").forEach(function (c) {
       c.classList.toggle("on", c.getAttribute("data-filter") === "*");
@@ -723,7 +723,7 @@
       var v = parseInt(timeSlider.value, 10);
       if (v >= 2026) {
         state.year = null;
-        tbLabel.textContent = "Every Era of American Piano History";
+        tbLabel.textContent = "Every Era of Piano History";
       } else {
         state.year = v;
         tbLabel.textContent = "The " + v + " Era · pianos built " + (v - 12) + "–" + Math.min(v + 12, 2026);
