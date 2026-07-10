@@ -25,30 +25,16 @@ body {
   flex-direction: column;
 }
 
-/* map title, in the brand's script-plus-serif pairing */
+/* map title — Assistant, the site's Shopify Dawn heading font */
 .map-title {
-  text-align: center;
-  margin: 4px 0 14px;
+  font-family: "Assistant", "Helvetica Neue", Arial, sans-serif;
   font-weight: 400;
-  line-height: 1;
-}
-.map-title .mt-serif {
-  font-family: Didot, "Bodoni 72", Georgia, serif;
-  font-size: 1.45rem;
-  letter-spacing: .24em;
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  letter-spacing: .06em;
   color: #1c1a17;
-}
-.map-title .mt-script {
-  font-family: "Snell Roundhand", "Brush Script MT", cursive;
-  font-style: normal;
-  font-size: 1.9rem;
-  color: var(--gold);
-  margin: 0 .12em;
-  vertical-align: -3px;
-}
-@media (max-width: 640px) {
-  .map-title .mt-serif { font-size: 1.1rem; letter-spacing: .18em; }
-  .map-title .mt-script { font-size: 1.45rem; }
+  text-align: center;
+  margin: 2px 0 14px;
+  line-height: 1.15;
 }
 
 /* ---------- controls (widget: search + filters only) ---------- */
