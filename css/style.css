@@ -136,6 +136,11 @@ body {
   pointer-events: none;
 }
 
+/* warm flat cartography: neutralize the basemap's blues — water, rivers,
+   and label text all render in soft gray/tan */
+.leaflet-tile-pane { filter: grayscale(1) sepia(.32) brightness(1.05) contrast(.94); }
+.leaflet-labels-pane { filter: grayscale(1) sepia(.3) brightness(1.02); }
+
 /* gold pin marker */
 .gold-pin { background: none; border: none; }
 .gold-pin svg {

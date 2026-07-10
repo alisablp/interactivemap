@@ -177,7 +177,7 @@
       '<stop offset="0" stop-color="#fdeaa0"/><stop offset=".35" stop-color="#e7c256"/>' +
       '<stop offset=".7" stop-color="#b18a1f"/><stop offset="1" stop-color="#7c5c0e"/></linearGradient></defs>' +
       '<path d="M60 6C31 6 10 28 10 56c0 36 41 96 50 104 9-8 50-68 50-104C110 28 89 6 60 6Z" fill="url(#gp)" stroke="#6e5210" stroke-width="4"/>' +
-      '<circle cx="60" cy="55" r="21" fill="#f9f7ee" stroke="#8a6a14" stroke-width="3"/></svg>';
+      '<circle cx="60" cy="55" r="19" fill="#8a6a14" opacity=".85"/></svg>';
   }
 
   function dotSVG(d) {
@@ -189,32 +189,19 @@
       '<ellipse cx="8.6" cy="7.6" rx="3.2" ry="1.9" fill="#ffffff" opacity=".8" transform="rotate(-24 8.6 7.6)"/></svg>';
   }
 
+  // classic gold teardrop pins at every zoom level, scaled with the view
   var iconCache = {};
   function iconForZoom(z) {
-    var key, ic;
-    if (z < 7) {
-      var d = z <= 5 ? 11 : 15;
-      key = "dot" + d;
-      ic = iconCache[key] || (iconCache[key] = L.divIcon({
-        className: "gold-pin",
-        html: dotSVG(d),
-        iconSize: [d, d],
-        iconAnchor: [d / 2, d / 2],
-        popupAnchor: [0, -d / 2 - 2]
-      }));
-    } else {
-      var h = z < 9 ? 28 : 37;
-      var w = Math.round(h * 120 / 170);
-      key = "pin" + h;
-      ic = iconCache[key] || (iconCache[key] = L.divIcon({
-        className: "gold-pin",
-        html: pinSVG(w, h),
-        iconSize: [w, h],
-        iconAnchor: [w / 2, h],
-        popupAnchor: [0, -h + 3]
-      }));
-    }
-    return ic;
+    var h = z <= 5 ? 19 : z < 7 ? 24 : z < 9 ? 29 : 37;
+    var w = Math.round(h * 120 / 170);
+    var key = "pin" + h;
+    return iconCache[key] || (iconCache[key] = L.divIcon({
+      className: "gold-pin",
+      html: pinSVG(w, h),
+      iconSize: [w, h],
+      iconAnchor: [w / 2, h],
+      popupAnchor: [0, -h + 3]
+    }));
   }
 
   // ---------- device-aware card opening ----------
