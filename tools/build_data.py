@@ -181,7 +181,7 @@ DELIVERY_WORDS = re.compile(r"deliver|ship", re.I)
 # city name with no state; accepted only when the whole fragment is a known
 # city (so "delivered to Sandy Johnson" never matches Sandy, UT)
 KEYWORD_CITY_PAT = re.compile(
-    r"(pick\s?-?up|picked\s+up|pickup|deliver(?:y|ed)?|ship(?:ping|ped)?)"
+    r"(pick\s?-?up|pick(?:ed|ing)\s+up|pickup|deliver(?:y|ed|ing)?|ship(?:ping|ped)?)"
     r"\s*(?:to|in|from|at)?\s*:?\s*([A-Z][A-Za-z .'-]{2,25}?)\s*(?:$|[|,;(\n-])", re.M)
 
 
@@ -221,6 +221,12 @@ def find_locations(lookup, zips, owner):
         word, z = m.group(1).strip(".,").lower(), m.group(2)
         if word not in ZIP_WORD_BLACKLIST and "#" not in word and z in zips:
             city, st, lat, lng = zips[z]
+            # a mistyped zip can point at the wrong coast — when a spelled-out
+            # state sits right before the zip, it outranks the zip's own state
+            before = owner[max(0, m.start() - 28):m.end(1)].lower()
+            written = [ab for name, ab in STATE_NAMES.items() if name in before]
+            if written and st not in written:
+                continue
             # snap to the city's public center — a zip area's own centroid
             # is neighborhood-level, which is more precision than we want
             if (city.lower(), st) in lookup:
