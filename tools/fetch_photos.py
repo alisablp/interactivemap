@@ -34,9 +34,11 @@ TITLE_PAT = re.compile(r'flip-entry-title">([^<]+)')
 IMAGE_EXT = re.compile(r"\.(jpe?g|png|webp|heic|heif)$", re.I)
 
 
-def first_image(folder_id, cache):
-    """First image file ID in a public Drive folder (None if inaccessible)."""
-    if folder_id in cache:
+def folder_images(folder_id, cache):
+    """ALL image file IDs in a public Drive folder, name-sorted (empty list
+    if inaccessible). Cached as a list so photo curation can always see
+    every candidate, not just the first."""
+    if isinstance(cache.get(folder_id), list):
         return cache[folder_id]
     url = "https://drive.google.com/embeddedfolderview?id=%s#grid" % folder_id
     try:
@@ -45,9 +47,9 @@ def first_image(folder_id, cache):
         names = TITLE_PAT.findall(html)
         pairs = [(n, i) for i, n in zip(ids, names) if IMAGE_EXT.search(n.strip())]
         pairs.sort(key=lambda t: t[0].lower())
-        cache[folder_id] = pairs[0][1] if pairs else None
+        cache[folder_id] = [p[1] for p in pairs]
     except Exception:
-        cache[folder_id] = None  # private, deleted, or network hiccup
+        cache[folder_id] = []  # private, deleted, or network hiccup
     time.sleep(0.15)
     return cache[folder_id]
 
@@ -77,9 +79,14 @@ def main():
 
     print("resolving %d pianos' photo folders …" % len(todo))
     for n, (key, bfold, afold) in enumerate(todo, 1):
+        b_ids = folder_images(bfold, folder_cache) if bfold else []
+        a_ids = folder_images(afold, folder_cache) if afold else []
+        prior = photos.get(key, {})
         photos[key] = {
-            "b": first_image(bfold, folder_cache) if bfold else None,
-            "a": first_image(afold, folder_cache) if afold else None,
+            # keep an existing curated pick; default new pianos to the first
+            # image until the weekly review picks the best angle
+            "b": prior.get("b") or (b_ids[0] if b_ids else None),
+            "a": prior.get("a") or (a_ids[0] if a_ids else None),
         }
         if n % 50 == 0:
             print("  %d/%d" % (n, len(todo)))

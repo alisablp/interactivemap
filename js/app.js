@@ -67,6 +67,7 @@
   }).addTo(map);
 
   map.zoomControl.setPosition("topright");
+  map.attributionControl.setPrefix(""); // required tile credits only, no Leaflet branding
 
   // open with the full composition — lower 48 plus the pulled-in AK & HI
   var HOME_VIEW = L.latLngBounds([19.5, -126], [49.4, -66.9]);
@@ -403,7 +404,7 @@
     var ic = iconForZoom(map.getZoom());
     pianoLayer.clearLayers();
     visible.forEach(function (m) { m.setIcon(ic); pianoLayer.addLayer(m); });
-    countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
+    if (countEl) countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
     if (fit && visible.length) {
       var b = L.latLngBounds(visible.map(function (m) { return m.getLatLng(); }));
       map.fitBounds(b.pad(0.2), { maxZoom: 10 });
@@ -453,8 +454,10 @@
     }, 250);
   });
 
-  // reset
-  document.getElementById("reset").addEventListener("click", function () {
+  // reset (optional — the widget build ships without the button; clicking
+  // "All Pianos" clears filters and refits the view)
+  var resetBtn = document.getElementById("reset");
+  if (resetBtn) resetBtn.addEventListener("click", function () {
     state = { chip: "*", make: "", q: "" };
     searchEl.value = "";
     makeSelect.value = "";
