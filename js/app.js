@@ -14,10 +14,12 @@
 
   // maxZoom stops at city scale — visitors can never zoom to house level,
   // reinforcing that pins mark cities, not addresses
+  // phones need to zoom out further than desktops to fit the whole country
+  var IS_SMALL = window.matchMedia("(max-width: 640px)").matches;
   var map = L.map("map", {
     center: [39.5, -98.35],
     zoom: 4,
-    minZoom: 4,
+    minZoom: IS_SMALL ? 2.5 : 4,
     maxZoom: 11,
     zoomSnap: 0.25,
     scrollWheelZoom: true,
