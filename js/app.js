@@ -501,7 +501,7 @@
           "new home, we are proud to keep this instrument's legacy alive in ") +
       esc(p.ct + ", " + p.st) + ".</p>";
     if (p.ap) {
-      if (isHeirloom) h += story; // heirlooms tell their story even with photos
+      h += story;
       h += p.u
         ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>View This Piano</a>"
         : "<span class='nolink'>Story page coming soon</span>";
