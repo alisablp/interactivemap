@@ -33,7 +33,9 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1100;
+  /* above the map and pins (600), below tooltips (650) and popups (700)
+     so cards and peek thumbnails always cover the search bar */
+  z-index: 620;
   padding: 20px 18px 14px;
   background: linear-gradient(180deg, rgba(22, 17, 11, .62) 0%, rgba(22, 17, 11, .34) 55%, transparent 100%);
   pointer-events: none;
