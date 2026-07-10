@@ -140,6 +140,19 @@
         }).addTo(map);
       });
 
+      // state borders as a crisp light-tan vector layer (the tile filter
+      // washes out the basemap's own lines)
+      fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json")
+        .then(function (r) { return r.json(); })
+        .then(function (topo) {
+          var borders = topojson.mesh(topo, topo.objects.states, function (a, b) { return a !== b; });
+          L.geoJSON(borders, {
+            style: { color: "#cbbb94", weight: 1, opacity: .95, fill: false },
+            interactive: false
+          }).addTo(map);
+        })
+        .catch(function () { /* cosmetic */ });
+
       // hide the Great Lakes' open water under the same cream
       fetch("https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_lakes.geojson")
         .then(function (r) { return r.json(); })
