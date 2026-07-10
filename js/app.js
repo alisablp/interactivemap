@@ -430,9 +430,17 @@
     }
     var miles = milesFromWorkshop(p.la, p.lo);
     if (miles >= 600) {
-      var rounded = (Math.round(miles / 10) * 10).toLocaleString("en-US");
-      h += "<p class='miles'>&#9834; This piano traveled about " + rounded +
-        " miles between our Utah workshop and " + esc(p.ct + ", " + p.st) + ".</p>";
+      if (p.c.indexOf("Family Heirloom") !== -1) {
+        // heirlooms make the journey twice: to the workshop and home again
+        var rt = (Math.round(miles * 2 / 10) * 10).toLocaleString("en-US");
+        h += "<p class='miles'>&#9834; This family heirloom piano traveled from " +
+          esc(STATE_NAMES[p.st] || p.st) + " to our Utah workshop and back — a " +
+          rt + "-mile round-trip journey.</p>";
+      } else {
+        var rounded = (Math.round(miles / 10) * 10).toLocaleString("en-US");
+        h += "<p class='miles'>&#9834; This piano traveled about " + rounded +
+          " miles between our Utah workshop and " + esc(p.ct + ", " + p.st) + ".</p>";
+      }
     }
     h += "</div></div>";
     return h;
