@@ -53,15 +53,16 @@ body {
   text-shadow: 0 2px 12px rgba(0, 0, 0, .55);
   pointer-events: none;
 }
-.map-sub {
-  font-family: Didot, "Bodoni 72", Georgia, serif;
-  font-style: italic;
-  font-size: .85rem;
-  color: var(--muted);
-  text-align: center;
-  margin: 2px 0 12px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, .5);
+.map-logo {
+  display: block;
+  height: 38px;
+  width: auto;
+  margin: 8px auto 12px;
   pointer-events: none;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .35));
+}
+@media (max-width: 640px) {
+  .map-logo { height: 30px; margin: 6px auto 10px; }
 }
 
 .searchwrap {
