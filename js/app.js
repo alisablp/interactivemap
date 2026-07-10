@@ -535,6 +535,17 @@
           el._hoverWired = true;
           el.addEventListener("mouseenter", peekStay);
           el.addEventListener("mouseleave", peekClose);
+          // open the full card on tap or click — wired on the element so
+          // touch devices work even though Leaflet swallows the bubble
+          var openIt = function (ev) {
+            if (ev.cancelable) ev.preventDefault();
+            ev.stopPropagation();
+            m.closeTooltip();
+            drawGlowRoute(m.getLatLng());
+            openCard(m.getLatLng(), cardHTML(p));
+          };
+          el.addEventListener("click", openIt);
+          el.addEventListener("touchend", openIt);
         }
       });
     }
