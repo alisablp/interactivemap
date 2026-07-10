@@ -152,10 +152,12 @@
         })
         .catch(function () { /* cosmetic */ });
 
-      // Clip the label layer to the US border so only American city names
-      // render — foreign labels never float over the cream surround.
+      // Clip both the tile layer and the label layer to the US border:
+      // nothing outside the country ever renders — labels stay American,
+      // and no tinted ocean can flash from under the mask mid-zoom.
       var labelsPane = map.getPane("labels");
-      function updateLabelClip() {
+      var tilePane = map.getPane("tilePane");
+      function updateClips() {
         var d = lower48.map(function (ring) {
           return "M" + ring.map(function (ll) {
             var pt = map.latLngToLayerPoint(ll);
@@ -163,25 +165,30 @@
           }).join(" L ") + " Z";
         }).join(" ");
         labelsPane.style.clipPath = 'path("' + d + '")';
+        tilePane.style.clipPath = 'path("' + d + '")';
       }
-      updateLabelClip();
-      map.on("zoomend viewreset", updateLabelClip);
+      updateClips();
+      map.on("zoomend viewreset", updateClips);
     })
     .catch(function () { /* mask is cosmetic — map still works without it */ });
 
   // ---------- gold markers ----------
   // Far out: every piano is a 3D gold dot. Zooming in, dots become gold pins.
+  // brushed satin-gold teardrop: dome top, straight taper to the point,
+  // soft left edge extrusion — matte designer finish, no hard specular
   function pinSVG(w, h) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
-      '<defs><radialGradient id="gp" cx=".42" cy=".34" r=".78">' +
-      '<stop offset="0" stop-color="#ffe9a4"/><stop offset=".38" stop-color="#e7c256"/>' +
-      '<stop offset=".7" stop-color="#bd9421"/><stop offset="1" stop-color="#775a0e"/></radialGradient>' +
-      '<linearGradient id="gpr" x1="1" y1="0" x2="0" y2=".3">' +
-      '<stop offset="0" stop-color="#fff6d6" stop-opacity=".8"/><stop offset=".25" stop-color="#fff6d6" stop-opacity="0"/></linearGradient></defs>' +
-      '<path d="M60 12C38 12 20 31 20 54c0 29 30 82 40 94 10-12 40-65 40-94 0-23-18-42-40-42Z" fill="url(#gp)" stroke="#6e5210" stroke-width="3"/>' +
-      '<path d="M60 12C38 12 20 31 20 54c0 29 30 82 40 94 10-12 40-65 40-94 0-23-18-42-40-42Z" fill="url(#gpr)"/>' +
-      '<ellipse cx="47" cy="38" rx="15" ry="10" fill="#ffffff" opacity=".8" transform="rotate(-30 47 38)"/>' +
-      '<ellipse cx="55" cy="58" rx="5" ry="3.4" fill="#fff4cd" opacity=".55" transform="rotate(-24 55 58)"/></svg>';
+      '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="0">' +
+      '<stop offset="0" stop-color="#b58f28"/><stop offset=".28" stop-color="#dcb954"/>' +
+      '<stop offset=".55" stop-color="#caa63c"/><stop offset=".8" stop-color="#b08a24"/>' +
+      '<stop offset="1" stop-color="#96731a"/></linearGradient>' +
+      '<linearGradient id="gpv" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#f4dd8e" stop-opacity=".55"/><stop offset=".3" stop-color="#f4dd8e" stop-opacity="0"/>' +
+      '<stop offset=".85" stop-color="#7a5d10" stop-opacity="0"/><stop offset="1" stop-color="#7a5d10" stop-opacity=".45"/></linearGradient></defs>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#8a6a14" opacity=".55"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gp)"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gpv)"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#8a6a14" stroke-width="1.4" stroke-opacity=".65"/></svg>';
   }
 
   function dotSVG(d) {
