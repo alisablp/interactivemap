@@ -227,7 +227,7 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
 }
 body.lead-closed .lead-box { display: none; }
 body.lead-closed .lead-reopen { display: block; }
-body.lead-closed .timebar { left: 14px; }
+body.lead-closed .timebar { bottom: 80px; }
 
 .lb-title {
   font-family: Didot, "Bodoni 72", Georgia, serif;
@@ -293,14 +293,12 @@ body.lead-closed .timebar { left: 14px; }
 .lb-cta:hover,
 .leaflet-container a.lb-cta:hover { background: #7c1515; color: #ffffff; }
 
-/* era timeline */
+/* era timeline — far left above the heirloom box, clear of Hawaii */
 .timebar {
   position: absolute;
-  bottom: 18px;
-  left: 300px;
-  right: 60px;
-  max-width: 560px;
-  margin: 0 auto;
+  bottom: 248px;
+  left: 14px;
+  width: 250px;
   z-index: 1000;
   background: rgba(24, 20, 15, .92);
   border: 1.5px solid var(--gold);
@@ -312,7 +310,7 @@ body.lead-closed .timebar { left: 14px; }
 .tb-label {
   font-family: Didot, "Bodoni 72", Georgia, serif;
   font-weight: 500;
-  font-size: .8rem;
+  font-size: .74rem;
   letter-spacing: .04em;
   color: var(--gold-hi);
   text-align: center;
@@ -649,7 +647,7 @@ body.lead-closed .timebar { left: 14px; }
 
 /* ---------- mobile ---------- */
 @media (max-width: 900px) {
-  .timebar { left: 12px; right: 12px; bottom: 195px; max-width: none; }
+  .timebar { left: 12px; right: 12px; width: auto; bottom: 195px; }
   body.lead-closed .timebar { bottom: 12px; left: 12px; }
   body.lead-closed .lead-reopen { bottom: 88px; }
 }
