@@ -280,6 +280,14 @@ body {
 }
 .pcard a.btn:hover { background: var(--gold-hi); }
 .pcard .nolink { font-size: .7rem; color: var(--muted); font-style: italic; }
+.pcard .miles {
+  font-size: .68rem;
+  color: #8a8272;
+  font-style: italic;
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--parch);
+}
 .pcard .resto {
   font-size: .78rem;
   line-height: 1.55;

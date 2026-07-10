@@ -324,6 +324,18 @@
 
   var CARD_TAGS = ["Restoration", "Family Heirloom", "Player", "Vintage Player", "Antique", "Premier", "Art Case", "Concert Grand"];
 
+  // great-circle distance in miles from the Orem workshop — pianos that
+  // traveled 600+ miles get a fun fact on their card
+  function milesFromWorkshop(lat, lng) {
+    var R = 3958.8, toRad = Math.PI / 180;
+    var dLat = (lat - WORKSHOP.lat) * toRad;
+    var dLng = (lng - WORKSHOP.lng) * toRad;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(WORKSHOP.lat * toRad) * Math.cos(lat * toRad) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
   function photoURL(idOrPath, w) {
     if (idOrPath.indexOf("/") !== -1) return idOrPath; // local, name-blurred copy
     return "https://lh3.googleusercontent.com/d/" + idOrPath + "=w" + (w || 500);
@@ -364,6 +376,12 @@
         "regulated, and voiced until it sings before making the journey home.</p>";
       h += "<a class='btn' href='https://www.brighamlarsonpianos.com/pages/piano-restoration' " +
         "target='_blank' rel='noopener'>Explore Piano Restoration</a>";
+    }
+    var miles = milesFromWorkshop(p.la, p.lo);
+    if (miles >= 600) {
+      var rounded = (Math.round(miles / 10) * 10).toLocaleString("en-US");
+      h += "<p class='miles'>&#9834; This piano traveled about " + rounded +
+        " miles between our Utah workshop and " + esc(p.ct + ", " + p.st) + ".</p>";
     }
     h += "</div></div>";
     return h;
