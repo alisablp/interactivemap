@@ -470,10 +470,15 @@
         ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>View This Piano</a>"
         : "<span class='nolink'>Story page coming soon</span>";
     } else {
-      // no photos yet — tell the restoration story instead
-      h += "<p class='resto'>Every family heirloom restoration begins in our Utah workshop, " +
-        "where each piano is carefully rebuilt, refinished, tuned, regulated, and voiced " +
-        "before making the journey home.</p>";
+      // no photos yet — tell this piano's own story instead
+      var what = [p.mk, p.tp].filter(Boolean).join(" ") || "piano";
+      h += "<p class='resto'>A beautiful piece of musical history. " +
+        (p.y
+          ? "Built in " + esc(p.y) + ", this " + esc(what) + " represents an era of exceptional piano craftsmanship. "
+          : "This " + esc(what) + " represents exceptional piano craftsmanship. ") +
+        "Whether receiving dedicated service in our Utah workshop or being delivered to its " +
+        "new home, we are proud to keep this instrument's legacy alive in " +
+        esc(p.ct + ", " + p.st) + ".</p>";
       h += "<a class='btn' href='https://www.brighamlarsonpianos.com/pages/piano-restoration' " +
         "target='_blank' rel='noopener'>Explore Piano Restoration</a>";
     }
