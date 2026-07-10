@@ -359,16 +359,18 @@
 
   var CARD_TAGS = ["Restoration", "Family Heirloom", "Player", "Vintage Player", "Antique", "Premier", "Art Case", "Concert Grand"];
 
-  // great-circle distance in miles from the Orem workshop — pianos that
-  // traveled 600+ miles get a fun fact on their card
-  function milesFromWorkshop(lat, lng) {
+  // great-circle distance in miles
+  function milesBetween(aLat, aLng, bLat, bLng) {
     var R = 3958.8, toRad = Math.PI / 180;
-    var dLat = (lat - WORKSHOP.lat) * toRad;
-    var dLng = (lng - WORKSHOP.lng) * toRad;
+    var dLat = (bLat - aLat) * toRad;
+    var dLng = (bLng - aLng) * toRad;
     var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(WORKSHOP.lat * toRad) * Math.cos(lat * toRad) *
+      Math.cos(aLat * toRad) * Math.cos(bLat * toRad) *
       Math.sin(dLng / 2) * Math.sin(dLng / 2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+  function milesFromWorkshop(lat, lng) {
+    return milesBetween(WORKSHOP.lat, WORKSHOP.lng, lat, lng);
   }
 
   function photoURL(idOrPath, w) {
@@ -546,4 +548,43 @@
   });
 
   apply(false);
+
+  // ---------- heirloom lead box: ZIP lookup + free quote ----------
+  var leadBox = document.getElementById("leadBox");
+  if (leadBox) {
+    L.DomEvent.disableClickPropagation(leadBox);
+    L.DomEvent.disableScrollPropagation(leadBox);
+    var zipForm = document.getElementById("zipForm");
+    var zipInput = document.getElementById("zipInput");
+    var zipResult = document.getElementById("zipResult");
+    zipForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var zip = zipInput.value.trim();
+      if (!/^\d{5}$/.test(zip)) {
+        zipResult.textContent = "Please enter a 5-digit ZIP code.";
+        return;
+      }
+      zipResult.textContent = "Looking up your neighborhood…";
+      fetch("https://api.zippopotam.us/us/" + zip)
+        .then(function (r) { if (!r.ok) throw new Error("nozip"); return r.json(); })
+        .then(function (j) {
+          var place = j.places && j.places[0];
+          var lat = parseFloat(place.latitude), lng = parseFloat(place.longitude);
+          var nearest = null, best = Infinity;
+          PIANOS.forEach(function (p) {
+            var d = milesBetween(lat, lng, p.la, p.lo);
+            if (d < best) { best = d; nearest = p; }
+          });
+          if (!nearest) return;
+          var mi = Math.max(1, Math.round(best));
+          zipResult.textContent = "We delivered a restored piano about " + mi.toLocaleString("en-US") +
+            " mile" + (mi === 1 ? "" : "s") + " from you — the " + nearest.t +
+            " in " + nearest.ct + ", " + nearest.st + ".";
+          map.flyTo(displayLatLng(nearest), 8, { duration: 1.8 });
+        })
+        .catch(function () {
+          zipResult.textContent = "Hmm, we couldn't find that ZIP — try another?";
+        });
+    });
+  }
 })();

@@ -144,6 +144,86 @@ body {
 .leaflet-tile-pane { filter: grayscale(1) sepia(.06) brightness(.965) contrast(.92); }
 .leaflet-labels-pane { filter: grayscale(1) sepia(.08) brightness(1.02); }
 
+/* heirloom lead box */
+.lead-box {
+  position: absolute;
+  bottom: 22px;
+  left: 14px;
+  z-index: 1000;
+  width: 250px;
+  background: var(--cream);
+  border: 1.5px solid var(--gold);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(40, 25, 0, .22);
+  padding: 14px 16px 16px;
+}
+.lb-title {
+  font-family: "Assistant", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-size: .95rem;
+  margin: 0 0 4px;
+  color: #1c1a17;
+}
+.lb-hint {
+  font-size: .72rem;
+  color: var(--muted);
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+#zipForm { display: flex; gap: 6px; }
+#zipInput {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: .82rem;
+  padding: 7px 10px;
+  border: 1px solid #d9cfb8;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+}
+#zipInput:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+#zipForm button {
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--black);
+  color: var(--gold-hi);
+  cursor: pointer;
+}
+.lb-result {
+  font-size: .74rem;
+  color: #4a4436;
+  line-height: 1.45;
+  margin: 8px 0 0;
+  min-height: 0;
+}
+.lb-result:empty { display: none; }
+.lb-cta,
+.leaflet-container a.lb-cta {
+  display: block;
+  margin-top: 10px;
+  text-align: center;
+  background: var(--gold);
+  color: var(--black);
+  font-weight: 700;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 9px 10px;
+  border-radius: 6px;
+}
+.lb-cta:hover { background: var(--gold-hi); }
+@media (max-width: 640px) {
+  .lead-box { width: calc(100% - 24px); left: 12px; bottom: 12px; padding: 10px 12px 12px; }
+  .lb-hint { display: none; }
+}
+
 /* geolocation control */
 .locate-ctrl a {
   display: flex;
