@@ -387,6 +387,7 @@
       var kv = state.chip.split(":");
       if (kv[0] === "type" && p.tp !== kv[1]) return false;
       if (kv[0] === "cat" && p.c.indexOf(kv[1]) === -1) return false;
+      if (kv[0] === "gallery" && !(p.bp && p.ap)) return false; // before/after slider pianos
     }
     if (state.make && p.mk.toLowerCase().indexOf(state.make.toLowerCase()) === -1) return false;
     if (state.q) {
