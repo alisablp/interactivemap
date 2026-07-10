@@ -53,16 +53,15 @@ body {
   text-shadow: 0 2px 12px rgba(0, 0, 0, .55);
   pointer-events: none;
 }
-.map-logo {
-  display: block;
-  height: 38px;
-  width: auto;
-  margin: 8px auto 12px;
+.map-sub {
+  font-family: Didot, "Bodoni 72", Georgia, serif;
+  font-style: italic;
+  font-size: .85rem;
+  color: #7c6f52;
+  text-align: center;
+  margin: 2px 0 12px;
+  text-shadow: 0 1px 6px rgba(255, 250, 235, .6);
   pointer-events: none;
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .35));
-}
-@media (max-width: 640px) {
-  .map-logo { height: 30px; margin: 6px auto 10px; }
 }
 
 .searchwrap {
@@ -185,6 +184,44 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
   padding: 14px 16px 16px;
   backdrop-filter: blur(4px);
 }
+.lb-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #8d8266;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.lb-close:hover { color: var(--gold-hi); }
+.lead-reopen {
+  display: none;
+  position: absolute;
+  bottom: 22px;
+  left: 14px;
+  z-index: 1000;
+  font: inherit;
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  background: rgba(24, 20, 15, .92);
+  color: var(--gold-hi);
+  border: 1.5px solid var(--gold);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
+}
+body.lead-closed .lead-box { display: none; }
+body.lead-closed .lead-reopen { display: block; }
+body.lead-closed .timebar { left: 14px; }
+
 .lb-title {
   font-family: Didot, "Bodoni 72", Georgia, serif;
   font-weight: 500;
@@ -604,10 +641,13 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
 
 /* ---------- mobile ---------- */
 @media (max-width: 900px) {
-  .timebar { left: 12px; right: 12px; bottom: 235px; max-width: none; }
+  .timebar { left: 12px; right: 12px; bottom: 195px; max-width: none; }
+  body.lead-closed .timebar { bottom: 12px; left: 12px; }
+  body.lead-closed .lead-reopen { bottom: 88px; }
 }
 @media (max-width: 640px) {
   .controls { padding: 12px 12px 0; }
+  .leaflet-top.leaflet-right { top: 96px; }
   #map { min-height: 0; }
   .leaflet-popup-content { width: 225px !important; }
   .pcard .ba { width: 165px; height: 165px; }

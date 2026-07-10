@@ -244,29 +244,29 @@
   function pinSVG(w, h, ruby) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="0">' +
-      '<stop offset="0" stop-color="#a89d82"/><stop offset=".16" stop-color="#e3dabf"/>' +
-      '<stop offset=".33" stop-color="#fffdf4"/><stop offset=".47" stop-color="#f0e8d0"/>' +
-      '<stop offset=".62" stop-color="#c9bfa0"/><stop offset=".78" stop-color="#9a8f74"/>' +
-      '<stop offset=".92" stop-color="#c9bfa0"/><stop offset="1" stop-color="#a3987c"/></linearGradient>' +
+      '<stop offset="0" stop-color="#7c5c0e"/><stop offset=".16" stop-color="#c9a227"/>' +
+      '<stop offset=".33" stop-color="#ffe9a0"/><stop offset=".47" stop-color="#e7c256"/>' +
+      '<stop offset=".62" stop-color="#a5811f"/><stop offset=".78" stop-color="#6e5210"/>' +
+      '<stop offset=".92" stop-color="#a5811f"/><stop offset="1" stop-color="#77590e"/></linearGradient>' +
       '<radialGradient id="gpd" cx=".5" cy=".1" r=".5">' +
-      '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".6" stop-color="#ffffff" stop-opacity=".2"/>' +
-      '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>' +
+      '<stop offset="0" stop-color="#fff8dc" stop-opacity=".95"/><stop offset=".6" stop-color="#fff8dc" stop-opacity=".2"/>' +
+      '<stop offset="1" stop-color="#fff8dc" stop-opacity="0"/></radialGradient>' +
       '<linearGradient id="gps" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".75" stop-color="#ffffff" stop-opacity=".25"/>' +
       '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>' +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#6b6250" opacity=".5"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#6e5210" opacity=".5"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gp)"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gpd)"/>' +
       '<path d="M42 26 C37 44 38 78 45 108 L52 116 C47 84 46 46 50 24 Z" fill="url(#gps)"/>' +
-      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#ffffff" opacity=".38"/>' +
-      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#fffdf4" opacity=".55"/>' +
+      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#fff4cd" opacity=".38"/>' +
+      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#ffe9a0" opacity=".55"/>' +
       (ruby
         ? '<circle cx="60" cy="36" r="14" fill="#7c1515"/>' +
           '<circle cx="60" cy="36" r="11.5" fill="#9e2020"/>' +
           '<ellipse cx="55.5" cy="31.5" rx="4.5" ry="3" fill="#e8746a" opacity=".85" transform="rotate(-24 55.5 31.5)"/>' +
           '<circle cx="60" cy="36" r="14" fill="none" stroke="#ffe9a0" stroke-width="2"/>'
         : '') +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5c5443" stroke-width="1.4" stroke-opacity=".75"/></svg>';
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5f470c" stroke-width="1.4" stroke-opacity=".7"/></svg>';
   }
 
   function dotSVG(d) {
@@ -671,6 +671,14 @@
   if (leadBox) {
     L.DomEvent.disableClickPropagation(leadBox);
     L.DomEvent.disableScrollPropagation(leadBox);
+    var lbReopen = document.getElementById("lbReopen");
+    L.DomEvent.disableClickPropagation(lbReopen);
+    document.getElementById("lbClose").addEventListener("click", function () {
+      document.body.classList.add("lead-closed");
+    });
+    lbReopen.addEventListener("click", function () {
+      document.body.classList.remove("lead-closed");
+    });
     var zipForm = document.getElementById("zipForm");
     var zipInput = document.getElementById("zipInput");
     var zipResult = document.getElementById("zipResult");

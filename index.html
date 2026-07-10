@@ -13,7 +13,7 @@
 
 <section class="controls">
   <h1 class="map-title">Piano Stories Across America</h1>
-  <img class="map-logo" src="assets/blp-logo.png" srcset="assets/blp-logo@2x.png 2x" alt="Brigham Larson Pianos">
+  <p class="map-sub">by Brigham Larson Pianos</p>
   <div class="searchwrap">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
       <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
@@ -40,6 +40,7 @@
 
 <div id="map" role="application" aria-label="Interactive map of pianos across America">
   <div class="lead-box" id="leadBox">
+    <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
     <p class="lb-title">Do you have a family heirloom?</p>
     <p class="lb-hint">Type your ZIP code to see how close we've delivered a restored piano to you.</p>
     <form id="zipForm" autocomplete="off">
@@ -49,6 +50,7 @@
     <p class="lb-result" id="zipResult"></p>
     <a class="lb-cta" href="https://www.brighamlarsonpianos.com/pages/free-family-heirloom-restoration-evaluation" target="_blank" rel="noopener">FREE Restoration Quote</a>
   </div>
+  <button class="lead-reopen" id="lbReopen">&#9834; Family heirloom?</button>
   <div class="timebar" id="timeBar">
     <div class="tb-label" id="tbLabel">Every Era of American Piano History</div>
     <input type="range" id="timeSlider" min="1850" max="2026" step="2" value="2026" aria-label="Filter pianos by era">
