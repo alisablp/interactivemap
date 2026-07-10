@@ -176,8 +176,10 @@
   // ---------- gold markers ----------
   // Far out: every piano is a 3D gold dot. Zooming in, dots become gold pins.
   // polished gold/brass teardrop: dome top, straight taper — high-gloss
-  // metal banding, hard specular streak, sky highlight on the dome
-  function pinSVG(w, h) {
+  // metal banding, hard specular streak, sky highlight on the dome.
+  // Pianos with a before/after photo gallery wear the Ruby Crown: a
+  // brand-red jewel set into the dome, rimmed in bright gold.
+  function pinSVG(w, h, ruby) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="0">' +
       '<stop offset="0" stop-color="#7c5c0e"/><stop offset=".16" stop-color="#c9a227"/>' +
@@ -196,6 +198,12 @@
       '<path d="M42 26 C37 44 38 78 45 108 L52 116 C47 84 46 46 50 24 Z" fill="url(#gps)"/>' +
       '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#fff4cd" opacity=".38"/>' +
       '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#ffe9a0" opacity=".55"/>' +
+      (ruby
+        ? '<circle cx="60" cy="36" r="14" fill="#7c1515"/>' +
+          '<circle cx="60" cy="36" r="11.5" fill="#9e2020"/>' +
+          '<ellipse cx="55.5" cy="31.5" rx="4.5" ry="3" fill="#e8746a" opacity=".85" transform="rotate(-24 55.5 31.5)"/>' +
+          '<circle cx="60" cy="36" r="14" fill="none" stroke="#ffe9a0" stroke-width="2"/>'
+        : '') +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5f470c" stroke-width="1.4" stroke-opacity=".7"/></svg>';
   }
 
@@ -210,13 +218,13 @@
 
   // "Molten Drop" — solid 3D gold teardrops at every zoom, scaled with the view
   var iconCache = {};
-  function iconForZoom(z) {
+  function iconForZoom(z, ruby) {
     var h = z <= 5 ? 19 : z < 7 ? 24 : z < 9 ? 29 : 37;
     var w = Math.round(h * 120 / 170);
-    var key = "pin" + h;
+    var key = "pin" + h + (ruby ? "r" : "");
     return iconCache[key] || (iconCache[key] = L.divIcon({
       className: "gold-pin",
-      html: pinSVG(w, h),
+      html: pinSVG(w, h, ruby),
       iconSize: [w, h],
       iconAnchor: [w / 2, h],
       popupAnchor: [0, -h + 3]
@@ -290,8 +298,8 @@
   var pianoLayer = L.layerGroup().addTo(map);
 
   map.on("zoomend", function () {
-    var ic = iconForZoom(map.getZoom());
-    markers.forEach(function (m) { m.setIcon(ic); });
+    var z = map.getZoom();
+    markers.forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); });
   });
 
   // ---------- popup card ----------
@@ -357,10 +365,12 @@
     var k = cityCounts[key] = (cityCounts[key] || 0) + 1;
     var ang = k * 2.39996, r = 0.006 * Math.sqrt(k);
     var base = displayLatLng(p);
+    var ruby = !!(p.bp && p.ap); // Ruby Crown marks a before/after gallery
     var m = L.marker([base.lat + r * Math.sin(ang), base.lng + r * Math.cos(ang) * 1.3],
-      { icon: iconForZoom(4), title: p.t });
+      { icon: iconForZoom(4, ruby), title: p.t });
     m.on("click", function () { openCard(m.getLatLng(), cardHTML(p)); });
     m._piano = p;
+    m._ruby = ruby;
     return m;
   });
 
@@ -402,9 +412,9 @@
 
   function apply(fit) {
     var visible = markers.filter(function (m) { return matches(m._piano); });
-    var ic = iconForZoom(map.getZoom());
+    var z = map.getZoom();
     pianoLayer.clearLayers();
-    visible.forEach(function (m) { m.setIcon(ic); pianoLayer.addLayer(m); });
+    visible.forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); pianoLayer.addLayer(m); });
     if (countEl) countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
     if (fit && visible.length) {
       var b = L.latLngBounds(visible.map(function (m) { return m.getLatLng(); }));
