@@ -318,7 +318,7 @@ body.lead-closed .timebar { bottom: 80px; }
 }
 #timeSlider {
   width: 100%;
-  accent-color: var(--gold);
+  accent-color: var(--ivory);
   cursor: ew-resize;
   margin: 0;
 }
