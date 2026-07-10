@@ -486,18 +486,18 @@ body.lead-closed .timebar { left: 14px; }
 }
 .pcard .ba .ba-lbl {
   position: absolute;
-  top: 14px;
-  font-size: .52rem;
-  letter-spacing: .12em;
-  padding: 2px 7px;
-  border-radius: 3px;
-  background: rgba(0, 0, 0, .6);
+  bottom: 32px;
+  font-size: .48rem;
+  letter-spacing: .08em;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .65);
   color: #fff;
   pointer-events: none;
   z-index: 2;
 }
-.pcard .ba .ba-lbl.l { left: 20px; }
-.pcard .ba .ba-lbl.r { right: 20px; }
+.pcard .ba .ba-lbl.l { left: 36px; }
+.pcard .ba .ba-lbl.r { right: 36px; }
 .pcard .ba .ba-handle {
   position: absolute;
   top: 0;
@@ -544,6 +544,7 @@ body.lead-closed .timebar { left: 14px; }
 .peek-tip::before { display: none !important; }
 .peek {
   position: relative;
+  cursor: pointer;
   width: 84px;
   height: 84px;
   border-radius: 50%;

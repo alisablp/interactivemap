@@ -467,7 +467,7 @@
     }
     if (p.ap) {
       h += p.u
-        ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>Read the Restoration Story</a>"
+        ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>View This Piano</a>"
         : "<span class='nolink'>Story page coming soon</span>";
     } else {
       // no photos yet — tell the restoration story instead
@@ -512,18 +512,30 @@
       openCard(m.getLatLng(), cardHTML(p));
     });
     if (ruby) {
-      // hover bait: a tiny split before/after medallion above the pin
+      // hover bait: a tiny split before/after medallion above the pin —
+      // clicking it opens the full card (delegated handler below)
       m.bindTooltip(
-        "<div class='peek'>" +
+        "<div class='peek' data-mi='" + i + "'>" +
         "<img src='" + photoURL(p.ap) + "' alt=''>" +
         "<img class='pk-before' src='" + photoURL(p.bp) + "' alt=''>" +
         "<span class='pk-seam'></span></div>",
-        { direction: "top", offset: [0, -26], className: "peek-tip", opacity: 1 }
+        { direction: "top", offset: [0, -26], className: "peek-tip", opacity: 1, interactive: true }
       );
     }
     m._piano = p;
     m._ruby = ruby;
     return m;
+  });
+
+  // clicking a hover-peek medallion opens that piano's full card
+  document.addEventListener("click", function (e) {
+    var peek = e.target.closest ? e.target.closest(".peek") : null;
+    if (!peek) return;
+    var m = markers[parseInt(peek.getAttribute("data-mi"), 10)];
+    if (!m) return;
+    m.closeTooltip();
+    drawGlowRoute(m.getLatLng());
+    openCard(m.getLatLng(), cardHTML(m._piano));
   });
 
   // ---------- filtering ----------
