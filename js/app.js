@@ -121,7 +121,7 @@
 
       var RELOC_STYLE = {
         stroke: true, color: "#c9a227", weight: 1.2,
-        fill: true, fillColor: "#ede8db", fillOpacity: 1, interactive: false
+        fill: true, fillColor: "#eceae5", fillOpacity: 1, interactive: false
       };
       function drawRelocated(rings, relocate) {
         var moved = rings.map(function (ring) {
