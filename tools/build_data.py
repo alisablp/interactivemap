@@ -202,21 +202,23 @@ def find_locations(lookup, zips, owner):
     right after pickup/delivery keywords — each tagged with its kind."""
     locs = []
 
-    def add(city, st, lat, lng, kind):
-        for l in locs:
+    def add(city, st, lat, lng, kind, src):
+        for j, l in enumerate(locs):
             if (l[0], l[1]) == (city, st):
+                if src == "text" and l[5] == "zip":
+                    locs[j] = (city, st, lat, lng, kind, src)
                 return
-        locs.append((city, st, lat, lng, kind))
+        locs.append((city, st, lat, lng, kind, src))
 
     for m in CITY_PAT.finditer(owner):
         hit = match_city(lookup, m.group(1), m.group(2))
         if hit:
-            add(hit[0], m.group(2), hit[1], hit[2], kind_of(owner, m.start()))
+            add(hit[0], m.group(2), hit[1], hit[2], kind_of(owner, m.start()), "text")
     for m in FULLSTATE_PAT.finditer(owner):
         st = STATE_NAMES[m.group(2).lower()]
         hit = match_city(lookup, m.group(1), st)
         if hit:
-            add(hit[0], st, hit[1], hit[2], kind_of(owner, m.start()))
+            add(hit[0], st, hit[1], hit[2], kind_of(owner, m.start()), "text")
     for m in ZIP_PAT.finditer(owner):
         word, z = m.group(1).strip(".,").lower(), m.group(2)
         if word not in ZIP_WORD_BLACKLIST and "#" not in word and z in zips:
@@ -231,7 +233,7 @@ def find_locations(lookup, zips, owner):
             # is neighborhood-level, which is more precision than we want
             if (city.lower(), st) in lookup:
                 lat, lng, _ = lookup[(city.lower(), st)]
-            add(city, st, lat, lng, kind_of(owner, m.start()))
+            add(city, st, lat, lng, kind_of(owner, m.start()), "zip")
     for m in ADDR_PAT.finditer(owner):
         words = m.group(1).strip().lower().split()
         for n in (3, 2, 1):
@@ -240,7 +242,7 @@ def find_locations(lookup, zips, owner):
                 if (cand, "UT") in lookup:
                     lat, lng, _ = lookup[(cand, "UT")]
                     add(" ".join(w.capitalize() for w in cand.split()), "UT", lat, lng,
-                        kind_of(owner, m.start()))
+                        kind_of(owner, m.start()), "text")
                     break
     for m in KEYWORD_CITY_PAT.finditer(owner):
         frag = m.group(2).strip().lower()
@@ -253,7 +255,7 @@ def find_locations(lookup, zips, owner):
                 best = (name, st, lat, lng, pop)
         if best and best[4] >= 20000:
             kind = "pickup" if PICKUP_WORDS.search(m.group(1)) else "delivery"
-            add(frag.title(), best[1], best[2], best[3], kind)
+            add(frag.title(), best[1], best[2], best[3], kind, "text")
     return locs
 
 
@@ -290,13 +292,12 @@ def main():
         locs = find_locations(lookup, zips, r[COL_OWNER])
         if not locs:
             continue
-        # Delivery-first rule: an explicit delivery city wins; otherwise any
-        # plainly listed city; a pickup city only as a stand-in until the
-        # delivery city is added to the log. Ties break farthest from Utah.
-        tier = ([l for l in locs if l[4] == "delivery"]
-                or [l for l in locs if l[4] == "plain"]
-                or locs)
-        city, st, lat, lng = max(tier, key=lambda l: dist((l[2], l[3]), PROVO))[:4]
+        # Farthest-journey rule: the pin marks the far end of the piano's
+        # journey — whichever mentioned location lies farthest from Utah,
+        # delivery or not. Zip-derived spots count only when the cell has no
+        # written city/state (a mistyped zip is likelier than a mistyped city).
+        pool = [l for l in locs if l[5] == "text"] or locs
+        city, st, lat, lng = max(pool, key=lambda l: dist((l[2], l[3]), PROVO))[:4]
 
         year, make, model = r[COL_YEAR].strip(), r[COL_MAKE].strip(), r[COL_MODEL].strip()
         summary = r[COL_SUMMARY].strip()
