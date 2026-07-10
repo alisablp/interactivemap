@@ -50,7 +50,7 @@
   // CARTO Voyager: clean, Google-style basemap (no API key required).
   // Terrain and labels are separate layers: the US mask sits between them,
   // so city names near borders and coasts never get sliced off.
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: "abcd",
     maxZoom: 19
@@ -60,7 +60,7 @@
   map.getPane("labels").style.zIndex = 450;      // above the mask (400)…
   map.getPane("labels").style.pointerEvents = "none"; // …but never blocks clicks
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_only_labels/{z}/{x}/{y}{r}.png", {
     subdomains: "abcd",
     maxZoom: 19,
     pane: "labels"
@@ -114,7 +114,7 @@
   var WORLD_RING = [[-89.9, -540], [-89.9, 540], [89.9, 540], [89.9, -540]];
   var MASK_STYLE = {
     stroke: true, color: "#c9a227", weight: 1.2,
-    fill: true, fillColor: "#ffffff", fillOpacity: 1, interactive: false
+    fill: true, fillColor: "#e9dfc6", fillOpacity: 1, interactive: false
   };
 
   function ringCentroid(ring) {
@@ -123,8 +123,22 @@
     return { lat: la / ring.length, lng: lo / ring.length };
   }
 
-  fetch("https://cdn.jsdelivr.net/npm/us-atlas@3/nation-10m.json")
-    .then(function (r) { return r.json(); })
+  // fetch with retries — if the border data fails to load, the mask and
+  // clips would silently vanish, so never give up on the first try
+  function fetchJSON(url, tries) {
+    return fetch(url).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).catch(function (err) {
+      if (tries > 0) {
+        return new Promise(function (resolve) { setTimeout(resolve, 1200); })
+          .then(function () { return fetchJSON(url, tries - 1); });
+      }
+      throw err;
+    });
+  }
+
+  fetchJSON("https://cdn.jsdelivr.net/npm/us-atlas@3/nation-10m.json", 3)
     .then(function (topo) {
       var nation = topojson.feature(topo, topo.objects.nation);
       var geoms = nation.type === "FeatureCollection"
@@ -156,7 +170,7 @@
 
       var RELOC_STYLE = {
         stroke: true, color: "#c9a227", weight: 1.2,
-        fill: true, fillColor: "#eceae5", fillOpacity: 1, interactive: false
+        fill: true, fillColor: "#211d17", fillOpacity: 1, interactive: false
       };
       function drawRelocated(rings, relocate) {
         var moved = rings.map(function (ring) {
@@ -182,7 +196,7 @@
         .then(function (topo) {
           var borders = topojson.mesh(topo, topo.objects.states, function (a, b) { return a !== b; });
           L.geoJSON(borders, {
-            style: { color: "#cbbb94", weight: 1, opacity: .95, fill: false },
+            style: { color: "#5f5133", weight: 1, opacity: .95, fill: false },
             interactive: false
           }).addTo(map);
         })
@@ -195,7 +209,7 @@
           var GREAT = ["Lake Superior", "Lake Michigan", "Lake Huron", "Lake Erie", "Lake Ontario"];
           L.geoJSON(lakes, {
             filter: function (f) { return GREAT.indexOf(f.properties.name) !== -1; },
-            style: { stroke: true, color: "#c9a227", weight: 1, fill: true, fillColor: "#ffffff", fillOpacity: 1 },
+            style: { stroke: true, color: "#a08a4f", weight: 1, fill: true, fillColor: "#e9dfc6", fillOpacity: 1 },
             interactive: false
           }).addTo(map);
         })
@@ -230,29 +244,29 @@
   function pinSVG(w, h, ruby) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="0">' +
-      '<stop offset="0" stop-color="#7c5c0e"/><stop offset=".16" stop-color="#c9a227"/>' +
-      '<stop offset=".33" stop-color="#ffe9a0"/><stop offset=".47" stop-color="#e7c256"/>' +
-      '<stop offset=".62" stop-color="#a5811f"/><stop offset=".78" stop-color="#6e5210"/>' +
-      '<stop offset=".92" stop-color="#a5811f"/><stop offset="1" stop-color="#77590e"/></linearGradient>' +
+      '<stop offset="0" stop-color="#a89d82"/><stop offset=".16" stop-color="#e3dabf"/>' +
+      '<stop offset=".33" stop-color="#fffdf4"/><stop offset=".47" stop-color="#f0e8d0"/>' +
+      '<stop offset=".62" stop-color="#c9bfa0"/><stop offset=".78" stop-color="#9a8f74"/>' +
+      '<stop offset=".92" stop-color="#c9bfa0"/><stop offset="1" stop-color="#a3987c"/></linearGradient>' +
       '<radialGradient id="gpd" cx=".5" cy=".1" r=".5">' +
-      '<stop offset="0" stop-color="#fff8dc" stop-opacity=".95"/><stop offset=".6" stop-color="#fff8dc" stop-opacity=".2"/>' +
-      '<stop offset="1" stop-color="#fff8dc" stop-opacity="0"/></radialGradient>' +
+      '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".6" stop-color="#ffffff" stop-opacity=".2"/>' +
+      '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>' +
       '<linearGradient id="gps" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".75" stop-color="#ffffff" stop-opacity=".25"/>' +
       '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>' +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#6e5210" opacity=".5"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#6b6250" opacity=".5"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gp)"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gpd)"/>' +
       '<path d="M42 26 C37 44 38 78 45 108 L52 116 C47 84 46 46 50 24 Z" fill="url(#gps)"/>' +
-      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#fff4cd" opacity=".38"/>' +
-      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#ffe9a0" opacity=".55"/>' +
+      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#ffffff" opacity=".38"/>' +
+      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#fffdf4" opacity=".55"/>' +
       (ruby
         ? '<circle cx="60" cy="36" r="14" fill="#7c1515"/>' +
           '<circle cx="60" cy="36" r="11.5" fill="#9e2020"/>' +
           '<ellipse cx="55.5" cy="31.5" rx="4.5" ry="3" fill="#e8746a" opacity=".85" transform="rotate(-24 55.5 31.5)"/>' +
           '<circle cx="60" cy="36" r="14" fill="none" stroke="#ffe9a0" stroke-width="2"/>'
         : '') +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5f470c" stroke-width="1.4" stroke-opacity=".7"/></svg>';
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5c5443" stroke-width="1.4" stroke-opacity=".75"/></svg>';
   }
 
   function dotSVG(d) {
@@ -404,7 +418,7 @@
     }
     if (p.ap) {
       h += p.u
-        ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>View This Piano</a>"
+        ? "<a class='btn' href='" + esc(p.u) + "' target='_blank' rel='noopener'>Read the Restoration Story</a>"
         : "<span class='nolink'>Story page coming soon</span>";
     } else {
       // no photos yet — tell the restoration story instead
