@@ -208,8 +208,8 @@ body {
   display: block;
   margin-top: 10px;
   text-align: center;
-  background: var(--gold);
-  color: var(--black);
+  background: var(--red);
+  color: #ffffff;
   font-weight: 700;
   font-size: .72rem;
   letter-spacing: .08em;
@@ -218,7 +218,48 @@ body {
   padding: 9px 10px;
   border-radius: 6px;
 }
-.lb-cta:hover { background: var(--gold-hi); }
+.lb-cta:hover,
+.leaflet-container a.lb-cta:hover { background: #7c1515; color: #ffffff; }
+
+/* era timeline */
+.timebar {
+  position: absolute;
+  bottom: 18px;
+  left: 300px;
+  right: 60px;
+  max-width: 560px;
+  margin: 0 auto;
+  z-index: 1000;
+  background: rgba(249, 247, 238, .94);
+  border: 1.5px solid var(--gold);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(40, 25, 0, .2);
+  padding: 10px 16px 8px;
+}
+.tb-label {
+  font-family: "Assistant", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  font-size: .78rem;
+  color: #1c1a17;
+  text-align: center;
+  margin-bottom: 4px;
+}
+#timeSlider {
+  width: 100%;
+  accent-color: var(--gold);
+  cursor: ew-resize;
+  margin: 0;
+}
+.tb-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: .6rem;
+  letter-spacing: .1em;
+  color: #8d8676;
+}
+@media (max-width: 900px) {
+  .timebar { left: 12px; right: 12px; bottom: 235px; max-width: none; }
+}
 @media (max-width: 640px) {
   .lead-box { width: calc(100% - 24px); left: 12px; bottom: 12px; padding: 10px 12px 12px; }
   .lb-hint { display: none; }

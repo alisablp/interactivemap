@@ -457,7 +457,7 @@
     WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "Washington DC"
   };
 
-  var state = { chip: "*", make: "", q: "" };
+  var state = { chip: "*", make: "", q: "", year: null }; // year: era filter center, null = all eras
   var countEl = document.getElementById("count");
 
   function matches(p) {
@@ -468,6 +468,10 @@
       if (kv[0] === "gallery" && !(p.bp && p.ap)) return false; // before/after slider pianos
     }
     if (state.make && p.mk.toLowerCase().indexOf(state.make.toLowerCase()) === -1) return false;
+    if (state.year !== null) {
+      var y = parseInt(p.y, 10);
+      if (!y || Math.abs(y - state.year) > 12) return false; // ±12-year era window
+    }
     if (state.q) {
       var hay = [p.t, p.y, p.mk, p.md, p.tp, p.ct, p.st, STATE_NAMES[p.st] || "", p.c.join(" ")].join(" ").toLowerCase();
       var terms = state.q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -537,9 +541,14 @@
   // "All Pianos" clears filters and refits the view)
   var resetBtn = document.getElementById("reset");
   if (resetBtn) resetBtn.addEventListener("click", function () {
-    state = { chip: "*", make: "", q: "" };
+    state = { chip: "*", make: "", q: "", year: null };
     searchEl.value = "";
     makeSelect.value = "";
+    var ts = document.getElementById("timeSlider");
+    if (ts) {
+      ts.value = 2026;
+      document.getElementById("tbLabel").textContent = "Every Era of American Piano History";
+    }
     chipsEl.querySelectorAll(".chip[data-filter]").forEach(function (c) {
       c.classList.toggle("on", c.getAttribute("data-filter") === "*");
     });
@@ -548,6 +557,28 @@
   });
 
   apply(false);
+
+  // ---------- era timeline slider ----------
+  var timeBar = document.getElementById("timeBar");
+  if (timeBar) {
+    L.DomEvent.disableClickPropagation(timeBar);
+    L.DomEvent.disableScrollPropagation(timeBar);
+    var timeSlider = document.getElementById("timeSlider");
+    var tbLabel = document.getElementById("tbLabel");
+    var tDebounce;
+    timeSlider.addEventListener("input", function () {
+      var v = parseInt(timeSlider.value, 10);
+      if (v >= 2026) {
+        state.year = null;
+        tbLabel.textContent = "Every Era of American Piano History";
+      } else {
+        state.year = v;
+        tbLabel.textContent = "The " + v + " Era · pianos built " + (v - 12) + "–" + Math.min(v + 12, 2026);
+      }
+      clearTimeout(tDebounce);
+      tDebounce = setTimeout(function () { apply(false); }, 120);
+    });
+  }
 
   // ---------- heirloom lead box: ZIP lookup + free quote ----------
   var leadBox = document.getElementById("leadBox");

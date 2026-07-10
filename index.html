@@ -39,7 +39,7 @@
 
 <div id="map" role="application" aria-label="Interactive map of pianos across America">
   <div class="lead-box" id="leadBox">
-    <p class="lb-title">Do you have an old family heirloom?</p>
+    <p class="lb-title">Do you have a family heirloom?</p>
     <p class="lb-hint">Type your ZIP code to see how close we've delivered a restored piano to you.</p>
     <form id="zipForm" autocomplete="off">
       <input id="zipInput" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="ZIP code" aria-label="Your ZIP code">
@@ -47,6 +47,11 @@
     </form>
     <p class="lb-result" id="zipResult"></p>
     <a class="lb-cta" href="https://www.brighamlarsonpianos.com/pages/free-family-heirloom-restoration-evaluation" target="_blank" rel="noopener">Get a Free Restoration Quote</a>
+  </div>
+  <div class="timebar" id="timeBar">
+    <div class="tb-label" id="tbLabel">Every Era of American Piano History</div>
+    <input type="range" id="timeSlider" min="1850" max="2026" step="2" value="2026" aria-label="Filter pianos by era">
+    <div class="tb-ends"><span>1850</span><span>2026</span></div>
   </div>
 </div>
 
