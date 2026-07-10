@@ -14,11 +14,15 @@
 <section class="controls">
   <h1 class="map-title">Piano Stories Across America</h1>
   <p class="map-sub">by Brigham Larson Pianos</p>
-  <div class="searchwrap">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
-      <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
-    </svg>
-    <input id="search" type="search" placeholder='Search — try "Steinway", "Grand", "1910", "Utah"…' aria-label="Search pianos">
+  <div class="searcharea">
+    <div class="searchwrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
+      </svg>
+      <input id="search" type="search" placeholder='Search — try "Steinway", "Grand", "1910", "Utah"…' aria-label="Search pianos"
+        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest" autocomplete="off">
+    </div>
+    <div class="suggest" id="suggest" role="listbox" aria-label="Search suggestions" hidden></div>
   </div>
 
   <div class="chiprow" id="chips">

@@ -613,7 +613,7 @@
     WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "Washington DC"
   };
 
-  var state = { chip: "*", make: "", q: "", year: null }; // year: era filter center, null = all eras
+  var state = { chip: "*", make: "", q: "", year: null, loc: null }; // year: era filter center, null = all eras; loc: {st[, ct]} region picked from the search dropdown
   var countEl = document.getElementById("count");
 
   function matches(p) {
@@ -622,6 +622,10 @@
       if (kv[0] === "type" && p.tp !== kv[1]) return false;
       if (kv[0] === "cat" && p.c.indexOf(kv[1]) === -1) return false;
       if (kv[0] === "gallery" && !(p.bp && p.ap)) return false; // before/after slider pianos
+    }
+    if (state.loc) {
+      if (p.st !== state.loc.st) return false;
+      if (state.loc.ct && p.ct !== state.loc.ct) return false;
     }
     if (state.make && p.mk.toLowerCase().indexOf(state.make.toLowerCase()) === -1) return false;
     if (state.year !== null) {
@@ -684,12 +688,190 @@
     apply(true);
   });
 
-  // search
+  // ---------- search + autocomplete dropdown ----------
+  // Typing suggests places and individual pianos — a keyboard-friendly
+  // alternative to hunting for a pin on the map.
   var searchEl = document.getElementById("search");
+  var suggestEl = document.getElementById("suggest");
+
+  // region index: pianos per state and per city
+  var stateCounts = {}, cityLocs = {};
+  PIANOS.forEach(function (p) {
+    stateCounts[p.st] = (stateCounts[p.st] || 0) + 1;
+    var ck = p.ct + ", " + p.st;
+    cityLocs[ck] = cityLocs[ck] || { ct: p.ct, st: p.st, n: 0 };
+    cityLocs[ck].n++;
+  });
+  var pianoHay = PIANOS.map(function (p) {
+    return [p.t, p.y, p.mk, p.md, p.tp, p.ct, p.st, STATE_NAMES[p.st] || "", p.c.join(" ")].join(" ").toLowerCase();
+  });
+
+  var sgItems = [], sgActive = -1;
+
+  function hideSuggest() {
+    suggestEl.hidden = true;
+    suggestEl.innerHTML = "";
+    searchEl.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("suggest-open");
+    sgItems = [];
+    sgActive = -1;
+  }
+
+  function setActive(idx) {
+    if (sgActive >= 0 && sgItems[sgActive]) sgItems[sgActive].classList.remove("active");
+    sgActive = idx;
+    if (sgActive >= 0 && sgItems[sgActive]) {
+      sgItems[sgActive].classList.add("active");
+      sgItems[sgActive].scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function goToLocation(loc, label) {
+    clearTimeout(debounce); // a pending text-filter would override the pick
+    searchEl.value = label;
+    state.q = "";
+    state.loc = loc;
+    hideSuggest();
+    apply(true); // filters to the region and fits the view to its pins
+  }
+
+  function goToPiano(i) {
+    clearTimeout(debounce); // a pending text-filter would cancel the fly-to
+    var m = markers[i];
+    hideSuggest();
+    searchEl.value = m._piano.t;
+    var ll = m.getLatLng();
+    // if current filters hide this piano's pin, relax them so it shows
+    if (!matches(m._piano)) {
+      state.q = "";
+      state.loc = null;
+      apply(false);
+    }
+    map.flyTo(ll, Math.max(map.getZoom(), 8.5), { duration: 1.4 });
+    map.once("moveend", function () {
+      // exactly the pin-click behavior: glowing route + open card
+      drawGlowRoute(ll);
+      openCard(ll, cardHTML(m._piano));
+    });
+  }
+
+  function suggestMatches(q) {
+    var ql = q.toLowerCase();
+    var locs = [];
+    Object.keys(STATE_NAMES).forEach(function (st) {
+      if (!stateCounts[st]) return;
+      var name = STATE_NAMES[st];
+      if (name.toLowerCase().indexOf(ql) === 0 || st.toLowerCase() === ql) {
+        locs.push({ loc: { st: st }, label: name, n: stateCounts[st] });
+      }
+    });
+    Object.keys(cityLocs).forEach(function (ck) {
+      var c = cityLocs[ck];
+      if (c.ct.toLowerCase().indexOf(ql) === 0 || ck.toLowerCase().indexOf(ql) === 0) {
+        locs.push({ loc: { st: c.st, ct: c.ct }, label: ck, n: c.n });
+      }
+    });
+    locs.sort(function (a, b) { return b.n - a.n; });
+
+    var terms = ql.split(/\s+/).filter(Boolean);
+    var pianos = [];
+    if (terms.length) {
+      PIANOS.forEach(function (p, i) {
+        for (var t = 0; t < terms.length; t++) {
+          if (pianoHay[i].indexOf(terms[t]) === -1) return;
+        }
+        pianos.push(i);
+      });
+      // heirlooms and photo galleries first — the pianos with stories to tell
+      pianos.sort(function (a, b) {
+        function rank(i) {
+          var p = PIANOS[i];
+          return (p.c.indexOf("Family Heirloom") !== -1 ? 2 : 0) + (p.ap ? 1 : 0);
+        }
+        return rank(b) - rank(a);
+      });
+    }
+    return { locs: locs.slice(0, 5), pianos: pianos.slice(0, 30) };
+  }
+
+  function renderSuggest() {
+    var q = searchEl.value.trim();
+    if (q.length < 2) { hideSuggest(); return; }
+    var res = suggestMatches(q);
+    if (!res.locs.length && !res.pianos.length) { hideSuggest(); return; }
+    var h = "";
+    if (res.locs.length) {
+      h += "<div class='sg-sect'><div class='sg-head'>Locations</div>";
+      res.locs.forEach(function (l) {
+        h += "<button type='button' class='sg-item' role='option' data-kind='loc' " +
+          "data-st='" + esc(l.loc.st) + "'" + (l.loc.ct ? " data-ct='" + esc(l.loc.ct) + "'" : "") + ">" +
+          "<span class='sg-main'>" + esc(l.label) + "</span>" +
+          "<span class='sg-sub'>" + l.n + " piano" + (l.n === 1 ? "" : "s") + "</span></button>";
+      });
+      h += "</div>";
+    }
+    if (res.pianos.length) {
+      h += "<div class='sg-sect'><div class='sg-head'>Pianos</div>";
+      res.pianos.forEach(function (i) {
+        var p = PIANOS[i];
+        h += "<button type='button' class='sg-item' role='option' data-kind='piano' data-i='" + i + "'>" +
+          "<span class='sg-main'>" + esc(p.t) + "</span>" +
+          "<span class='sg-sub'>" + esc(p.ct + ", " + p.st) + "</span></button>";
+      });
+      h += "</div>";
+    }
+    suggestEl.innerHTML = h;
+    suggestEl.hidden = false;
+    suggestEl.scrollTop = 0;
+    searchEl.setAttribute("aria-expanded", "true");
+    document.body.classList.add("suggest-open");
+    sgItems = Array.prototype.slice.call(suggestEl.querySelectorAll(".sg-item"));
+    sgActive = -1;
+  }
+
+  suggestEl.addEventListener("click", function (e) {
+    var btn = e.target.closest(".sg-item");
+    if (!btn) return;
+    if (btn.getAttribute("data-kind") === "piano") {
+      goToPiano(parseInt(btn.getAttribute("data-i"), 10));
+    } else {
+      var st = btn.getAttribute("data-st"), ct = btn.getAttribute("data-ct");
+      goToLocation(ct ? { st: st, ct: ct } : { st: st },
+        ct ? ct + ", " + st : STATE_NAMES[st] || st);
+    }
+  });
+
+  searchEl.addEventListener("keydown", function (e) {
+    if (suggestEl.hidden) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive(sgActive < sgItems.length - 1 ? sgActive + 1 : 0);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive(sgActive > 0 ? sgActive - 1 : sgItems.length - 1);
+    } else if (e.key === "Enter") {
+      if (sgActive >= 0) {
+        e.preventDefault();
+        sgItems[sgActive].click();
+      } else {
+        hideSuggest(); // plain Enter: keep the typed text as the map filter
+      }
+    } else if (e.key === "Escape") {
+      hideSuggest();
+    }
+  });
+
+  // close when clicking/tapping anywhere outside the search area
+  document.addEventListener("pointerdown", function (e) {
+    if (!suggestEl.hidden && !(e.target.closest && e.target.closest(".searcharea"))) hideSuggest();
+  });
+
   var debounce;
   searchEl.addEventListener("input", function () {
+    state.loc = null; // typing again clears a picked region
+    renderSuggest(); // suggestions update instantly…
     clearTimeout(debounce);
-    debounce = setTimeout(function () {
+    debounce = setTimeout(function () { // …the map filter shortly after
       state.q = searchEl.value.trim();
       apply(true);
     }, 250);
@@ -699,8 +881,9 @@
   // "All Pianos" clears filters and refits the view)
   var resetBtn = document.getElementById("reset");
   if (resetBtn) resetBtn.addEventListener("click", function () {
-    state = { chip: "*", make: "", q: "", year: null };
+    state = { chip: "*", make: "", q: "", year: null, loc: null };
     searchEl.value = "";
+    hideSuggest();
     makeSelect.value = "";
     var ts = document.getElementById("timeSlider");
     if (ts) {

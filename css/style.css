@@ -71,6 +71,11 @@ body.card-over-controls .controls > * { pointer-events: none; }
   pointer-events: none;
 }
 
+.searcharea {
+  position: relative;
+  max-width: 520px;
+  margin: 0 auto;
+}
 .searchwrap {
   display: flex;
   align-items: center;
@@ -80,8 +85,6 @@ body.card-over-controls .controls > * { pointer-events: none; }
   border-radius: 999px;
   padding: 9px 16px;
   color: var(--muted);
-  max-width: 520px;
-  margin: 0 auto;
   backdrop-filter: blur(4px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
 }
@@ -94,6 +97,77 @@ body.card-over-controls .controls > * { pointer-events: none; }
   width: 100%;
 }
 .searchwrap input::placeholder { color: #8d8266; }
+
+/* ---------- search autocomplete dropdown ---------- */
+.suggest {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(24, 19, 13, .97);
+  border: 1px solid #8a723a;
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .55);
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+  max-height: min(380px, 52vh);
+  text-align: left;
+  z-index: 5;
+}
+/* the map's corner buttons sit in a higher stacking context than the
+   controls bar — step them aside while the dropdown is open */
+.leaflet-control-container { transition: opacity .2s ease; }
+body.suggest-open .leaflet-control-container {
+  opacity: 0;
+  pointer-events: none;
+}
+.sg-head {
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--gold, #c9a227);
+  padding: 12px 16px 4px;
+}
+.sg-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--ivory);
+  font: inherit;
+  font-size: .92rem;
+  text-align: left;
+  cursor: pointer;
+}
+.sg-item:hover,
+.sg-item.active {
+  background: rgba(201, 162, 39, .18);
+}
+.sg-item .sg-main {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sg-item .sg-sub {
+  flex: none;
+  color: #b3a67f;
+  font-size: .76rem;
+  letter-spacing: .03em;
+}
+.sg-none {
+  padding: 12px 16px 14px;
+  color: #b3a67f;
+  font-size: .85rem;
+}
+.suggest > .sg-sect + .sg-sect { border-top: 1px solid rgba(201, 162, 39, .25); }
+.sg-sect { padding-bottom: 6px; }
 
 .chiprow {
   display: flex;
