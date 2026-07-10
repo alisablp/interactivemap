@@ -85,6 +85,22 @@ body {
 }
 .chip.select { padding: 6px 10px; }
 
+.resetlink {
+  font: inherit;
+  font-size: .7rem;
+  letter-spacing: .04em;
+  color: #1c1a17;
+  background: none;
+  border: 0;
+  padding: 6px 4px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: center;
+}
+.resetlink:hover { color: #000; }
+
 /* ---------- map ---------- */
 #map {
   flex: 1;
