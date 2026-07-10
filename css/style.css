@@ -43,6 +43,11 @@ body {
 }
 .controls > * { pointer-events: auto; }
 
+/* while an open card or peek overlaps the controls, step aside */
+.controls { transition: opacity .22s ease; }
+body.card-over-controls .controls { opacity: 0; }
+body.card-over-controls .controls > * { pointer-events: none; }
+
 .map-title {
   font-family: Didot, "Bodoni 72", Georgia, serif;
   font-weight: 400;

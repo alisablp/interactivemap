@@ -404,6 +404,27 @@
   }
   map.on("popupclose", function () { routeGlow.clearLayers(); });
 
+  // Leaflet's transformed map pane flattens popup z-index, so cards can't
+  // layer above the floating controls — instead, fade the controls away
+  // whenever an open card or peek overlaps them.
+  function updateControlsDim() {
+    var controls = document.querySelector(".controls");
+    if (!controls) return;
+    var c = controls.getBoundingClientRect();
+    var overlap = false;
+    document.querySelectorAll(".leaflet-popup, .leaflet-tooltip").forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (!(r.bottom < c.top || r.top > c.bottom || r.right < c.left || r.left > c.right)) overlap = true;
+    });
+    document.body.classList.toggle("card-over-controls", overlap);
+  }
+  ["popupopen", "popupclose", "tooltipopen", "tooltipclose", "move", "zoomend"].forEach(function (ev) {
+    map.on(ev, function () {
+      requestAnimationFrame(updateControlsDim);
+      setTimeout(updateControlsDim, 350); // again after Leaflet's fade-out removes the element
+    });
+  });
+
   // ---------- marker layer (no clustering — every piano stays visible) ----------
   var pianoLayer = L.layerGroup().addTo(map);
 
