@@ -52,14 +52,10 @@
   // CARTO Voyager: clean, Google-style basemap (no API key required).
   // Terrain and labels are separate layers: the US mask sits between them,
   // so city names near borders and coasts never get sliced off.
-  map.createPane("landbase");
-  map.getPane("landbase").style.zIndex = 150; // solid espresso land under the tiles
-
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: "abcd",
-    maxZoom: 19,
-    opacity: 0.42
+    maxZoom: 19
   }).addTo(map);
 
   map.createPane("labels");
@@ -172,15 +168,11 @@
 
       // only the lower 48 shows through the cream — AK & HI are drawn
       // relocated below as clean land-colored shapes
-      L.polygon(lower48, {
-        pane: "landbase", stroke: false,
-        fill: true, fillColor: "#2e2317", fillOpacity: 1, interactive: false
-      }).addTo(map);
       L.polygon([WORLD_RING].concat(lower48), MASK_STYLE).addTo(map);
 
       var RELOC_STYLE = {
         stroke: true, color: "#c9a227", weight: 1.2,
-        fill: true, fillColor: "#2b2118", fillOpacity: 1, interactive: false
+        fill: true, fillColor: "#211d17", fillOpacity: 1, interactive: false
       };
       function drawRelocated(rings, relocate) {
         var moved = rings.map(function (ring) {

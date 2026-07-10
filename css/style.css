@@ -165,10 +165,9 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
 }
 .leaflet-control-attribution a { color: #8d8266; }
 
-/* espresso-brown land: light tiles darkened into a warm brown so the
-   tone holds at every zoom (dark tiles have no luminance to tint) */
-.leaflet-tile-pane { filter: grayscale(1) brightness(.5) contrast(1.15); }
-.leaflet-labels-pane { filter: sepia(.5) brightness(1.45); opacity: .9; }
+/* warm the dark basemap: ebony land with a candlelight cast */
+.leaflet-tile-pane { filter: sepia(.32) brightness(1.75) contrast(.92); }
+.leaflet-labels-pane { filter: sepia(.35) brightness(1.4); opacity: .9; }
 
 /* zoom + locate controls, dark */
 .leaflet-bar a {
