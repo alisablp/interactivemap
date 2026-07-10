@@ -712,6 +712,10 @@
     L.DomEvent.disableScrollPropagation(leadBox);
     var lbReopen = document.getElementById("lbReopen");
     L.DomEvent.disableClickPropagation(lbReopen);
+    // phones start with the box collapsed — the pill invites, not insists
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      document.body.classList.add("lead-closed");
+    }
     document.getElementById("lbClose").addEventListener("click", function () {
       document.body.classList.add("lead-closed");
     });
