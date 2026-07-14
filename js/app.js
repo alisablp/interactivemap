@@ -907,6 +907,51 @@
 
   apply(false);
 
+  // ---------- stats banner ----------
+  // The scale of the story in one line, computed live from the data.
+  var statsEl = document.getElementById("mapStats");
+  if (statsEl) {
+    var statStates = {};
+    var statMiles = 0, statMinY = Infinity, statMaxY = -Infinity;
+    PIANOS.forEach(function (p) {
+      statStates[p.st] = 1;
+      // heirlooms make the trip to the workshop and back — count both legs
+      statMiles += milesFromWorkshop(p.la, p.lo) * (p.c.indexOf("Family Heirloom") !== -1 ? 2 : 1);
+      var y = parseInt(p.y, 10);
+      if (y) { if (y < statMinY) statMinY = y; if (y > statMaxY) statMaxY = y; }
+    });
+    var STATS = [
+      [PIANOS.length, " pianos"],
+      [Object.keys(statStates).length, " states"],
+      [Math.round(statMiles / 1000) * 1000, " miles traveled"],
+      [statMaxY > statMinY ? statMaxY - statMinY : 0, " years of craftsmanship"]
+    ].filter(function (s) { return s[0] > 0; });
+
+    statsEl.innerHTML = STATS.map(function (s, i) {
+      return (i ? "<span class='ms-dot'>&#183;</span>" : "") +
+        "<span class='ms-num' data-n='" + s[0] + "'>0</span>" + s[1];
+    }).join("");
+
+    var numEls = statsEl.querySelectorAll(".ms-num");
+    function setStats(t) { // t: 0..1 progress
+      numEls.forEach(function (el) {
+        var n = Math.round(parseInt(el.getAttribute("data-n"), 10) * t);
+        el.textContent = n.toLocaleString("en-US");
+      });
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setStats(1);
+    } else {
+      var statT0 = null;
+      requestAnimationFrame(function tick(ts) {
+        if (!statT0) statT0 = ts;
+        var t = Math.min(1, (ts - statT0) / 1400);
+        setStats(1 - Math.pow(1 - t, 3)); // ease-out — settles gently
+        if (t < 1) requestAnimationFrame(tick);
+      });
+    }
+  }
+
   // ---------- era timeline slider ----------
   var timeBar = document.getElementById("timeBar");
   if (timeBar) {
