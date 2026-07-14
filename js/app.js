@@ -495,7 +495,7 @@
     if (isNew && !isHeirloom) {
       story = "<p class='resto'>A beautiful piece of musical history in the making. Brand new, this " +
         esc(what) + " represents the finest of modern piano craftsmanship. Delivered to its new home, " +
-        "we are proud to see this instrument's legacy begin in " + esc(p.ct + ", " + p.st) + ".</p>";
+        "we are proud that this instrument's legacy begins in " + esc(p.ct + ", " + p.st) + ".</p>";
     } else {
       story = "<p class='resto'>A beautiful piece of musical history. " +
         (p.y && !isNew
