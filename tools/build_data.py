@@ -304,7 +304,9 @@ def main():
         if not (year or make or summary):
             continue
         if not re.fullmatch(r"(18|19|20)\d\d", year):
-            year = ""
+            # a year logged as NEW is meaningful — new pianos get their own
+            # story wording on the card
+            year = "New" if year.lower().startswith("new") else ""
         cats = [c.strip() for c in r[COL_CAT].split(",") if c.strip()]
         # QRS = modern player system: pianos not tagged Player in column J
         # but mentioning QRS in owner (B) or summary (D) count as players

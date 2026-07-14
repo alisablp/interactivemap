@@ -489,17 +489,25 @@
       h += "<div class='tags'>" + tags.map(function (t) { return "<span class='tag'>" + esc(t) + "</span>"; }).join("") + "</div>";
     }
     var isHeirloom = p.c.indexOf("Family Heirloom") !== -1;
+    var isNew = p.y === "New";
     var what = [p.mk, p.tp].filter(Boolean).join(" ") || "piano";
-    var story = "<p class='resto'>A beautiful piece of musical history. " +
-      (p.y
-        ? "Built in " + esc(p.y) + ", this " + esc(what) + " represents an era of exceptional piano craftsmanship. "
-        : "This " + esc(what) + " represents exceptional piano craftsmanship. ") +
-      (isHeirloom
-        ? "Preserved across generations as a cherished family heirloom, we are proud to restore " +
-          "its brilliance and keep this instrument's legacy alive in "
-        : "Whether receiving dedicated service in our Utah workshop or being delivered to its " +
-          "new home, we are proud to keep this instrument's legacy alive in ") +
-      esc(p.ct + ", " + p.st) + ".</p>";
+    var story;
+    if (isNew && !isHeirloom) {
+      story = "<p class='resto'>A beautiful piece of musical history in the making. Brand new, this " +
+        esc(what) + " represents the finest of modern piano craftsmanship. Delivered to its new home, " +
+        "we are proud to watch this instrument's legacy begin in " + esc(p.ct + ", " + p.st) + ".</p>";
+    } else {
+      story = "<p class='resto'>A beautiful piece of musical history. " +
+        (p.y && !isNew
+          ? "Built in " + esc(p.y) + ", this " + esc(what) + " represents an era of exceptional piano craftsmanship. "
+          : "This " + esc(what) + " represents exceptional piano craftsmanship. ") +
+        (isHeirloom
+          ? "Preserved across generations as a cherished family heirloom, we are proud to restore " +
+            "its brilliance and keep this instrument's legacy alive in "
+          : "Whether receiving dedicated service in our Utah workshop or being delivered to its " +
+            "new home, we are proud to keep this instrument's legacy alive in ") +
+        esc(p.ct + ", " + p.st) + ".</p>";
+    }
     if (p.ap) {
       h += story;
       h += p.u
