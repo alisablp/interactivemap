@@ -271,6 +271,21 @@ body.suggest-open .leaflet-control-container {
   color: #b3a67f;
   font-size: .85rem;
 }
+.sg-cta {
+  display: block;
+  margin: 0 16px 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #9e2020;
+  color: var(--ivory);
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+}
+.sg-cta:hover { background: #b52a2a; }
 .suggest > .sg-sect + .sg-sect { border-top: 1px solid rgba(201, 162, 39, .25); }
 .sg-sect { padding-bottom: 6px; }
 

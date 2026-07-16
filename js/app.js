@@ -897,8 +897,27 @@
     var q = searchEl.value.trim();
     if (q.length < 2) { hideSuggest(); return; }
     var res = suggestMatches(q);
-    if (!res.locs.length && !res.pianos.length) { hideSuggest(); return; }
     var h = "";
+    if (!res.locs.length && !res.pianos.length) {
+      // a dead end is a lead moment — no matches means "not yet"
+      var qStateName = null;
+      Object.keys(STATE_NAMES).forEach(function (ab) {
+        if (STATE_NAMES[ab].toLowerCase().indexOf(q.toLowerCase()) === 0) qStateName = STATE_NAMES[ab];
+      });
+      h = "<div class='sg-none'>" + (qStateName
+        ? "No restored pianos in " + esc(qStateName) + " yet &mdash; yours could be the first."
+        : "No pianos match &ldquo;" + esc(q) + "&rdquo; yet &mdash; yours could be the next story on this map.") +
+        "</div>" +
+        "<a class='sg-cta' href='https://www.brighamlarsonpianos.com/pages/free-family-heirloom-restoration-evaluation' " +
+        "target='_blank' rel='noopener'>Get a FREE Restoration Evaluation</a>";
+      suggestEl.innerHTML = h;
+      suggestEl.hidden = false;
+      searchEl.setAttribute("aria-expanded", "true");
+      document.body.classList.add("suggest-open");
+      sgItems = [];
+      sgActive = -1;
+      return;
+    }
     if (res.locs.length) {
       h += "<div class='sg-sect'><div class='sg-head'>Locations</div>";
       res.locs.forEach(function (l) {
@@ -1197,7 +1216,8 @@
           var mi = Math.max(1, Math.round(best));
           zipResult.textContent = "We delivered a restored piano about " + mi.toLocaleString("en-US") +
             " mile" + (mi === 1 ? "" : "s") + " from you — the " + nearest.t +
-            " in " + nearest.ct + ", " + nearest.st + ".";
+            " in " + nearest.ct + ", " + nearest.st + "." +
+            (mi > 150 ? " Your family heirloom could be the next pin on this map." : "");
           map.flyTo(displayLatLng(nearest), 8, { duration: 1.8 });
         })
         .catch(function () {
