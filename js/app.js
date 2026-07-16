@@ -431,9 +431,7 @@
   var pianoLayer = L.layerGroup().addTo(map);
 
   map.on("zoomend", function () {
-    var z = map.getZoom();
-    markers.forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); });
-    rebuildWeb();
+    apply(false); // re-icons pins for the zoom level and re-clusters cities
   });
 
   // ---------- popup card ----------
@@ -670,11 +668,84 @@
     return true;
   }
 
+  // ---------- city medallions ----------
+  // At country zoom, dense cities (Utah Valley!) collapse into one gold
+  // photo medallion with a count — the coast-to-coast spread stays readable.
+  var CLUSTER_MIN = 6, CLUSTER_MAX_ZOOM = 6.5;
+
+  function medallionIcon(fid, n, name) {
+    return L.divIcon({
+      className: "city-medallion",
+      html: "<div class='cm'>" +
+        (fid ? "<img src='" + photoURL(fid, 140) + "' alt=''>" : "<span class='cm-note'>&#9834;</span>") +
+        "<span class='cm-n'>" + n + "</span></div>" +
+        "<div class='cm-name'>" + esc(name) + "</div>",
+      iconSize: [64, 80],
+      iconAnchor: [32, 40]
+    });
+  }
+
+  function addCityMedallion(cluster) {
+    var pianos = [];
+    cluster.members.forEach(function (g) {
+      g.forEach(function (m) { pianos.push(m._piano); });
+    });
+    var best = pianos.filter(function (p) { return p.bp && p.ap; })[0] ||
+               pianos.filter(function (p) { return p.ap; })[0];
+    var lead = cluster.members[0][0]._piano; // biggest city leads the cluster
+    var name = lead.ct + (cluster.members.length > 1 ? " & nearby" : "");
+    var center = displayLatLng(lead); // city center — spiral offsets live on the pins
+    var mk = L.marker(center, {
+      icon: medallionIcon(best && best.ap, pianos.length, name),
+      zIndexOffset: 600,
+      title: name + ", " + lead.st + " — " + pianos.length + " pianos"
+    });
+    mk.on("click", function () {
+      // fly past the clustering threshold so the pins fan back out,
+      // framing every member city of the cluster
+      var b = L.latLngBounds(cluster.members.map(function (g) {
+        return displayLatLng(g[0]._piano);
+      })).pad(0.4);
+      map.flyToBounds(b, { maxZoom: 9, duration: 1.2 });
+    });
+    pianoLayer.addLayer(mk);
+  }
+
   function apply(fit) {
     var visible = markers.filter(function (m) { return matches(m._piano); });
     var z = map.getZoom();
     pianoLayer.clearLayers();
-    visible.forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); pianoLayer.addLayer(m); });
+    if (z <= CLUSTER_MAX_ZOOM) {
+      var groups = {};
+      visible.forEach(function (m) {
+        var k = m._piano.ct + "|" + m._piano.st;
+        (groups[k] = groups[k] || []).push(m);
+      });
+      var big = [];
+      Object.keys(groups).forEach(function (k) {
+        if (groups[k].length >= CLUSTER_MIN) {
+          big.push(groups[k]);
+        } else {
+          groups[k].forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); pianoLayer.addLayer(m); });
+        }
+      });
+      // medallions that would overlap on screen (the Wasatch Front at
+      // country zoom) merge into one, led by the biggest city
+      big.sort(function (a, b) { return b.length - a.length; });
+      var clusters = [];
+      big.forEach(function (g) {
+        var pt = map.latLngToContainerPoint(displayLatLng(g[0]._piano));
+        var host = null;
+        for (var ci = 0; ci < clusters.length; ci++) {
+          if (pt.distanceTo(clusters[ci].pt) < 68) { host = clusters[ci]; break; }
+        }
+        if (host) host.members.push(g);
+        else clusters.push({ pt: pt, members: [g] });
+      });
+      clusters.forEach(addCityMedallion);
+    } else {
+      visible.forEach(function (m) { m.setIcon(iconForZoom(z, m._ruby)); pianoLayer.addLayer(m); });
+    }
     lastVisibleMarkers = visible;
     rebuildWeb();
     if (countEl) countEl.textContent = "Showing " + visible.length + " of " + PIANOS.length + " pianos";
