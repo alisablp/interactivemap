@@ -912,19 +912,16 @@
   var statsEl = document.getElementById("mapStats");
   if (statsEl) {
     var statStates = {};
-    var statMiles = 0, statMinY = Infinity, statMaxY = -Infinity;
+    var statMiles = 0;
     PIANOS.forEach(function (p) {
       statStates[p.st] = 1;
       // heirlooms make the trip to the workshop and back — count both legs
       statMiles += milesFromWorkshop(p.la, p.lo) * (p.c.indexOf("Family Heirloom") !== -1 ? 2 : 1);
-      var y = parseInt(p.y, 10);
-      if (y) { if (y < statMinY) statMinY = y; if (y > statMaxY) statMaxY = y; }
     });
     var STATS = [
       [PIANOS.length, " pianos"],
       [Object.keys(statStates).length, " states"],
-      [Math.round(statMiles / 1000) * 1000, " miles traveled"],
-      [statMaxY > statMinY ? statMaxY - statMinY : 0, " years of craftsmanship"]
+      [Math.round(statMiles / 1000) * 1000, " miles traveled"]
     ].filter(function (s) { return s[0] > 0; });
 
     statsEl.innerHTML = STATS.map(function (s, i) {
