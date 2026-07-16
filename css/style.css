@@ -841,7 +841,8 @@ body.lead-closed .timebar { bottom: 80px; }
 
 /* ---------- mobile ---------- */
 @media (max-width: 900px) {
-  .timebar { left: 12px; right: 12px; width: auto; bottom: 195px; }
+  /* compact like desktop — sits above the heirloom box, never full width */
+  .timebar { left: 12px; right: auto; width: min(250px, calc(100vw - 24px)); bottom: 195px; }
   body.lead-closed .timebar { bottom: 12px; left: 12px; }
   body.lead-closed .lead-reopen { bottom: 88px; }
 }

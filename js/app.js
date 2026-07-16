@@ -217,11 +217,13 @@
         })
         .catch(function () { /* cosmetic */ });
 
-      // Clip both the tile layer and the label layer to the US border:
-      // nothing outside the country ever renders — labels stay American,
-      // and no tinted ocean can flash from under the mask mid-zoom.
+      // Clip the label layer to the US border so no Canadian/Mexican city
+      // names render. The tile layer is NOT clipped — the opaque mask
+      // already covers everything outside the border, and a pane clip lags
+      // behind Leaflet's zoom animation (the outline would visibly detach
+      // from the land mid-zoom, then snap back).
       var labelsPane = map.getPane("labels");
-      var tilePane = map.getPane("tilePane");
+      labelsPane.style.transition = "opacity .18s ease";
       function updateClips() {
         var d = lower48.map(function (ring) {
           return "M" + ring.map(function (ll) {
@@ -230,10 +232,15 @@
           }).join(" L ") + " Z";
         }).join(" ");
         labelsPane.style.clipPath = 'path("' + d + '")';
-        tilePane.style.clipPath = 'path("' + d + '")';
       }
       updateClips();
-      map.on("zoomend viewreset", updateClips);
+      // the label clip can't animate with the zoom either — fade the labels
+      // out for the zoom and back in once the clip is recomputed
+      map.on("zoomstart", function () { labelsPane.style.opacity = "0"; });
+      map.on("zoomend viewreset", function () {
+        updateClips();
+        labelsPane.style.opacity = "1";
+      });
     })
     .catch(function () { /* mask is cosmetic — map still works without it */ });
 
