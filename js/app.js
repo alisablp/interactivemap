@@ -532,9 +532,29 @@
           " miles between our Utah workshop and " + esc(p.ct + ", " + p.st) + ".</p>";
       }
     }
+    h += "<button type='button' class='share-btn' data-pid='" + esc(p.id) + "'>&#128279; Share this piano</button>";
     h += "</div></div>";
     return h;
   }
+
+  // share buttons live inside injected popup/sheet HTML — delegate the click
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest(".share-btn") : null;
+    if (!b) return;
+    var url = location.origin + location.pathname + "?piano=" + encodeURIComponent(b.getAttribute("data-pid"));
+    var confirm = function () {
+      b.textContent = "Link copied!";
+      setTimeout(function () { b.innerHTML = "&#128279; Share this piano"; }, 1800);
+    };
+    if (navigator.share && window.matchMedia("(pointer: coarse)").matches) {
+      // phones/tablets get the native share sheet; desktops copy the link
+      navigator.share({ title: document.title, url: url }).catch(function () {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(confirm, function () { window.prompt("Copy this link:", url); });
+    } else {
+      window.prompt("Copy this link:", url);
+    }
+  });
 
   // ---------- markers ----------
   // Same-city pianos fan out in a golden-angle spiral around the city center,
@@ -947,6 +967,99 @@
         if (t < 1) requestAnimationFrame(tick);
       });
     }
+  }
+
+  // ---------- shareable deep links ----------
+  // ?piano=<id> opens the map already flown to that piano with its card up —
+  // the link families share when their restored piano lands on the map.
+  var deepId = new URLSearchParams(location.search).get("piano");
+  if (deepId) {
+    for (var di = 0; di < PIANOS.length; di++) {
+      if (PIANOS[di].id === deepId) {
+        (function (idx) {
+          setTimeout(function () { goToPiano(idx); }, 700); // let tiles settle first
+        })(di);
+        break;
+      }
+    }
+  }
+
+  // ---------- guided tour ----------
+  // Auto-flies through the map's showcase pianos, then hands off to the
+  // heirloom lead box.
+  var tourBtn = document.getElementById("tourBtn");
+  if (tourBtn) {
+    var tourTimer = null, tourFlying = false;
+
+    function pickTourStops() {
+      var far = function (p) { return milesFromWorkshop(p.la, p.lo); };
+      var byFar = function (a, b) { return far(b) - far(a); };
+      var stops = [];
+      var add = function (p) { if (p && stops.indexOf(p) === -1 && stops.length < 6) stops.push(p); };
+      var galleries = PIANOS.filter(function (p) { return p.bp && p.ap; }).sort(byFar);
+      // farthest-traveled heirloom with a before/after gallery
+      add(galleries.filter(function (p) { return p.c.indexOf("Family Heirloom") !== -1; })[0]);
+      // the oldest piano with a photo
+      add(PIANOS.filter(function (p) { return p.ap && parseInt(p.y, 10); })
+        .sort(function (a, b) { return parseInt(a.y, 10) - parseInt(b.y, 10); })[0]);
+      // the Hawaii delivery
+      add(PIANOS.filter(function (p) { return p.st === "HI"; })[0]);
+      // brand-new piano
+      add(PIANOS.filter(function (p) { return p.y === "New"; }).sort(byFar)[0]);
+      // fill with the farthest-traveled galleries
+      for (var g = 0; g < galleries.length && stops.length < 6; g++) add(galleries[g]);
+      return stops;
+    }
+
+    function stopTour(goHome) {
+      clearTimeout(tourTimer);
+      tourTimer = null;
+      tourFlying = false;
+      document.body.classList.remove("touring");
+      tourBtn.innerHTML = "&#10022; Take the Tour";
+      if (goHome) {
+        map.closePopup();
+        closeSheet();
+        map.flyToBounds(HOME_VIEW, { duration: 1.6 });
+        // the tour's closing act: invite the visitor's own heirloom story
+        document.body.classList.remove("lead-closed");
+        var lb = document.getElementById("leadBox");
+        lb.classList.add("pulse");
+        setTimeout(function () { lb.classList.remove("pulse"); }, 3000);
+      }
+    }
+
+    function tourStep(stops, i) {
+      if (i >= stops.length) { stopTour(true); return; }
+      var p = stops[i];
+      var m = markers[PIANOS.indexOf(p)];
+      map.closePopup();
+      closeSheet();
+      tourFlying = true;
+      map.flyTo(m.getLatLng(), 7, { duration: 2.4 });
+      map.once("moveend", function () {
+        tourFlying = false;
+        if (!document.body.classList.contains("touring")) return; // stopped mid-flight
+        drawGlowRoute(m.getLatLng());
+        openCard(m.getLatLng(), cardHTML(p));
+        tourTimer = setTimeout(function () { tourStep(stops, i + 1); }, 6500);
+      });
+    }
+
+    tourBtn.addEventListener("click", function () {
+      if (document.body.classList.contains("touring")) { stopTour(false); return; }
+      document.body.classList.add("touring");
+      tourBtn.innerHTML = "&#9632; Stop Tour";
+      tourStep(pickTourStops(), 0);
+    });
+
+    // taking the wheel ends the tour
+    map.on("dragstart", function () {
+      if (document.body.classList.contains("touring")) stopTour(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && document.body.classList.contains("touring")) stopTour(false);
+    });
   }
 
   // ---------- era timeline slider ----------

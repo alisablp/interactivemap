@@ -282,7 +282,7 @@ def main():
             break
     print("SOLD divider at spreadsheet row", (sold_idx + 1) if sold_idx is not None else "NOT FOUND")
 
-    out, skipped = [], 0
+    out, skipped, seen_ids = [], 0, set()
     for i, r in enumerate(rows):
         if i < 2:
             continue
@@ -321,7 +321,17 @@ def main():
         typ = ("Grand" if "grand" in typehints
                else "Upright" if any(w in typehints for w in UPRIGHT_CATS)
                else "")
-        rec = dict(t=title[:80], y=year, mk=make[:30], md=model[:30], tp=typ,
+        # stable shareable id — serial number when present, else a slug of
+        # public fields only (NEVER owner text, which piano_key uses)
+        serial = re.sub(r"\W", "", r[COL_SERIAL]).lower() if len(r) > COL_SERIAL else ""
+        base = ("sn" + serial) if serial else (
+            re.sub(r"[^a-z0-9]+", "-", " ".join([year, make, model, city]).lower()).strip("-")[:40] or "piano")
+        pid, dup = base, 2
+        while pid in seen_ids:
+            pid = base + "-" + str(dup)
+            dup += 1
+        seen_ids.add(pid)
+        rec = dict(id=pid, t=title[:80], y=year, mk=make[:30], md=model[:30], tp=typ,
                    c=cats[:8], u=url, ct=city, st=st,
                    la=round(lat, 4), lo=round(lng, 4))
         ph = photos.get(piano_key(r))
