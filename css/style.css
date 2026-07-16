@@ -71,11 +71,16 @@ body.card-over-controls .controls > * { pointer-events: none; }
   pointer-events: none;
 }
 
-/* guided tour chip — gilded so it reads as the special one */
+/* guided tour chip — gilded so it reads as the special one; sits centered
+   above the search bar */
 .tour-chip {
+  display: inline-block;
+  margin: 0 auto 10px;
   border: 1px solid #c9a227 !important;
   background: rgba(201, 162, 39, .16) !important;
   color: #ffe9a0 !important;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
 }
 .tour-chip:hover { background: rgba(201, 162, 39, .3) !important; }
 
