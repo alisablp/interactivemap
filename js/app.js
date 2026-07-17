@@ -24,7 +24,11 @@
     zoomSnap: 0.25,
     scrollWheelZoom: true,
     maxBounds: US_BOUNDS,
-    maxBoundsViscosity: 1.0
+    maxBoundsViscosity: 1.0,
+    // render vectors far beyond the viewport: zooming OUT reveals area the
+    // default margin hasn't drawn yet, so the mask/outline would run out at
+    // the edges mid-animation and visibly detach until the redraw
+    renderer: L.svg({ padding: 3 })
   });
 
   // ---------- Alaska & Hawaii relocation ----------
