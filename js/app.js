@@ -1028,6 +1028,7 @@
     var ts = document.getElementById("timeSlider");
     if (ts) {
       ts.value = 2026;
+      ts.style.setProperty("--fill", "100%");
       document.getElementById("tbLabel").textContent = "Every Era of Piano History";
     }
     chipsEl.querySelectorAll(".chip[data-filter]").forEach(function (c) {
@@ -1236,7 +1237,13 @@
     var timeSlider = document.getElementById("timeSlider");
     var tbLabel = document.getElementById("tbLabel");
     var tDebounce;
+    function paintSlider() {
+      var pct = 100 * (timeSlider.value - timeSlider.min) / (timeSlider.max - timeSlider.min);
+      timeSlider.style.setProperty("--fill", pct + "%");
+    }
+    paintSlider();
     timeSlider.addEventListener("input", function () {
+      paintSlider();
       var v = parseInt(timeSlider.value, 10);
       if (v >= 2026) {
         state.year = null;

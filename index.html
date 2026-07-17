@@ -24,7 +24,6 @@
     <div class="hero-inner">
       <h1 class="map-title">Piano Stories Map</h1>
       <div class="gold-rule" aria-hidden="true"></div>
-      <p class="map-sub">by Brigham Larson Pianos</p>
       <p class="map-stats" id="mapStats" aria-live="polite"></p>
     </div>
     <button id="tourBtn" class="tour-cta"><svg width='11' height='12' viewBox='0 0 12 14' fill='currentColor' aria-hidden='true' style='margin-right:8px;vertical-align:-1px'><path d='M1 1.6c0-.9 1-1.4 1.7-1L11 6c.8.5.8 1.6 0 2.1L2.7 13.4c-.7.5-1.7 0-1.7-1z'/></svg>Start Tour</button>
@@ -32,6 +31,10 @@
 </section>
 
 <div id="map" role="application" aria-label="Interactive map of pianos across America">
+
+  <a class="map-brand" href="https://www.brighamlarsonpianos.com" target="_blank" rel="noopener" aria-label="Brigham Larson Pianos">
+    <img src="assets/blp-logo.png" srcset="assets/blp-logo@2x.png 2x" alt="Brigham Larson Pianos">
+  </a>
 
   <!-- one floating command bar: search + Filters / Era / Near me -->
   <div class="cmdbar" id="cmdBar">
@@ -52,7 +55,7 @@
       <em>&#9202;</em>Era
     </button>
     <button class="cmd-btn gold" id="cbNear" data-panel="panelNear" aria-expanded="false">
-      <em>&#9873;</em>Near me
+      <em>&#9834;</em>Heirloom?
     </button>
   </div>
 
