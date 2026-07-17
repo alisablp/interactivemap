@@ -913,7 +913,6 @@ body.lead-closed .timebar { bottom: 80px; }
   .pcard .ba { width: 165px; height: 165px; }
   .pcard-photo { width: 155px; height: 155px; }
   .lead-box { width: calc(100% - 24px); left: 12px; bottom: 110px; padding: 10px 12px 12px; }
-  .lb-hint { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .gold-pin svg, .sheet, .sheet-backdrop { transition: none; }
