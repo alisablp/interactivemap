@@ -1070,6 +1070,18 @@
     }
   }
 
+  // ---------- hero fade ----------
+  // Title, logo, and stats bow out slowly once the visitor dives into the
+  // map; the search bar and chips stay as the sticky header. Zooming back
+  // out to the full country brings the hero back.
+  var heroEl = document.getElementById("mapHero");
+  if (heroEl) {
+    var homeZoom = map.getZoom(); // captured right after the initial fitBounds
+    map.on("zoomend", function () {
+      heroEl.classList.toggle("hero-faded", map.getZoom() > homeZoom + 0.3);
+    });
+  }
+
   // ---------- shareable deep links ----------
   // ?piano=<id> opens the map already flown to that piano with its card up —
   // the link families share when their restored piano lands on the map.
