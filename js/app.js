@@ -262,37 +262,37 @@
   function pinSVG(w, h, ruby) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="0">' +
-      '<stop offset="0" stop-color="#15130f"/><stop offset=".16" stop-color="#3b382f"/>' +
-      '<stop offset=".33" stop-color="#6b665a"/><stop offset=".47" stop-color="#4c483e"/>' +
-      '<stop offset=".62" stop-color="#2c2922"/><stop offset=".78" stop-color="#1a1814"/>' +
-      '<stop offset=".92" stop-color="#2c2922"/><stop offset="1" stop-color="#17150f"/></linearGradient>' +
+      '<stop offset="0" stop-color="#7c5c0e"/><stop offset=".16" stop-color="#c9a227"/>' +
+      '<stop offset=".33" stop-color="#ffe9a0"/><stop offset=".47" stop-color="#e7c256"/>' +
+      '<stop offset=".62" stop-color="#a5811f"/><stop offset=".78" stop-color="#6e5210"/>' +
+      '<stop offset=".92" stop-color="#a5811f"/><stop offset="1" stop-color="#77590e"/></linearGradient>' +
       '<radialGradient id="gpd" cx=".5" cy=".1" r=".5">' +
-      '<stop offset="0" stop-color="#f4f0e4" stop-opacity=".6"/><stop offset=".6" stop-color="#f4f0e4" stop-opacity=".12"/>' +
-      '<stop offset="1" stop-color="#f4f0e4" stop-opacity="0"/></radialGradient>' +
+      '<stop offset="0" stop-color="#fff8dc" stop-opacity=".95"/><stop offset=".6" stop-color="#fff8dc" stop-opacity=".2"/>' +
+      '<stop offset="1" stop-color="#fff8dc" stop-opacity="0"/></radialGradient>' +
       '<linearGradient id="gps" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".75" stop-color="#ffffff" stop-opacity=".25"/>' +
       '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>' +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#8f887a" opacity=".35"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#6e5210" opacity=".35"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gp)"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gpd)"/>' +
       '<path d="M42 26 C37 44 38 78 45 108 L52 116 C47 84 46 46 50 24 Z" fill="url(#gps)"/>' +
-      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#efe9d8" opacity=".22"/>' +
-      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#efe9d8" opacity=".4"/>' +
+      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#fff4cd" opacity=".38"/>' +
+      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#ffe9a0" opacity=".55"/>' +
       (ruby
-        ? '<circle cx="60" cy="36" r="14" fill="#8a6a14"/>' +
-          '<circle cx="60" cy="36" r="11.5" fill="#b28c2e"/>' +
-          '<ellipse cx="55.5" cy="31.5" rx="4.5" ry="3" fill="#eed9a0" opacity=".9" transform="rotate(-24 55.5 31.5)"/>' +
+        ? '<circle cx="60" cy="36" r="14" fill="#7c1515"/>' +
+          '<circle cx="60" cy="36" r="11.5" fill="#9e2020"/>' +
+          '<ellipse cx="55.5" cy="31.5" rx="4.5" ry="3" fill="#e8746a" opacity=".85" transform="rotate(-24 55.5 31.5)"/>' +
           '<circle cx="60" cy="36" r="14" fill="none" stroke="#fbfaf7" stroke-width="2"/>'
         : '') +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#0f0e0b" stroke-width="1.4" stroke-opacity=".6"/></svg>';
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5f470c" stroke-width="1.4" stroke-opacity=".7"/></svg>';
   }
 
   function dotSVG(d) {
     return '<svg width="' + d + '" height="' + d + '" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><radialGradient id="gd" cx=".35" cy=".28" r=".85">' +
-      '<stop offset="0" stop-color="#8a857a"/><stop offset=".3" stop-color="#55503f"/>' +
-      '<stop offset=".62" stop-color="#33302a"/><stop offset="1" stop-color="#15130f"/></radialGradient></defs>' +
-      '<circle cx="12" cy="12" r="10.4" fill="url(#gd)" stroke="#15130f" stroke-width="1"/>' +
+      '<stop offset="0" stop-color="#fff6cf"/><stop offset=".3" stop-color="#f2d270"/>' +
+      '<stop offset=".62" stop-color="#c9a227"/><stop offset="1" stop-color="#6e5210"/></radialGradient></defs>' +
+      '<circle cx="12" cy="12" r="10.4" fill="url(#gd)" stroke="#6e5210" stroke-width="1"/>' +
       '<ellipse cx="8.6" cy="7.6" rx="3.2" ry="1.9" fill="#ffffff" opacity=".8" transform="rotate(-24 8.6 7.6)"/></svg>';
   }
 
