@@ -1036,7 +1036,7 @@
       statMiles += milesFromWorkshop(p.la, p.lo) * (p.c.indexOf("Family Heirloom") !== -1 ? 2 : 1);
     });
     var STATS = [
-      [PIANOS.length, " pianos"],
+      [PIANOS.length, " pianos mapped"],
       [Object.keys(statStates).length, " states"],
       [Math.round(statMiles / 1000) * 1000, " miles traveled"]
     ].filter(function (s) { return s[0] > 0; });
