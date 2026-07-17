@@ -191,7 +191,8 @@ body.card-over-cmdbar .panel {
   border-radius: 14px;
   box-shadow: 0 10px 24px rgba(60, 54, 40, .18);
 }
-.cmd-btn em { font-style: normal; font-size: 1.15rem; line-height: 1; color: var(--brass); }
+.cmd-btn em { font-style: normal; line-height: 1; color: var(--brass); display: flex; }
+.cmd-btn em svg { display: block; }
 .cmd-btn:hover { color: var(--ink); background: var(--paper); }
 .cmd-btn.active { color: var(--ink); font-weight: 700; background: var(--paper); border-color: var(--gold); }
 .cmd-btn.gold {
