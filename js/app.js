@@ -1076,23 +1076,6 @@
     }
   }
 
-  // ---------- hero fade ----------
-  // Title, logo, and stats bow out slowly once the visitor dives into the
-  // map; the search bar and chips stay as the sticky header. Zooming back
-  // out to the full country brings the hero back.
-  var heroEl = document.getElementById("mapHero");
-  if (heroEl) {
-    var homeZoom = map.getZoom(); // captured right after the initial fitBounds
-    map.on("zoomend", function () {
-      heroEl.classList.toggle("hero-faded", map.getZoom() > homeZoom + 0.3);
-    });
-    // on desktop the header sits above the map, so collapsing the hero
-    // changes the map's height — tell Leaflet once the animation settles
-    heroEl.addEventListener("transitionend", function (e) {
-      if (e.propertyName === "max-height") map.invalidateSize({ pan: false });
-    });
-  }
-
   // ---------- shareable deep links ----------
   // ?piano=<id> opens the map already flown to that piano with its card up —
   // the link families share when their restored piano lands on the map.
