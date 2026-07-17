@@ -1130,7 +1130,7 @@
       tourTimer = null;
       tourFlying = false;
       document.body.classList.remove("touring");
-      tourBtn.innerHTML = "&#9654; Start Tour";
+      tourBtn.innerHTML = "<svg width=\'11\' height=\'12\' viewBox=\'0 0 12 14\' fill=\'currentColor\' aria-hidden=\'true\' style=\'margin-right:8px;vertical-align:-1px\'><path d=\'M1 1.6c0-.9 1-1.4 1.7-1L11 6c.8.5.8 1.6 0 2.1L2.7 13.4c-.7.5-1.7 0-1.7-1z\'/></svg>Start Tour";
       if (goHome) {
         map.closePopup();
         closeSheet();
@@ -1165,7 +1165,7 @@
     tourBtn.addEventListener("click", function () {
       if (document.body.classList.contains("touring")) { stopTour(false); return; }
       document.body.classList.add("touring");
-      tourBtn.innerHTML = "&#9632; Stop Tour";
+      tourBtn.innerHTML = "<svg width=\'10\' height=\'10\' viewBox=\'0 0 12 12\' fill=\'currentColor\' aria-hidden=\'true\' style=\'margin-right:8px;vertical-align:-1px\'><rect x=\'1\' y=\'1\' width=\'10\' height=\'10\' rx=\'1.5\'/></svg>Stop Tour";
       tourStep(pickTourStops(), 0);
     });
 
