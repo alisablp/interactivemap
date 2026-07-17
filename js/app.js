@@ -59,7 +59,7 @@
   // CARTO Voyager: clean, Google-style basemap (no API key required).
   // Terrain and labels are separate layers: the US mask sits between them,
   // so city names near borders and coasts never get sliced off.
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/light_nolabels/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     subdomains: "abcd",
     maxZoom: 19
@@ -69,7 +69,7 @@
   map.getPane("labels").style.zIndex = 450;      // above the mask (400)…
   map.getPane("labels").style.pointerEvents = "none"; // …but never blocks clicks
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/dark_only_labels/{z}/{x}/{y}{r}.png", {
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/light_only_labels/{z}/{x}/{y}{r}.png", {
     subdomains: "abcd",
     maxZoom: 19,
     pane: "labels"
@@ -124,8 +124,8 @@
   // spans three world-widths so no ocean peeks past the date line
   var WORLD_RING = [[-89.9, -540], [-89.9, 540], [89.9, 540], [89.9, -540]];
   var MASK_STYLE = {
-    stroke: true, color: "#c9a227", weight: 1.2,
-    fill: true, fillColor: "#e9dfc6", fillOpacity: 1, interactive: false
+    stroke: true, color: "#26241f", weight: 1,
+    fill: true, fillColor: "#fbfaf7", fillOpacity: 1, interactive: false
   };
 
   function ringCentroid(ring) {
@@ -180,8 +180,8 @@
       L.polygon([WORLD_RING].concat(lower48), MASK_STYLE).addTo(map);
 
       var RELOC_STYLE = {
-        stroke: true, color: "#c9a227", weight: 1.2,
-        fill: true, fillColor: "#211d17", fillOpacity: 1, interactive: false
+        stroke: true, color: "#26241f", weight: 1,
+        fill: true, fillColor: "#e7e3d7", fillOpacity: 1, interactive: false
       };
       function drawRelocated(rings, relocate) {
         var moved = rings.map(function (ring) {
@@ -207,7 +207,7 @@
         .then(function (topo) {
           var borders = topojson.mesh(topo, topo.objects.states, function (a, b) { return a !== b; });
           L.geoJSON(borders, {
-            style: { color: "#5f5133", weight: 1, opacity: .95, fill: false },
+            style: { color: "#c9c3b3", weight: 1, opacity: .9, fill: false },
             interactive: false
           }).addTo(map);
         })
@@ -220,7 +220,7 @@
           var GREAT = ["Lake Superior", "Lake Michigan", "Lake Huron", "Lake Erie", "Lake Ontario"];
           L.geoJSON(lakes, {
             filter: function (f) { return GREAT.indexOf(f.properties.name) !== -1; },
-            style: { stroke: true, color: "#a08a4f", weight: 1, fill: true, fillColor: "#e9dfc6", fillOpacity: 1 },
+            style: { stroke: true, color: "#b9b3a2", weight: 1, fill: true, fillColor: "#fbfaf7", fillOpacity: 1 },
             interactive: false
           }).addTo(map);
         })
@@ -262,37 +262,37 @@
   function pinSVG(w, h, ruby) {
     return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 120 170" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><linearGradient id="gp" x1="0" y1="0" x2="1" y2="0">' +
-      '<stop offset="0" stop-color="#7c5c0e"/><stop offset=".16" stop-color="#c9a227"/>' +
-      '<stop offset=".33" stop-color="#ffe9a0"/><stop offset=".47" stop-color="#e7c256"/>' +
-      '<stop offset=".62" stop-color="#a5811f"/><stop offset=".78" stop-color="#6e5210"/>' +
-      '<stop offset=".92" stop-color="#a5811f"/><stop offset="1" stop-color="#77590e"/></linearGradient>' +
+      '<stop offset="0" stop-color="#15130f"/><stop offset=".16" stop-color="#3b382f"/>' +
+      '<stop offset=".33" stop-color="#6b665a"/><stop offset=".47" stop-color="#4c483e"/>' +
+      '<stop offset=".62" stop-color="#2c2922"/><stop offset=".78" stop-color="#1a1814"/>' +
+      '<stop offset=".92" stop-color="#2c2922"/><stop offset="1" stop-color="#17150f"/></linearGradient>' +
       '<radialGradient id="gpd" cx=".5" cy=".1" r=".5">' +
-      '<stop offset="0" stop-color="#fff8dc" stop-opacity=".95"/><stop offset=".6" stop-color="#fff8dc" stop-opacity=".2"/>' +
-      '<stop offset="1" stop-color="#fff8dc" stop-opacity="0"/></radialGradient>' +
+      '<stop offset="0" stop-color="#f4f0e4" stop-opacity=".6"/><stop offset=".6" stop-color="#f4f0e4" stop-opacity=".12"/>' +
+      '<stop offset="1" stop-color="#f4f0e4" stop-opacity="0"/></radialGradient>' +
       '<linearGradient id="gps" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".75" stop-color="#ffffff" stop-opacity=".25"/>' +
       '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>' +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#6e5210" opacity=".5"/>' +
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" transform="translate(-4 2)" fill="#8f887a" opacity=".35"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gp)"/>' +
       '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="url(#gpd)"/>' +
       '<path d="M42 26 C37 44 38 78 45 108 L52 116 C47 84 46 46 50 24 Z" fill="url(#gps)"/>' +
-      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#fff4cd" opacity=".38"/>' +
-      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#ffe9a0" opacity=".55"/>' +
+      '<path d="M76 30 C79 46 78 72 73 96 L70 100 C74 74 75 48 72 28 Z" fill="#efe9d8" opacity=".22"/>' +
+      '<ellipse cx="60" cy="150" rx="2.6" ry="4" fill="#efe9d8" opacity=".4"/>' +
       (ruby
-        ? '<circle cx="60" cy="36" r="14" fill="#7c1515"/>' +
-          '<circle cx="60" cy="36" r="11.5" fill="#9e2020"/>' +
-          '<ellipse cx="55.5" cy="31.5" rx="4.5" ry="3" fill="#e8746a" opacity=".85" transform="rotate(-24 55.5 31.5)"/>' +
-          '<circle cx="60" cy="36" r="14" fill="none" stroke="#ffe9a0" stroke-width="2"/>'
+        ? '<circle cx="60" cy="36" r="14" fill="#8a6a14"/>' +
+          '<circle cx="60" cy="36" r="11.5" fill="#b28c2e"/>' +
+          '<ellipse cx="55.5" cy="31.5" rx="4.5" ry="3" fill="#eed9a0" opacity=".9" transform="rotate(-24 55.5 31.5)"/>' +
+          '<circle cx="60" cy="36" r="14" fill="none" stroke="#fbfaf7" stroke-width="2"/>'
         : '') +
-      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#5f470c" stroke-width="1.4" stroke-opacity=".7"/></svg>';
+      '<path d="M20 54 A40 40 0 1 1 100 54 L61.5 158 A2.5 2.5 0 0 1 58.5 158 Z" fill="none" stroke="#0f0e0b" stroke-width="1.4" stroke-opacity=".6"/></svg>';
   }
 
   function dotSVG(d) {
     return '<svg width="' + d + '" height="' + d + '" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><radialGradient id="gd" cx=".35" cy=".28" r=".85">' +
-      '<stop offset="0" stop-color="#fff6cf"/><stop offset=".3" stop-color="#f2d270"/>' +
-      '<stop offset=".62" stop-color="#c9a227"/><stop offset="1" stop-color="#6e5210"/></radialGradient></defs>' +
-      '<circle cx="12" cy="12" r="10.4" fill="url(#gd)" stroke="#6e5210" stroke-width="1"/>' +
+      '<stop offset="0" stop-color="#8a857a"/><stop offset=".3" stop-color="#55503f"/>' +
+      '<stop offset=".62" stop-color="#33302a"/><stop offset="1" stop-color="#15130f"/></radialGradient></defs>' +
+      '<circle cx="12" cy="12" r="10.4" fill="url(#gd)" stroke="#15130f" stroke-width="1"/>' +
       '<ellipse cx="8.6" cy="7.6" rx="3.2" ry="1.9" fill="#ffffff" opacity=".8" transform="rotate(-24 8.6 7.6)"/></svg>';
   }
 
@@ -405,7 +405,7 @@
     if (map.getZoom() > 6) return; // the web is a country-view effect
     lastVisibleMarkers.forEach(function (m) {
       routeWeb.addLayer(L.polyline(arcPoints(WORKSHOP_LL, m.getLatLng()), {
-        color: "#c9a227", weight: 0.8, opacity: 0.14, interactive: false
+        color: "#26241f", weight: 0.8, opacity: 0.1, interactive: false
       }));
     });
   }
@@ -414,10 +414,10 @@
     routeGlow.clearLayers();
     var pts = arcPoints(WORKSHOP_LL, dest);
     routeGlow.addLayer(L.polyline(pts, {
-      color: "#e8c96a", weight: 5, opacity: 0.22, interactive: false, className: "route-glow-under"
+      color: "#d9b45e", weight: 5, opacity: 0.3, interactive: false, className: "route-glow-under"
     }));
     routeGlow.addLayer(L.polyline(pts, {
-      color: "#ffe9a0", weight: 1.8, opacity: 0.95, interactive: false, className: "route-glow"
+      color: "#b28c2e", weight: 1.8, opacity: 0.95, interactive: false, className: "route-glow"
     }));
   }
   map.on("popupclose", function () { routeGlow.clearLayers(); });

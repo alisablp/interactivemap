@@ -1,15 +1,25 @@
+/* PORCELAIN — gallery-minimal theme
+   Warm porcelain white, greige land with a fine ink coastline, near-black
+   pins with brass reserved for the workshop and gallery jewels. */
 :root {
-  --gold: #c9a227;
-  --gold-hi: #e8c96a;
-  --gold-dk: #8a6a14;
+  --porcelain: #fbfaf7;
+  --paper: #f3f1ea;
+  --greige: #e7e3d7;
+  --hairline: #e3ded2;
+  --ink: #26241f;
+  --ink-soft: #55503f;
+  --gray: #8f887a;
+  --brass: #b28c2e;
+  --brass-hi: #d9b45e;
   --red: #9e2020;
-  --black: #131110;
-  --ebony: #1b1713;
-  --parch: #e9dfc6;
-  --parch-deep: #ded2b2;
-  --ivory: #f5efdd;
-  --ink: #1c1a17;
-  --muted: #a89d82;
+  /* legacy aliases still referenced below */
+  --gold: #b28c2e;
+  --gold-hi: #d9b45e;
+  --black: #26241f;
+  --ebony: #ffffff;
+  --parch: #fbfaf7;
+  --ivory: #26241f;
+  --muted: #8f887a;
 }
 
 * { box-sizing: border-box; }
@@ -18,8 +28,8 @@ html, body {
   margin: 0;
   height: 100%;
   font-family: "Assistant", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
-  color: var(--ivory);
-  background: var(--parch);
+  color: var(--ink);
+  background: var(--porcelain);
 }
 
 body {
@@ -27,7 +37,7 @@ body {
   flex-direction: column;
 }
 
-/* ---------- controls floating over the dark map ---------- */
+/* ---------- controls floating over the map ---------- */
 .controls {
   position: absolute;
   top: 0;
@@ -37,7 +47,7 @@ body {
      so cards and peek thumbnails always cover the search bar */
   z-index: 620;
   padding: 38px 18px 14px;
-  background: linear-gradient(180deg, rgba(22, 17, 11, .62) 0%, rgba(22, 17, 11, .34) 55%, transparent 100%);
+  background: linear-gradient(180deg, rgba(251, 250, 247, .94) 0%, rgba(251, 250, 247, .72) 55%, transparent 100%);
   pointer-events: none;
   text-align: center;
 }
@@ -48,7 +58,7 @@ body {
 body.card-over-controls .controls { opacity: 0; }
 body.card-over-controls .controls > * { pointer-events: none; }
 
-/* the hero (title + logo + stats) fades away once the visitor dives into
+/* the hero (title + byline + stats) fades away once the visitor dives into
    the map; the search bar and chips stay as the sticky header */
 .hero {
   overflow: hidden;
@@ -60,24 +70,22 @@ body.card-over-controls .controls > * { pointer-events: none; }
 
 .map-title {
   font-family: Didot, "Bodoni 72", Georgia, serif;
-  font-weight: 400;
+  font-weight: 500;
   font-size: clamp(1.9rem, 4.4vw, 2.8rem);
   letter-spacing: .04em;
-  color: var(--ivory);
+  color: var(--ink);
   text-align: center;
   margin: 0;
   line-height: 1.12;
-  text-shadow: 0 1px 2px rgba(18, 13, 7, .9), 0 2px 10px rgba(18, 13, 7, .55), 0 6px 26px rgba(18, 13, 7, .4);
   pointer-events: none;
 }
 .map-sub {
   font-family: Didot, "Bodoni 72", Georgia, serif;
   font-style: italic;
   font-size: 1rem;
-  color: #e0d3ac;
+  color: var(--gray);
   text-align: center;
   margin: 4px 0 12px;
-  text-shadow: 0 1px 3px rgba(18, 13, 7, .8), 0 2px 10px rgba(18, 13, 7, .45);
   pointer-events: none;
 }
 
@@ -89,10 +97,10 @@ body.card-over-controls .controls > * { pointer-events: none; }
   height: 56px;
   margin: 0 auto;
   border-radius: 50%;
-  border: 2.5px solid #c9a227;
+  border: 2px solid var(--ink);
   overflow: visible;
-  background: #211d17;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, .55), inset 0 0 8px rgba(0, 0, 0, .4);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(251, 250, 247, .85), 0 6px 16px rgba(60, 54, 40, .25);
   cursor: pointer;
 }
 .city-medallion .cm img {
@@ -108,22 +116,22 @@ body.card-over-controls .controls > * { pointer-events: none; }
   justify-content: center;
   width: 100%;
   height: 100%;
-  color: #c9a227;
+  color: var(--brass);
   font-size: 26px;
 }
 .city-medallion .cm-n {
   position: absolute;
   top: -6px;
   right: -10px;
-  background: #9e2020;
-  color: var(--ivory);
-  border: 1.5px solid #ffe9a0;
+  background: var(--ink);
+  color: var(--porcelain);
+  border: 1.5px solid var(--porcelain);
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
   padding: 3px 7px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+  box-shadow: 0 2px 6px rgba(60, 54, 40, .35);
 }
 .city-medallion .cm-name {
   margin-top: 3px;
@@ -131,24 +139,22 @@ body.card-over-controls .controls > * { pointer-events: none; }
   font-weight: 600;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: #efe5c4;
-  text-shadow: 0 1px 3px rgba(18, 13, 7, .95), 0 0 8px rgba(18, 13, 7, .7);
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(251, 250, 247, .9), 0 0 6px rgba(251, 250, 247, .9);
   white-space: nowrap;
 }
-.city-medallion:hover .cm { border-color: #ffe9a0; }
+.city-medallion:hover .cm { border-color: var(--brass); }
 
-/* guided tour chip — gilded so it reads as the special one; sits centered
-   above the search bar */
+/* guided tour chip — the one brass note in the header */
 .tour-chip {
   display: inline-block;
   margin: 0 auto 10px;
-  border: 1px solid #c9a227 !important;
-  background: rgba(201, 162, 39, .16) !important;
-  color: #ffe9a0 !important;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+  border: 1px solid var(--brass) !important;
+  background: #ffffff !important;
+  color: #8a6a14 !important;
+  box-shadow: 0 2px 10px rgba(60, 54, 40, .08);
 }
-.tour-chip:hover { background: rgba(201, 162, 39, .3) !important; }
+.tour-chip:hover { background: #f7f0dd !important; }
 
 /* share link on the popup card */
 .share-btn {
@@ -157,63 +163,43 @@ body.card-over-controls .controls > * { pointer-events: none; }
   padding: 4px 8px;
   border: 0;
   background: transparent;
-  color: #c9a227;
+  color: var(--brass);
   font: inherit;
   font-size: .72rem;
   letter-spacing: .08em;
   cursor: pointer;
 }
-.share-btn:hover { color: #ffe9a0; text-decoration: underline; }
+.share-btn:hover { color: #8a6a14; text-decoration: underline; }
 
 /* the tour's closing nudge on the lead box */
 @keyframes lbPulse {
-  0%, 100% { box-shadow: 0 8px 26px rgba(0, 0, 0, .45); }
-  50% { box-shadow: 0 0 30px rgba(201, 162, 39, .85); }
+  0%, 100% { box-shadow: 0 10px 28px rgba(60, 54, 40, .14); }
+  50% { box-shadow: 0 0 26px rgba(178, 140, 46, .65); }
 }
 .lead-box.pulse { animation: lbPulse 1.4s ease-in-out 2; }
 
-/* the stats read from an antique scroll — dark leather-brown band with
-   rolled ends, matching the era of the pianos it counts */
+/* the stats: one quiet line on a hairline-ruled card */
 .map-stats {
   font-family: Didot, "Bodoni 72", Georgia, serif;
   font-size: .95rem;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: #efe5c4;
+  color: var(--ink-soft);
   text-align: center;
   position: relative;
   display: inline-flex;
   align-items: center;
   margin: -2px auto 14px;
-  padding: 9px 30px 10px;
-  background: linear-gradient(180deg, #4a3320 0%, #3a2817 45%, #2a1c10 100%);
-  border: 1px solid rgba(201, 162, 39, .45);
-  border-radius: 4px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 233, 160, .14),
-    inset 0 -8px 16px rgba(0, 0, 0, .4),
-    0 6px 18px rgba(0, 0, 0, .35);
-  text-shadow: 0 1px 3px rgba(18, 13, 7, .8);
+  padding: 8px 26px 9px;
+  background: #ffffff;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  box-shadow: 0 2px 12px rgba(60, 54, 40, .07);
   pointer-events: none;
 }
-/* the rolled ends of the scroll */
-.map-stats::before,
-.map-stats::after {
-  content: "";
-  position: absolute;
-  top: -7px;
-  bottom: -7px;
-  width: 17px;
-  background: linear-gradient(90deg, #1f1305 0%, #5c421f 45%, #3a2812 70%, #1f1305 100%);
-  border: 1px solid rgba(201, 162, 39, .55);
-  border-radius: 9px;
-  box-shadow: 0 3px 9px rgba(0, 0, 0, .55);
-}
-.map-stats::before { left: -9px; }
-.map-stats::after { right: -9px; }
-.map-stats .ms-dot { color: #c9a227; padding: 0 .45em; }
-.map-stats .ms-num { color: #ffe9a0; font-weight: 600; }
-.map-stats .ms-lbl { margin-left: .35em; }
+.map-stats .ms-dot { color: var(--brass); padding: 0 .45em; }
+.map-stats .ms-num { color: var(--ink); font-weight: 600; }
+.map-stats .ms-lbl { margin-left: .35em; color: var(--gray); }
 
 .searcharea {
   position: relative;
@@ -224,23 +210,22 @@ body.card-over-controls .controls > * { pointer-events: none; }
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(20, 16, 12, .78);
-  border: 1px solid #4a3f28;
+  background: #ffffff;
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   padding: 9px 16px;
-  color: var(--muted);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, .35);
+  color: var(--gray);
+  box-shadow: 0 4px 16px rgba(60, 54, 40, .08);
 }
 .searchwrap input {
   border: 0;
   outline: none;
   background: transparent;
   font: inherit;
-  color: var(--ivory);
+  color: var(--ink);
   width: 100%;
 }
-.searchwrap input::placeholder { color: #8d8266; }
+.searchwrap input::placeholder { color: #a49c8b; }
 
 /* ---------- search autocomplete dropdown ---------- */
 .suggest {
@@ -248,11 +233,10 @@ body.card-over-controls .controls > * { pointer-events: none; }
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: rgba(24, 19, 13, .97);
-  border: 1px solid #8a723a;
+  background: #ffffff;
+  border: 1px solid var(--hairline);
   border-radius: 16px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, .55);
-  backdrop-filter: blur(6px);
+  box-shadow: 0 18px 44px rgba(60, 54, 40, .16);
   overflow-y: auto;
   max-height: min(380px, 52vh);
   text-align: left;
@@ -270,7 +254,7 @@ body.suggest-open .leaflet-control-container {
   font-weight: 600;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: var(--gold, #c9a227);
+  color: var(--brass);
   padding: 12px 16px 4px;
 }
 .sg-item {
@@ -283,7 +267,7 @@ body.suggest-open .leaflet-control-container {
   padding: 10px 16px;
   border: 0;
   background: transparent;
-  color: var(--ivory);
+  color: var(--ink);
   font: inherit;
   font-size: .92rem;
   text-align: left;
@@ -291,7 +275,7 @@ body.suggest-open .leaflet-control-container {
 }
 .sg-item:hover,
 .sg-item.active {
-  background: rgba(201, 162, 39, .18);
+  background: var(--paper);
 }
 .sg-item .sg-main {
   min-width: 0;
@@ -301,22 +285,22 @@ body.suggest-open .leaflet-control-container {
 }
 .sg-item .sg-sub {
   flex: none;
-  color: #b3a67f;
+  color: var(--gray);
   font-size: .76rem;
   letter-spacing: .03em;
 }
 .sg-none {
   padding: 12px 16px 14px;
-  color: #b3a67f;
+  color: var(--gray);
   font-size: .85rem;
 }
 .sg-cta {
   display: block;
   margin: 0 16px 14px;
   padding: 10px 12px;
-  border-radius: 10px;
-  background: #9e2020;
-  color: var(--ivory);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--porcelain);
   font-size: .8rem;
   font-weight: 600;
   letter-spacing: .08em;
@@ -324,8 +308,8 @@ body.suggest-open .leaflet-control-container {
   text-align: center;
   text-decoration: none;
 }
-.sg-cta:hover { background: #b52a2a; }
-.suggest > .sg-sect + .sg-sect { border-top: 1px solid rgba(201, 162, 39, .25); }
+.sg-cta:hover { background: #3a362e; }
+.suggest > .sg-sect + .sg-sect { border-top: 1px solid var(--hairline); }
 .sg-sect { padding-bottom: 6px; }
 
 .chiprow {
@@ -347,31 +331,30 @@ body.suggest-open .leaflet-control-container {
   letter-spacing: .06em;
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(20, 16, 12, .78);
-  border: 1px solid #57492c;
-  color: #d8cba6;
+  background: #ffffff;
+  border: 1px solid var(--hairline);
+  color: var(--ink-soft);
   cursor: pointer;
   white-space: nowrap;
   transition: background .15s, color .15s, border-color .15s;
-  backdrop-filter: blur(3px);
+  box-shadow: 0 2px 8px rgba(60, 54, 40, .05);
 }
-.chip:hover { border-color: var(--gold); color: var(--gold-hi); }
+.chip:hover { border-color: var(--ink); color: var(--ink); }
 .chip.on {
-  background: linear-gradient(180deg, #fffdf6, #ece4cf);
-  color: var(--black);
-  border-color: var(--ivory);
+  background: var(--ink);
+  color: var(--porcelain);
+  border-color: var(--ink);
   font-weight: 700;
-  box-shadow: 0 2px 10px rgba(245, 239, 221, .4);
 }
 .chip.select { padding: 6px 10px; }
-select.chip option { background: var(--ebony); color: var(--ivory); }
+select.chip option { background: #ffffff; color: var(--ink); }
 
 .resetlink {
   font: inherit;
   font-size: .68rem;
   letter-spacing: .06em;
-  color: #d8cba6;
-  background: rgba(20, 16, 12, .6);
+  color: var(--gray);
+  background: transparent;
   border: 0;
   padding: 4px 10px;
   border-radius: 999px;
@@ -381,34 +364,35 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
   cursor: pointer;
   white-space: nowrap;
 }
-.resetlink:hover { color: var(--gold-hi); }
+.resetlink:hover { color: var(--ink); }
 
 /* ---------- map ---------- */
 #map {
   flex: 1;
   min-height: 420px;
-  background: var(--parch);
+  background: var(--porcelain);
 }
 
-/* required tile credits: small, parchment-toned, never blue */
+/* required tile credits: small, neutral, never blue */
 .leaflet-control-attribution {
-  background: rgba(233, 223, 198, .8);
-  color: #8d8266;
+  background: rgba(251, 250, 247, .85);
+  color: #a49c8b;
   font-size: 9px;
 }
-.leaflet-control-attribution a { color: #8d8266; }
+.leaflet-control-attribution a { color: #a49c8b; }
 
-/* warm the dark basemap: ebony land with a candlelight cast */
-.leaflet-tile-pane { filter: sepia(.32) brightness(1.75) contrast(.92); }
-.leaflet-labels-pane { filter: sepia(.35) brightness(1.4); opacity: .9; }
+/* warm the light basemap into greige */
+.leaflet-tile-pane { filter: sepia(.14) saturate(.75) brightness(.99); }
+/* light label tiles render place names blue-gray — neutralize to warm gray */
+.leaflet-labels-pane { filter: grayscale(1) sepia(.18) brightness(1.05); opacity: .8; }
 
-/* zoom + locate controls, dark */
+/* zoom + locate controls, porcelain */
 .leaflet-bar a {
-  background: rgba(24, 20, 15, .9);
-  color: var(--ivory);
-  border-bottom-color: #4a3f28;
+  background: #ffffff;
+  color: var(--ink);
+  border-bottom-color: var(--hairline);
 }
-.leaflet-bar a:hover { background: #2a241b; color: var(--gold-hi); }
+.leaflet-bar a:hover { background: var(--paper); color: var(--ink); }
 
 /* heirloom lead box */
 .lead-box {
@@ -417,12 +401,11 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
   left: 14px;
   z-index: 1000;
   width: 280px;
-  background: rgba(24, 20, 15, .92);
-  border: 1.5px solid var(--gold);
-  border-radius: 10px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, .5);
+  background: #ffffff;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(60, 54, 40, .14);
   padding: 14px 16px 16px;
-  backdrop-filter: blur(4px);
 }
 .lb-close {
   position: absolute;
@@ -433,13 +416,13 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #8d8266;
+  color: #a49c8b;
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
   padding: 0;
 }
-.lb-close:hover { color: var(--gold-hi); }
+.lb-close:hover { color: var(--ink); }
 .lead-reopen {
   display: none;
   position: absolute;
@@ -450,13 +433,13 @@ select.chip option { background: var(--ebony); color: var(--ivory); }
   font-size: .74rem;
   font-weight: 600;
   letter-spacing: .04em;
-  background: rgba(24, 20, 15, .92);
-  color: var(--gold-hi);
-  border: 1.5px solid var(--gold);
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid var(--hairline);
   border-radius: 999px;
   padding: 8px 14px;
   cursor: pointer;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, .45);
+  box-shadow: 0 8px 22px rgba(60, 54, 40, .16);
 }
 body.lead-closed .lead-box { display: none; }
 body.lead-closed .lead-reopen { display: block; }
@@ -467,11 +450,11 @@ body.lead-closed .timebar { bottom: 80px; }
   font-weight: 500;
   font-size: 1.18rem;
   margin: 0 0 4px;
-  color: var(--ivory);
+  color: var(--ink);
 }
 .lb-hint {
   font-size: .85rem;
-  color: var(--muted);
+  color: var(--gray);
   margin: 0 0 8px;
   line-height: 1.45;
 }
@@ -482,28 +465,29 @@ body.lead-closed .timebar { bottom: 80px; }
   font: inherit;
   font-size: .95rem;
   padding: 7px 10px;
-  border: 1px solid #57492c;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, .35);
-  color: var(--ivory);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--porcelain);
+  color: var(--ink);
 }
-#zipInput::placeholder { color: #8d8266; }
-#zipInput:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+#zipInput::placeholder { color: #a49c8b; }
+#zipInput:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
 #zipForm button {
   font: inherit;
   font-size: .85rem;
   font-weight: 700;
   letter-spacing: .06em;
   padding: 7px 12px;
-  border: 1px solid var(--ivory);
-  border-radius: 6px;
-  background: linear-gradient(180deg, #fffdf6, #ece4cf);
-  color: var(--black);
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--porcelain);
   cursor: pointer;
 }
+#zipForm button:hover { background: #3a362e; }
 .lb-result {
   font-size: .85rem;
-  color: #d8cba6;
+  color: var(--ink-soft);
   line-height: 1.45;
   margin: 8px 0 0;
 }
@@ -521,7 +505,7 @@ body.lead-closed .timebar { bottom: 80px; }
   text-transform: uppercase;
   text-decoration: none;
   padding: 9px 10px;
-  border-radius: 6px;
+  border-radius: 999px;
 }
 .lb-cta:hover,
 .leaflet-container a.lb-cta:hover { background: #7c1515; color: #ffffff; }
@@ -533,25 +517,24 @@ body.lead-closed .timebar { bottom: 80px; }
   left: 14px;
   width: 285px;
   z-index: 1000;
-  background: rgba(24, 20, 15, .92);
-  border: 1.5px solid var(--gold);
-  border-radius: 10px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, .5);
+  background: #ffffff;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(60, 54, 40, .14);
   padding: 10px 16px 8px;
-  backdrop-filter: blur(4px);
 }
 .tb-label {
   font-family: Didot, "Bodoni 72", Georgia, serif;
   font-weight: 500;
   font-size: .92rem;
   letter-spacing: .04em;
-  color: var(--ivory);
+  color: var(--ink);
   text-align: center;
   margin-bottom: 4px;
 }
 #timeSlider {
   width: 100%;
-  accent-color: var(--ivory);
+  accent-color: var(--ink);
   cursor: ew-resize;
   margin: 0;
 }
@@ -560,7 +543,7 @@ body.lead-closed .timebar { bottom: 80px; }
   justify-content: space-between;
   font-size: .74rem;
   letter-spacing: .1em;
-  color: #cfc4a2;
+  color: var(--gray);
 }
 
 /* geolocation control */
@@ -570,9 +553,9 @@ body.lead-closed .timebar { bottom: 80px; }
   justify-content: center;
   width: 30px;
   height: 30px;
-  color: var(--ivory);
+  color: var(--ink);
 }
-.locate-ctrl a:hover { color: var(--gold-hi); }
+.locate-ctrl a:hover { color: var(--brass); }
 .locate-ctrl.locating a svg { animation: locpulse 1s ease-in-out infinite; }
 @keyframes locpulse {
   0%, 100% { opacity: 1; }
@@ -584,48 +567,47 @@ body.lead-closed .timebar { bottom: 80px; }
   font-size: 10px;
   letter-spacing: .18em;
   font-weight: 600;
-  color: #8d8266;
+  color: #a49c8b;
   text-align: center;
   white-space: nowrap;
   pointer-events: none;
 }
 
-/* ivory pin marker */
+/* ink pin marker */
 .gold-pin { background: none; border: none; }
 .gold-pin svg {
   display: block;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .6));
+  filter: drop-shadow(0 2px 3px rgba(60, 54, 40, .4));
   transition: filter .18s ease;
 }
 .gold-pin:hover svg {
-  filter: brightness(1.12)
-    drop-shadow(0 4px 6px rgba(0, 0, 0, .65))
-    drop-shadow(0 0 7px rgba(232, 201, 106, .6));
+  filter: drop-shadow(0 3px 5px rgba(60, 54, 40, .5))
+    drop-shadow(0 0 6px rgba(178, 140, 46, .55));
 }
 
-/* home star */
+/* home star — the one brass mark on the land */
 .home-star { background: none; border: none; font-size: 22px; line-height: 1; }
 .home-star span {
-  color: #e05545;
-  text-shadow: 0 0 10px rgba(224, 85, 69, .7);
+  color: var(--brass);
+  text-shadow: 0 0 8px rgba(178, 140, 46, .6);
 }
 
-/* ---------- medallion popup ---------- */
+/* ---------- gallery card popup ---------- */
 .leaflet-popup-content-wrapper {
-  border-radius: 14px;
-  background: var(--ebony);
-  color: var(--ivory);
-  box-shadow: 0 0 0 1.5px var(--gold), 0 0 0 4px rgba(201, 162, 39, .25), 0 18px 44px rgba(0, 0, 0, .6);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--hairline), 0 18px 44px rgba(60, 54, 40, .2);
   padding: 0;
   overflow: hidden;
 }
-.leaflet-popup-tip { background: var(--ebony); box-shadow: 0 0 0 1.5px var(--gold); }
-.leaflet-popup-close-button { color: #8d8266 !important; }
+.leaflet-popup-tip { background: #ffffff; box-shadow: 0 0 0 1px var(--hairline); }
+.leaflet-popup-close-button { color: #a49c8b !important; }
 .leaflet-popup-content { margin: 0; width: 258px !important; }
 .pcard { font-family: inherit; text-align: center; }
 .pcard .strip {
-  height: 4px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--ink), transparent);
 }
 .pcard .pad { padding: 12px 16px 16px; }
 .pcard h3 {
@@ -634,12 +616,12 @@ body.lead-closed .timebar { bottom: 80px; }
   font-size: 1.08rem;
   margin: 0 0 3px;
   line-height: 1.3;
-  color: var(--gold-hi);
+  color: var(--ink);
 }
 .pcard .meta {
   font-size: .72rem;
   letter-spacing: .06em;
-  color: var(--muted);
+  color: var(--gray);
   margin-bottom: 8px;
 }
 .pcard .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; justify-content: center; }
@@ -650,14 +632,14 @@ body.lead-closed .timebar { bottom: 80px; }
   padding: 2px 8px;
   border-radius: 999px;
   background: transparent;
-  border: 1px solid #57492c;
-  color: #d8cba6;
+  border: 1px solid var(--hairline);
+  color: var(--ink-soft);
 }
 .pcard a.btn,
 .leaflet-container .pcard a.btn {
   display: inline-block;
-  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
-  color: var(--black);
+  background: var(--ink);
+  color: var(--porcelain);
   font-weight: 700;
   font-size: .66rem;
   letter-spacing: .1em;
@@ -666,27 +648,27 @@ body.lead-closed .timebar { bottom: 80px; }
   padding: 8px 14px;
   border-radius: 999px;
 }
-.pcard a.btn:hover { filter: brightness(1.08); }
-.pcard .nolink { font-size: .7rem; color: var(--muted); font-style: italic; }
+.pcard a.btn:hover { background: #3a362e; }
+.pcard .nolink { font-size: .7rem; color: var(--gray); font-style: italic; }
 .pcard .resto {
   font-size: .76rem;
   line-height: 1.55;
-  color: #d8cba6;
+  color: var(--ink-soft);
   margin: 2px 0 10px;
   padding-top: 8px;
-  border-top: 1px solid #3a3222;
+  border-top: 1px solid var(--hairline);
   text-align: center;
 }
 .pcard .miles {
   font-size: .66rem;
-  color: var(--muted);
+  color: var(--gray);
   font-style: italic;
   margin: 10px 0 0;
   padding-top: 8px;
-  border-top: 1px solid #3a3222;
+  border-top: 1px solid var(--hairline);
 }
 
-/* circular gold-ringed photo medallion */
+/* circular ink-ringed photo medallion */
 .pcard-photo {
   display: block;
   width: 178px;
@@ -694,9 +676,9 @@ body.lead-closed .timebar { bottom: 80px; }
   object-fit: cover;
   border-radius: 50%;
   margin: 14px auto 0;
-  border: 3px solid var(--gold);
-  box-shadow: 0 0 0 6px rgba(201, 162, 39, .18), 0 8px 22px rgba(0, 0, 0, .5);
-  background: #2a241b;
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 6px var(--paper), 0 8px 22px rgba(60, 54, 40, .2);
+  background: var(--paper);
 }
 
 /* circular before/after slider medallion */
@@ -707,9 +689,9 @@ body.lead-closed .timebar { bottom: 80px; }
   overflow: hidden;
   border-radius: 50%;
   margin: 14px auto 0;
-  border: 3px solid var(--gold);
-  box-shadow: 0 0 0 6px rgba(201, 162, 39, .18), 0 8px 22px rgba(0, 0, 0, .5);
-  background: #2a241b;
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 6px var(--paper), 0 8px 22px rgba(60, 54, 40, .2);
+  background: var(--paper);
 }
 .pcard .ba img {
   position: absolute;
@@ -729,7 +711,7 @@ body.lead-closed .timebar { bottom: 80px; }
   letter-spacing: .08em;
   padding: 2px 6px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, .65);
+  background: rgba(38, 36, 31, .78);
   color: #fff;
   pointer-events: none;
   z-index: 2;
@@ -742,7 +724,7 @@ body.lead-closed .timebar { bottom: 80px; }
   bottom: 0;
   left: var(--cut, 50%);
   width: 2px;
-  background: var(--gold-hi);
+  background: #ffffff;
   pointer-events: none;
 }
 .pcard .ba .ba-handle::after {
@@ -751,14 +733,14 @@ body.lead-closed .timebar { bottom: 80px; }
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: var(--gold);
-  color: var(--black);
+  background: var(--ink);
+  color: var(--porcelain);
   font-size: .6rem;
   font-weight: 700;
   padding: 4px 6px;
   border-radius: 999px;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .45);
+  box-shadow: 0 2px 6px rgba(60, 54, 40, .35);
 }
 .pcard .ba input[type="range"] {
   position: absolute;
@@ -787,9 +769,9 @@ body.lead-closed .timebar { bottom: 80px; }
   height: 84px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2.5px solid var(--gold);
-  box-shadow: 0 0 0 4px rgba(201, 162, 39, .2), 0 8px 20px rgba(0, 0, 0, .55);
-  background: #2a241b;
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 4px rgba(251, 250, 247, .9), 0 8px 20px rgba(60, 54, 40, .3);
+  background: var(--paper);
 }
 .peek img {
   position: absolute;
@@ -806,12 +788,12 @@ body.lead-closed .timebar { bottom: 80px; }
   bottom: 0;
   left: 50%;
   width: 1.5px;
-  background: var(--gold-hi);
+  background: #ffffff;
 }
 
-/* glowing delivery route */
+/* glowing delivery route — brass filament */
 .route-glow {
-  filter: drop-shadow(0 0 4px rgba(255, 233, 160, .9));
+  filter: drop-shadow(0 0 4px rgba(217, 180, 94, .9));
   stroke-dasharray: 7 9;
   animation: routeflow 1.4s linear infinite;
 }
@@ -830,7 +812,7 @@ body.lead-closed .timebar { bottom: 80px; }
 .sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .5);
+  background: rgba(38, 36, 31, .4);
   z-index: 3000;
   opacity: 0;
   pointer-events: none;
@@ -846,11 +828,11 @@ body.lead-closed .timebar { bottom: 80px; }
   right: 0;
   bottom: 0;
   z-index: 3001;
-  background: var(--ebony);
-  color: var(--ivory);
-  border-top: 2px solid var(--gold);
+  background: #ffffff;
+  color: var(--ink);
+  border-top: 2px solid var(--ink);
   border-radius: 16px 16px 0 0;
-  box-shadow: 0 -10px 34px rgba(0, 0, 0, .6);
+  box-shadow: 0 -10px 34px rgba(60, 54, 40, .3);
   max-height: 80vh;
   overflow-y: auto;
   transform: translateY(105%);
@@ -870,22 +852,22 @@ body.lead-closed .timebar { bottom: 80px; }
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid var(--gold);
-  background: rgba(0, 0, 0, .55);
-  color: var(--gold-hi);
+  border: 1px solid var(--hairline);
+  background: #ffffff;
+  color: var(--ink);
   font-size: 20px;
   line-height: 1;
   cursor: pointer;
 }
 
-/* desktop: the header sits above the map in its own ebony band — the
+/* desktop: the header sits above the map in its own porcelain band — the
    first look always shows the title; the hero collapse hands the space
    back to the map once the visitor zooms in */
 @media (min-width: 901px) {
   .controls {
     position: relative;
-    background: linear-gradient(180deg, #16110b 0%, #241d14 100%);
-    border-bottom: 1px solid rgba(201, 162, 39, .4);
+    background: var(--porcelain);
+    border-bottom: 1px solid var(--hairline);
   }
 }
 
@@ -905,13 +887,14 @@ body.lead-closed .timebar { bottom: 80px; }
   /* inputs must be >=16px on phones or iOS auto-zooms on focus,
      shoving the layout sideways (the vanishing Go button bug) */
   #zipInput, .searchwrap input { font-size: 16px; }
-  /* phones: the scroll holds three columns — number over label —
-     divided by fine gold rules */
+  /* phones: the stats card holds three columns — number over label —
+     divided by hairlines */
   .map-stats {
     display: flex;
     justify-content: center;
     margin: 0 24px 12px;
-    padding: 8px 16px 9px;
+    padding: 8px 12px 9px;
+    border-radius: 14px;
   }
   .map-stats .ms-dot { display: none; }
   .map-stats .ms-item {
@@ -921,13 +904,13 @@ body.lead-closed .timebar { bottom: 80px; }
     gap: 2px;
     padding: 2px 6px;
   }
-  .map-stats .ms-item + .ms-item { border-left: 1px solid rgba(201, 162, 39, .35); }
+  .map-stats .ms-item + .ms-item { border-left: 1px solid var(--hairline); }
   .map-stats .ms-num { font-size: 1.05rem; line-height: 1; }
   .map-stats .ms-lbl {
     margin-left: 0;
     font-size: .52rem;
     letter-spacing: .1em;
-    color: #d8cba0;
+    color: var(--gray);
   }
   #zipForm button { flex-shrink: 0; }
   #map { min-height: 0; }
