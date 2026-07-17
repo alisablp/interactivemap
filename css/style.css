@@ -122,7 +122,7 @@ body.card-over-controls .controls * { pointer-events: none; }
 .cmdbar {
   position: absolute;
   left: 50%;
-  bottom: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   z-index: 1200;
   display: flex;
