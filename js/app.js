@@ -545,10 +545,17 @@
           " miles between our Utah workshop and " + esc(p.ct + ", " + p.st) + ".</p>";
       }
     }
-    h += "<button type='button' class='share-btn' data-pid='" + esc(p.id) + "'>&#128279; Share this piano</button>";
+    h += "<button type='button' class='share-btn' data-pid='" + esc(p.id) + "'>" + SHARE_LABEL + "</button>";
     h += "</div></div>";
     return h;
   }
+
+  var SHARE_LABEL =
+    "<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' " +
+    "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>" +
+    "<path d='M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7'/>" +
+    "<path d='M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7'/></svg>" +
+    "Share this piano";
 
   // share buttons live inside injected popup/sheet HTML — delegate the click
   document.addEventListener("click", function (e) {
@@ -557,7 +564,7 @@
     var url = location.origin + location.pathname + "?piano=" + encodeURIComponent(b.getAttribute("data-pid"));
     var confirm = function () {
       b.textContent = "Link copied!";
-      setTimeout(function () { b.innerHTML = "&#128279; Share this piano"; }, 1800);
+      setTimeout(function () { b.innerHTML = SHARE_LABEL; }, 1800);
     };
     if (navigator.share && window.matchMedia("(pointer: coarse)").matches) {
       // phones/tablets get the native share sheet; desktops copy the link

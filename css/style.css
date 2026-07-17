@@ -592,17 +592,22 @@ body.suggest-open .leaflet-control-container {
 
 /* share link on the popup card */
 .share-btn {
-  display: block;
-  margin: 7px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px auto 0;
   padding: 4px 8px;
   border: 0;
   background: transparent;
-  color: var(--brass);
+  color: var(--gold);
   font: inherit;
-  font-size: .72rem;
+  font-size: .74rem;
+  font-weight: 600;
   letter-spacing: .08em;
   cursor: pointer;
 }
+.share-btn svg { flex: none; }
 .share-btn:hover { color: #8a6a14; text-decoration: underline; }
 
 /* ---------- gallery card popup ---------- */
@@ -664,8 +669,8 @@ body.suggest-open .leaflet-control-container {
 .pcard a.btn:hover { background: #3a362e; }
 .pcard .nolink { font-size: .7rem; color: var(--gray); font-style: italic; }
 .pcard .resto {
-  font-size: .76rem;
-  line-height: 1.55;
+  font-size: .88rem;
+  line-height: 1.6;
   color: var(--ink-soft);
   margin: 2px 0 10px;
   padding-top: 8px;
@@ -853,10 +858,32 @@ body.suggest-open .leaflet-control-container {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .sheet.open { transform: none; }
-.sheet .pcard .ba { width: 220px; height: 220px; }
-.sheet .pcard-photo { width: 210px; height: 210px; }
-.sheet .pcard h3 { font-size: 1.25rem; }
-.sheet .pcard .pad { padding: 14px 18px 20px; }
+.sheet .pcard .ba { width: 240px; height: 240px; }
+.sheet .pcard-photo { width: 230px; height: 230px; }
+.sheet .pcard h3 { font-size: 1.3rem; }
+.sheet .pcard .resto { font-size: .98rem; }
+.sheet .pcard .pad { padding: 14px 22px 22px; }
+.sheet .share-btn { font-size: .8rem; }
+@media (min-width: 681px) {
+  /* desktop/tablet: a tall gallery card to the right, not a page-wide strip */
+  .sheet {
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+    width: 420px;
+    max-height: 76vh;
+    border: 1px solid var(--hairline);
+    border-top: 2px solid var(--ink);
+    border-radius: 16px;
+    transform: translateY(calc(100% + 40px));
+  }
+  .sheet.open { transform: none; }
+  .sheet .pcard .ba { width: 290px; height: 290px; }
+  .sheet .pcard-photo { width: 280px; height: 280px; }
+  .sheet .pcard h3 { font-size: 1.4rem; }
+  .sheet .pcard .resto { font-size: 1rem; }
+  .sheet .pcard .meta { font-size: .76rem; }
+}
 .sheet-close {
   position: absolute;
   top: 10px;
