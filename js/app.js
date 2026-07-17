@@ -1045,14 +1045,16 @@
       statMiles += milesFromWorkshop(p.la, p.lo) * (p.c.indexOf("Family Heirloom") !== -1 ? 2 : 1);
     });
     var STATS = [
-      [PIANOS.length, " pianos mapped"],
-      [Object.keys(statStates).length, " states"],
-      [Math.round(statMiles / 1000) * 1000, " miles traveled"]
+      [PIANOS.length, "pianos mapped"],
+      [Object.keys(statStates).length, "states"],
+      [Math.round(statMiles / 1000) * 1000, "miles traveled"]
     ].filter(function (s) { return s[0] > 0; });
 
+    // desktop: one elegant line; phones restyle these items as stat tiles
     statsEl.innerHTML = STATS.map(function (s, i) {
       return (i ? "<span class='ms-dot'>&#183;</span>" : "") +
-        "<span class='ms-num' data-n='" + s[0] + "'>0</span>" + s[1];
+        "<span class='ms-item'><span class='ms-num' data-n='" + s[0] + "'>0</span>" +
+        "<span class='ms-lbl'>" + s[1] + "</span></span>";
     }).join("");
 
     var numEls = statsEl.querySelectorAll(".ms-num");

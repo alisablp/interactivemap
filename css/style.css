@@ -185,6 +185,7 @@ body.card-over-controls .controls > * { pointer-events: none; }
 }
 .map-stats .ms-dot { color: #c9a227; padding: 0 .45em; }
 .map-stats .ms-num { color: #ffe9a0; font-weight: 600; }
+.map-stats .ms-lbl { margin-left: .35em; }
 
 .searcharea {
   position: relative;
@@ -872,12 +873,40 @@ body.lead-closed .timebar { bottom: 80px; }
 }
 @media (max-width: 640px) {
   .controls { padding: 12px 12px 0; }
-  .leaflet-top.leaflet-right { top: 96px; }
+  .leaflet-top.leaflet-right { top: 310px; } /* clear of the header (incl. stat tiles) */
   /* inputs must be >=16px on phones or iOS auto-zooms on focus,
      shoving the layout sideways (the vanishing Go button bug) */
   #zipInput, .searchwrap input { font-size: 16px; }
-  .map-stats { font-size: .72rem; letter-spacing: .08em; margin: -4px 0 10px; padding: 0 44px; }
-  .map-stats .ms-dot { padding: 0 .3em; }
+  /* phones: the stats become a row of three gilded tiles — number on
+     top, label beneath — instead of an awkwardly wrapping line */
+  .map-stats {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+    margin: 0 0 12px;
+    padding: 0 12px;
+  }
+  .map-stats .ms-dot { display: none; }
+  .map-stats .ms-item {
+    flex: 1;
+    max-width: 118px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(20, 16, 12, .6);
+    border: 1px solid rgba(201, 162, 39, .6);
+    border-radius: 10px;
+    padding: 8px 6px 7px;
+    backdrop-filter: blur(3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+  }
+  .map-stats .ms-num { font-size: 1.05rem; line-height: 1; }
+  .map-stats .ms-lbl {
+    margin-left: 0;
+    font-size: .52rem;
+    letter-spacing: .1em;
+    color: #d8cba0;
+  }
   #zipForm button { flex-shrink: 0; }
   #map { min-height: 0; }
   .leaflet-popup-content { width: 225px !important; }
