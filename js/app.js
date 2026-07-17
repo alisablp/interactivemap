@@ -13,9 +13,7 @@
   // phones need to zoom out further than desktops to fit the whole country
   var IS_SMALL = window.matchMedia("(max-width: 640px)").matches;
 
-  // phones get extra northern headroom so the home view can seat the
-  // country lower on screen, beneath the floating header
-  var US_BOUNDS = L.latLngBounds([15, -136], [IS_SMALL ? 63 : 54, -63]);
+  var US_BOUNDS = L.latLngBounds([15, -136], [54, -63]);
 
   // maxZoom stops at city scale — visitors can never zoom to house level,
   // reinforcing that pins mark cities, not addresses
@@ -113,11 +111,9 @@
   });
   map.addControl(new LocateControl());
 
-  // open with the full composition — lower 48 plus the pulled-in AK & HI;
-  // phones reserve room for the floating header so the country sits lower,
-  // closer to the timeline and heirloom box
+  // open with the full composition — lower 48 plus the pulled-in AK & HI
   var HOME_VIEW = L.latLngBounds([19.5, -126], [49.4, -66.9]);
-  map.fitBounds(HOME_VIEW, IS_SMALL ? { paddingTopLeft: [0, 120], paddingBottomRight: [0, 0] } : undefined);
+  map.fitBounds(HOME_VIEW);
 
   // Mask out everything beyond the US border (Canada, Mexico, oceans)
   // with the site's cream, leaving a fine gold outline around the country.
@@ -426,15 +422,18 @@
   // layer above the floating controls — instead, fade the controls away
   // whenever an open card or peek overlaps them.
   function updateControlsDim() {
-    var controls = document.querySelector(".controls");
-    if (!controls) return;
-    var c = controls.getBoundingClientRect();
-    var overlap = false;
-    document.querySelectorAll(".leaflet-popup, .leaflet-tooltip").forEach(function (el) {
-      var r = el.getBoundingClientRect();
-      if (!(r.bottom < c.top || r.top > c.bottom || r.right < c.left || r.left > c.right)) overlap = true;
-    });
-    document.body.classList.toggle("card-over-controls", overlap);
+    function overlaps(target) {
+      if (!target) return false;
+      var c = target.getBoundingClientRect();
+      var hit = false;
+      document.querySelectorAll(".leaflet-popup, .leaflet-tooltip").forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (!(r.bottom < c.top || r.top > c.bottom || r.right < c.left || r.left > c.right)) hit = true;
+      });
+      return hit;
+    }
+    document.body.classList.toggle("card-over-controls", overlaps(document.querySelector(".controls")));
+    document.body.classList.toggle("card-over-cmdbar", overlaps(document.querySelector(".cmdbar")));
   }
   ["popupopen", "popupclose", "tooltipopen", "tooltipclose", "move", "zoomend"].forEach(function (ev) {
     map.on(ev, function () {
@@ -1141,16 +1140,18 @@
       tourTimer = null;
       tourFlying = false;
       document.body.classList.remove("touring");
-      tourBtn.innerHTML = "&#10022; Take the Tour";
+      tourBtn.innerHTML = "&#9654; Start Tour";
       if (goHome) {
         map.closePopup();
         closeSheet();
         map.flyToBounds(HOME_VIEW, { duration: 1.6 });
         // the tour's closing act: invite the visitor's own heirloom story
-        document.body.classList.remove("lead-closed");
-        var lb = document.getElementById("leadBox");
-        lb.classList.add("pulse");
-        setTimeout(function () { lb.classList.remove("pulse"); }, 3000);
+        if (typeof openPanel === "function") {
+          openPanel("panelNear");
+          var pn = document.getElementById("panelNear");
+          pn.classList.add("pulse");
+          setTimeout(function () { pn.classList.remove("pulse"); }, 3000);
+        }
       }
     }
 
@@ -1187,6 +1188,56 @@
     });
   }
 
+  // ---------- command bar + panels ----------
+  // One floating bar: search plus Filters / Era / Near me, each raising a
+  // small panel above the bar. One panel open at a time.
+  var cmdBar = document.getElementById("cmdBar");
+  var panelEls = Array.prototype.slice.call(document.querySelectorAll(".panel"));
+
+  function closePanels() {
+    panelEls.forEach(function (p) { p.hidden = true; });
+    document.querySelectorAll(".cmd-btn[data-panel]").forEach(function (b) {
+      b.classList.remove("active");
+      b.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function openPanel(id) {
+    closePanels();
+    var p = document.getElementById(id);
+    if (!p) return;
+    p.hidden = false;
+    var b = document.querySelector(".cmd-btn[data-panel='" + id + "']");
+    if (b) {
+      b.classList.add("active");
+      b.setAttribute("aria-expanded", "true");
+    }
+  }
+
+  if (cmdBar) {
+    L.DomEvent.disableClickPropagation(cmdBar);
+    L.DomEvent.disableScrollPropagation(cmdBar);
+    panelEls.forEach(function (p) {
+      L.DomEvent.disableClickPropagation(p);
+      L.DomEvent.disableScrollPropagation(p);
+    });
+    document.querySelectorAll(".cmd-btn[data-panel]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var p = document.getElementById(b.getAttribute("data-panel"));
+        var opening = p && p.hidden;
+        closePanels();
+        if (opening) openPanel(b.getAttribute("data-panel"));
+      });
+    });
+    document.querySelectorAll(".panel [data-close]").forEach(function (x) {
+      x.addEventListener("click", closePanels);
+    });
+    map.on("click", closePanels); // tapping the map puts the panel away
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closePanels();
+    });
+  }
+
   // ---------- era timeline slider ----------
   var timeBar = document.getElementById("timeBar");
   if (timeBar) {
@@ -1212,20 +1263,6 @@
   // ---------- heirloom lead box: ZIP lookup + free quote ----------
   var leadBox = document.getElementById("leadBox");
   if (leadBox) {
-    L.DomEvent.disableClickPropagation(leadBox);
-    L.DomEvent.disableScrollPropagation(leadBox);
-    var lbReopen = document.getElementById("lbReopen");
-    L.DomEvent.disableClickPropagation(lbReopen);
-    // phones start with the box collapsed — the pill invites, not insists
-    if (window.matchMedia("(max-width: 640px)").matches) {
-      document.body.classList.add("lead-closed");
-    }
-    document.getElementById("lbClose").addEventListener("click", function () {
-      document.body.classList.add("lead-closed");
-    });
-    lbReopen.addEventListener("click", function () {
-      document.body.classList.remove("lead-closed");
-    });
     var zipForm = document.getElementById("zipForm");
     var zipInput = document.getElementById("zipInput");
     var zipResult = document.getElementById("zipResult");

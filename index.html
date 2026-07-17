@@ -11,59 +11,88 @@
 </head>
 <body>
 
+<!-- The Playbill: high-contrast banner — title over a gold rule, stats
+     beneath, Start Tour glowing at the right -->
 <section class="controls">
   <div class="hero" id="mapHero">
-    <h1 class="map-title">Piano Stories Across America</h1>
-    <p class="map-sub">by Brigham Larson Pianos</p>
-    <p class="map-stats" id="mapStats" aria-live="polite"></p>
-  </div>
-  <button id="tourBtn" class="chip tour-chip">&#10022; Take the Tour</button>
-  <div class="searcharea">
-    <div class="searchwrap">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
-      </svg>
-      <input id="search" type="search" placeholder='Search — try "Steinway", "Grand", "1910", "Utah"…' aria-label="Search pianos"
-        role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest" autocomplete="off">
+    <div class="hero-inner">
+      <h1 class="map-title">Piano Stories Across America</h1>
+      <div class="gold-rule" aria-hidden="true"></div>
+      <p class="map-sub">by Brigham Larson Pianos</p>
+      <p class="map-stats" id="mapStats" aria-live="polite"></p>
     </div>
-    <div class="suggest" id="suggest" role="listbox" aria-label="Search suggestions" hidden></div>
+    <button id="tourBtn" class="tour-cta">&#9654; Start Tour</button>
   </div>
-
-  <div class="chiprow" id="chips">
-    <button class="chip on" data-filter="*">All Pianos</button>
-    <button class="chip" data-filter="type:Grand">Grand</button>
-    <button class="chip" data-filter="type:Upright">Upright</button>
-    <button class="chip" data-filter="gallery:both">Before &amp; After</button>
-    <button class="chip" data-filter="cat:Family Heirloom">Heirloom</button>
-    <button class="chip" data-filter="cat:Player">Modern Player</button>
-    <button class="chip" data-filter="cat:Vintage Player">Vintage Player</button>
-    <button class="chip" data-filter="cat:Antique">Antique</button>
-    <select id="makeSelect" class="chip select" aria-label="Filter by make">
-      <option value="">Any Make</option>
-    </select>
-    <button id="reset" class="resetlink">Reset</button>
-  </div>
-
 </section>
 
 <div id="map" role="application" aria-label="Interactive map of pianos across America">
-  <div class="lead-box" id="leadBox">
-    <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
-    <p class="lb-title">Do you have a family heirloom?</p>
-    <p class="lb-hint">Type your ZIP code to see how close we've delivered a restored piano to you.</p>
-    <form id="zipForm" autocomplete="off">
-      <input id="zipInput" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="ZIP code" aria-label="Your ZIP code">
-      <button type="submit" aria-label="Find the nearest restored piano">Go</button>
-    </form>
-    <p class="lb-result" id="zipResult"></p>
-    <a class="lb-cta" href="https://www.brighamlarsonpianos.com/pages/free-family-heirloom-restoration-evaluation" target="_blank" rel="noopener">FREE Restoration Quote</a>
+
+  <!-- one floating command bar: search + Filters / Era / Near me -->
+  <div class="cmdbar" id="cmdBar">
+    <div class="searcharea">
+      <div class="searchwrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>
+        </svg>
+        <input id="search" type="search" placeholder="Search pianos, cities, eras&hellip;" aria-label="Search pianos"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest" autocomplete="off">
+      </div>
+      <div class="suggest" id="suggest" role="listbox" aria-label="Search suggestions" hidden></div>
+    </div>
+    <button class="cmd-btn" id="cbFilters" data-panel="panelFilters" aria-expanded="false">
+      <em>&#9776;</em>Filters
+    </button>
+    <button class="cmd-btn" id="cbEra" data-panel="panelEra" aria-expanded="false">
+      <em>&#9202;</em>Era
+    </button>
+    <button class="cmd-btn gold" id="cbNear" data-panel="panelNear" aria-expanded="false">
+      <em>&#9873;</em>Near me
+    </button>
   </div>
-  <button class="lead-reopen" id="lbReopen">&#9834; Family heirloom?</button>
-  <div class="timebar" id="timeBar">
-    <div class="tb-label" id="tbLabel">Every Era of Piano History</div>
-    <input type="range" id="timeSlider" min="1850" max="2026" step="2" value="2026" aria-label="Filter pianos by era">
-    <div class="tb-ends"><span>1850</span><span>2026</span></div>
+
+  <!-- panels rise from the command bar; one open at a time -->
+  <div class="panel" id="panelFilters" hidden>
+    <button class="panel-x" data-close aria-label="Close">&times;</button>
+    <p class="panel-title">Filter the map</p>
+    <div class="chiprow" id="chips">
+      <button class="chip on" data-filter="*">All Pianos</button>
+      <button class="chip" data-filter="type:Grand">Grand</button>
+      <button class="chip" data-filter="type:Upright">Upright</button>
+      <button class="chip" data-filter="gallery:both">Before &amp; After</button>
+      <button class="chip" data-filter="cat:Family Heirloom">Heirloom</button>
+      <button class="chip" data-filter="cat:Player">Modern Player</button>
+      <button class="chip" data-filter="cat:Vintage Player">Vintage Player</button>
+      <button class="chip" data-filter="cat:Antique">Antique</button>
+      <select id="makeSelect" class="chip select" aria-label="Filter by make">
+        <option value="">Any Make</option>
+      </select>
+    </div>
+    <button id="reset" class="resetlink">Reset everything</button>
   </div>
+
+  <div class="panel" id="panelEra" hidden>
+    <button class="panel-x" data-close aria-label="Close">&times;</button>
+    <div class="timebar" id="timeBar">
+      <div class="tb-label" id="tbLabel">Every Era of Piano History</div>
+      <input type="range" id="timeSlider" min="1850" max="2026" step="2" value="2026" aria-label="Filter pianos by era">
+      <div class="tb-ends"><span>1850</span><span>2026</span></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panelNear" hidden>
+    <button class="panel-x" data-close aria-label="Close">&times;</button>
+    <div class="lead-box" id="leadBox">
+      <p class="lb-title">Do you have a family heirloom?</p>
+      <p class="lb-hint">Type your ZIP code to see how close we've delivered a restored piano to you.</p>
+      <form id="zipForm" autocomplete="off">
+        <input id="zipInput" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="ZIP code" aria-label="Your ZIP code">
+        <button type="submit" aria-label="Find the nearest restored piano">Go</button>
+      </form>
+      <p class="lb-result" id="zipResult"></p>
+      <a class="lb-cta" href="https://www.brighamlarsonpianos.com/pages/free-family-heirloom-restoration-evaluation" target="_blank" rel="noopener">FREE Restoration Quote</a>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
