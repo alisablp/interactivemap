@@ -862,6 +862,10 @@ body.suggest-open .leaflet-control-container {
 .sheet.open { transform: none; }
 .sheet .pcard .ba { width: 240px; height: 240px; }
 .sheet .pcard-photo { width: 230px; height: 230px; }
+/* the circle curves inward near the bottom — labels move with its size */
+.sheet .pcard .ba .ba-lbl { bottom: 36px; }
+.sheet .pcard .ba .ba-lbl.l { left: 46px; }
+.sheet .pcard .ba .ba-lbl.r { right: 46px; }
 .sheet .pcard h3 { font-size: 1.3rem; }
 .sheet .pcard .resto { font-size: .98rem; }
 .sheet .pcard .pad { padding: 14px 22px 22px; }
@@ -882,6 +886,9 @@ body.suggest-open .leaflet-control-container {
   .sheet.open { transform: none; }
   .sheet .pcard .ba { width: 290px; height: 290px; }
   .sheet .pcard-photo { width: 280px; height: 280px; }
+  .sheet .pcard .ba .ba-lbl { bottom: 44px; font-size: .54rem; }
+  .sheet .pcard .ba .ba-lbl.l { left: 60px; }
+  .sheet .pcard .ba .ba-lbl.r { right: 60px; }
   .sheet .pcard h3 { font-size: 1.4rem; }
   .sheet .pcard .resto { font-size: 1rem; }
   .sheet .pcard .meta { font-size: .76rem; }
