@@ -10,12 +10,15 @@
   // USA only: panning is locked to the composed map (lower 48 with Alaska
   // and Hawaii pulled in below the Southwest, albers-atlas style).
   // Slightly padded so popups near the edges have room to auto-pan into view.
-  var US_BOUNDS = L.latLngBounds([15, -136], [54, -63]);
+  // phones need to zoom out further than desktops to fit the whole country
+  var IS_SMALL = window.matchMedia("(max-width: 640px)").matches;
+
+  // phones get extra northern headroom so the home view can seat the
+  // country lower on screen, beneath the floating header
+  var US_BOUNDS = L.latLngBounds([15, -136], [IS_SMALL ? 63 : 54, -63]);
 
   // maxZoom stops at city scale — visitors can never zoom to house level,
   // reinforcing that pins mark cities, not addresses
-  // phones need to zoom out further than desktops to fit the whole country
-  var IS_SMALL = window.matchMedia("(max-width: 640px)").matches;
   var map = L.map("map", {
     center: [39.5, -98.35],
     zoom: 4,
@@ -110,9 +113,11 @@
   });
   map.addControl(new LocateControl());
 
-  // open with the full composition — lower 48 plus the pulled-in AK & HI
+  // open with the full composition — lower 48 plus the pulled-in AK & HI;
+  // phones reserve room for the floating header so the country sits lower,
+  // closer to the timeline and heirloom box
   var HOME_VIEW = L.latLngBounds([19.5, -126], [49.4, -66.9]);
-  map.fitBounds(HOME_VIEW);
+  map.fitBounds(HOME_VIEW, IS_SMALL ? { paddingTopLeft: [0, 120], paddingBottomRight: [0, 0] } : undefined);
 
   // Mask out everything beyond the US border (Canada, Mexico, oceans)
   // with the site's cream, leaving a fine gold outline around the country.
@@ -1079,6 +1084,11 @@
     var homeZoom = map.getZoom(); // captured right after the initial fitBounds
     map.on("zoomend", function () {
       heroEl.classList.toggle("hero-faded", map.getZoom() > homeZoom + 0.3);
+    });
+    // on desktop the header sits above the map, so collapsing the hero
+    // changes the map's height — tell Leaflet once the animation settles
+    heroEl.addEventListener("transitionend", function (e) {
+      if (e.propertyName === "max-height") map.invalidateSize({ pan: false });
     });
   }
 
