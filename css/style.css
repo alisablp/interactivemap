@@ -951,8 +951,10 @@ body.suggest-open .leaflet-control-container {
 /* ---------- mobile ---------- */
 @media (max-width: 640px) {
   .hero-inner { padding: 16px 14px 4px; }
-  .map-stats { font-size: .62rem; letter-spacing: .1em; }
-  .map-stats .ms-lbl { margin-left: .25em; }
+  .map-stats { font-size: .6rem; letter-spacing: .04em; white-space: nowrap; }
+  .map-stats .ms-num { font-size: .88rem; }
+  .map-stats .ms-lbl { margin-left: .22em; }
+  .map-stats .ms-dot { padding: 0 .28em; }
   .tour-cta {
     position: static;
     transform: none;
