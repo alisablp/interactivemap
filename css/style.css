@@ -54,7 +54,7 @@ body.card-over-controls .controls * { pointer-events: none; }
 .map-title {
   /* matches the Dawn theme headings on brighamlarsonpianos.com */
   font-family: "Montserrat", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
+  font-weight: 400;
   font-size: clamp(1.7rem, 4vw, 2.9rem);
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -130,12 +130,8 @@ body.card-over-controls .controls * { pointer-events: none; }
   z-index: 1200;
   display: flex;
   align-items: stretch;
-  width: min(600px, calc(100% - 20px));
-  background: #ffffff;
-  border: 1px solid var(--hairline);
-  border-radius: 999px;
-  padding: 5px;
-  box-shadow: 0 12px 32px rgba(60, 54, 40, .22);
+  gap: 10px;
+  width: min(640px, calc(100% - 20px));
   transition: opacity .22s ease;
 }
 body.card-over-cmdbar .cmdbar,
@@ -155,9 +151,11 @@ body.card-over-cmdbar .panel {
   padding: 7px 8px 7px 14px;
   color: var(--brass);
   height: 100%;
-  background: var(--paper);
-  border: 1px solid rgba(201, 162, 39, .45);
+  background: #ffffff;
+  border: 1px solid rgba(201, 162, 39, .55);
   border-radius: 999px;
+  padding: 11px 10px 11px 16px;
+  box-shadow: 0 12px 30px rgba(60, 54, 40, .22);
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .cmdbar .searcharea:focus-within .searchwrap {
@@ -175,9 +173,8 @@ body.card-over-cmdbar .panel {
 .searchwrap input::placeholder { color: #8f887a; }
 .cmd-btn {
   font: inherit;
-  border: 0;
-  margin-left: 5px;
-  background: transparent;
+  border: 1px solid rgba(201, 162, 39, .55);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -188,16 +185,21 @@ body.card-over-cmdbar .panel {
   letter-spacing: .06em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  padding: 4px 14px;
-  min-width: 64px;
+  padding: 8px 14px;
+  min-width: 72px;
   cursor: pointer;
-  border-radius: 0 999px 999px 0;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(60, 54, 40, .18);
 }
-.cmd-btn em { font-style: normal; font-size: 1.05rem; line-height: 1; }
+.cmd-btn em { font-style: normal; font-size: 1.15rem; line-height: 1; color: var(--brass); }
 .cmd-btn:hover { color: var(--ink); background: var(--paper); }
-.cmd-btn.active { color: var(--ink); font-weight: 700; background: var(--paper); }
-.cmd-btn.gold { color: #8a6a14; }
-.cmd-btn.gold:hover, .cmd-btn.gold.active { color: #8a6a14; }
+.cmd-btn.active { color: var(--ink); font-weight: 700; background: var(--paper); border-color: var(--gold); }
+.cmd-btn.gold {
+  color: #8a6a14;
+  border-color: var(--gold);
+  box-shadow: 0 10px 24px rgba(60, 54, 40, .18), 0 0 14px rgba(201, 162, 39, .3);
+}
+.cmd-btn.gold:hover, .cmd-btn.gold.active { color: #8a6a14; background: #f7f0dd; }
 
 /* ---------- panels that rise from the command bar ---------- */
 .panel {
@@ -957,7 +959,8 @@ body.suggest-open .leaflet-control-container {
     margin: 10px auto 16px;
   }
   #zipInput, .searchwrap input { font-size: 16px; }
-  .cmd-btn { padding: 4px 9px; min-width: 52px; }
+  .cmdbar { gap: 6px; }
+  .cmd-btn { padding: 6px 8px; min-width: 56px; border-radius: 12px; }
   .panel { bottom: 76px; }
   #map { min-height: 0; }
   .leaflet-popup-content { width: 225px !important; }
