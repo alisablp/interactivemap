@@ -171,6 +171,9 @@ body.card-over-cmdbar .panel {
   width: 100%;
 }
 .searchwrap input::placeholder { color: #8f887a; }
+/* the browser's own blue clear-x is hidden; ours is ink on all sizes */
+.searchwrap input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+.searchwrap input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
 .search-x {
   display: none;
   flex: none;
@@ -179,15 +182,14 @@ body.card-over-cmdbar .panel {
   border: 0;
   border-radius: 50%;
   background: var(--paper);
-  color: var(--ink-soft);
+  color: var(--ink);
   font-size: 17px;
   line-height: 1;
   padding: 0;
   cursor: pointer;
 }
-@media (max-width: 640px) {
-  .searcharea.has-text .search-x { display: block; }
-}
+.search-x:hover { background: var(--hairline); }
+.searcharea.has-text .search-x { display: block; }
 .cmd-btn {
   font: inherit;
   border: 1px solid rgba(201, 162, 39, .55);
