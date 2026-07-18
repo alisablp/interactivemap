@@ -1306,7 +1306,9 @@
           });
           if (!nearest) return;
           var mi = Math.max(1, Math.round(best));
-          zipResult.textContent = "We delivered a restored piano about " + mi.toLocaleString("en-US") +
+          // a brand-new piano was never restored — say so accurately
+          var zipKind = nearest.y === "New" ? "a brand-new piano" : "a restored piano";
+          zipResult.textContent = "We delivered " + zipKind + " about " + mi.toLocaleString("en-US") +
             " mile" + (mi === 1 ? "" : "s") + " from you — the " + nearest.t +
             " in " + nearest.ct + ", " + nearest.st + "." +
             (mi > 150 ? " Your family heirloom could be the next pin on this map." : "");
