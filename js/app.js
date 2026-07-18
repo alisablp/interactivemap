@@ -914,7 +914,7 @@
         return rank(b) - rank(a);
       });
     }
-    return { locs: locs.slice(0, 5), pianos: pianos.slice(0, 30) };
+    return { locs: locs.slice(0, 5), pianos: pianos.slice(0, IS_SMALL ? 8 : 30) };
   }
 
   function renderSuggest() {
@@ -1013,21 +1013,24 @@
   });
 
   var searchArea = document.querySelector(".cmdbar .searcharea");
+  var searchX = document.getElementById("searchX");
   function collapseSearch() {
-    if (IS_SMALL) document.body.classList.remove("search-open");
+    if (searchArea) searchArea.classList.remove("has-text");
   }
-  if (IS_SMALL && searchArea) {
-    searchEl.placeholder = ""; // the icon says it all on phones
-    searchArea.addEventListener("click", function () {
-      if (!document.body.classList.contains("search-open")) {
-        document.body.classList.add("search-open");
-        searchEl.focus();
-      }
+  if (searchX) {
+    searchX.addEventListener("click", function () {
+      searchEl.value = "";
+      state.q = "";
+      searchArea.classList.remove("has-text");
+      hideSuggest();
+      apply(false);
+      searchEl.blur();
     });
   }
 
   var debounce;
   searchEl.addEventListener("input", function () {
+    if (searchArea) searchArea.classList.toggle("has-text", !!searchEl.value);
     state.loc = null; // typing again clears a picked region
     renderSuggest(); // suggestions update instantly…
     clearTimeout(debounce);

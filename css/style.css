@@ -171,6 +171,23 @@ body.card-over-cmdbar .panel {
   width: 100%;
 }
 .searchwrap input::placeholder { color: #8f887a; }
+.search-x {
+  display: none;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-size: 17px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+@media (max-width: 640px) {
+  .searcharea.has-text .search-x { display: block; }
+}
 .cmd-btn {
   font: inherit;
   border: 1px solid rgba(201, 162, 39, .55);
@@ -313,13 +330,14 @@ body.card-over-cmdbar .panel {
   color: var(--gray);
   font-size: .85rem;
 }
-.sg-cta {
+.sg-cta,
+.leaflet-container a.sg-cta {
   display: block;
   margin: 0 16px 14px;
   padding: 10px 12px;
   border-radius: 999px;
-  background: var(--ink);
-  color: var(--porcelain);
+  background: var(--red);
+  color: #ffffff;
   font-size: .8rem;
   font-weight: 600;
   letter-spacing: .08em;
@@ -327,7 +345,8 @@ body.card-over-cmdbar .panel {
   text-align: center;
   text-decoration: none;
 }
-.sg-cta:hover { background: #3a362e; }
+.sg-cta:hover,
+.leaflet-container a.sg-cta:hover { background: #7c1515; color: #ffffff; }
 .suggest > .sg-sect + .sg-sect { border-top: 1px solid var(--hairline); }
 .sg-sect { padding-bottom: 6px; }
 
@@ -962,23 +981,17 @@ body.suggest-open .leaflet-control-container {
     margin: 10px auto 16px;
   }
   #zipInput, .searchwrap input { font-size: 16px; }
-  .cmdbar { gap: 6px; width: auto; }
-  .cmd-btn { padding: 6px 8px; min-width: 56px; border-radius: 12px; }
-  /* collapsed: just the gold magnifier */
-  body:not(.search-open) .cmdbar .searcharea { flex: none; min-width: 0; }
-  body:not(.search-open) .cmdbar .searchwrap {
-    width: 54px;
-    justify-content: center;
-    padding: 8px 0;
-    border-radius: 12px;
-    cursor: pointer;
+  .cmdbar { gap: 5px; }
+  .cmd-btn { padding: 5px 6px; min-width: 50px; border-radius: 12px; font-size: .5rem; }
+  .cmdbar .searchwrap { padding: 9px 8px 9px 12px; }
+  /* results pop full-width and stay a comfortable scroll height */
+  .suggest {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    max-height: 42vh;
   }
-  body:not(.search-open) .cmdbar .searchwrap svg { width: 17px; height: 17px; }
-  body:not(.search-open) .cmdbar .searchwrap input { display: none; }
-  /* expanded: search owns the whole row so full names + cities fit */
-  body.search-open .cmdbar { width: calc(100% - 20px); }
-  body.search-open .cmdbar .searcharea { flex: 1; }
-  body.search-open .cmd-btn { display: none; }
   .map-brand { right: 12px; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
   .panel { bottom: 76px; }
   #map { min-height: 0; }
