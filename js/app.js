@@ -853,6 +853,7 @@
     state.q = "";
     state.loc = loc;
     hideSuggest();
+    collapseSearch();
     apply(true); // filters to the region and fits the view to its pins
   }
 
@@ -860,6 +861,7 @@
     clearTimeout(debounce); // a pending text-filter would cancel the fly-to
     var m = markers[i];
     hideSuggest();
+    collapseSearch();
     searchEl.value = m._piano.t;
     var ll = m.getLatLng();
     // if current filters hide this piano's pin, relax them so it shows
@@ -998,13 +1000,31 @@
       }
     } else if (e.key === "Escape") {
       hideSuggest();
+      collapseSearch();
+      searchEl.blur();
     }
   });
 
   // close when clicking/tapping anywhere outside the search area
   document.addEventListener("pointerdown", function (e) {
-    if (!suggestEl.hidden && !(e.target.closest && e.target.closest(".searcharea"))) hideSuggest();
+    if (e.target.closest && e.target.closest(".searcharea")) return;
+    if (!suggestEl.hidden) hideSuggest();
+    collapseSearch();
   });
+
+  var searchArea = document.querySelector(".cmdbar .searcharea");
+  function collapseSearch() {
+    if (IS_SMALL) document.body.classList.remove("search-open");
+  }
+  if (IS_SMALL && searchArea) {
+    searchEl.placeholder = ""; // the icon says it all on phones
+    searchArea.addEventListener("click", function () {
+      if (!document.body.classList.contains("search-open")) {
+        document.body.classList.add("search-open");
+        searchEl.focus();
+      }
+    });
+  }
 
   var debounce;
   searchEl.addEventListener("input", function () {

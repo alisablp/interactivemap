@@ -73,8 +73,8 @@ body.card-over-controls .controls * { pointer-events: none; }
 /* maker's mark — small badge signed into the map's corner */
 .map-brand {
   position: absolute;
-  left: 14px;
-  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  right: 14px;
+  bottom: calc(34px + env(safe-area-inset-bottom, 0px));
   z-index: 1100;
   opacity: .92;
   filter: drop-shadow(0 2px 6px rgba(60, 54, 40, .35));
@@ -962,8 +962,24 @@ body.suggest-open .leaflet-control-container {
     margin: 10px auto 16px;
   }
   #zipInput, .searchwrap input { font-size: 16px; }
-  .cmdbar { gap: 6px; }
+  .cmdbar { gap: 6px; width: auto; }
   .cmd-btn { padding: 6px 8px; min-width: 56px; border-radius: 12px; }
+  /* collapsed: just the gold magnifier */
+  body:not(.search-open) .cmdbar .searcharea { flex: none; min-width: 0; }
+  body:not(.search-open) .cmdbar .searchwrap {
+    width: 54px;
+    justify-content: center;
+    padding: 8px 0;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  body:not(.search-open) .cmdbar .searchwrap svg { width: 17px; height: 17px; }
+  body:not(.search-open) .cmdbar .searchwrap input { display: none; }
+  /* expanded: search owns the whole row so full names + cities fit */
+  body.search-open .cmdbar { width: calc(100% - 20px); }
+  body.search-open .cmdbar .searcharea { flex: 1; }
+  body.search-open .cmd-btn { display: none; }
+  .map-brand { right: 12px; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
   .panel { bottom: 76px; }
   #map { min-height: 0; }
   .leaflet-popup-content { width: 225px !important; }
