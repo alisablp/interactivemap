@@ -481,6 +481,14 @@ body.suggest-open .leaflet-control-container {
   margin: 8px 0 0;
 }
 .lb-result:empty { display: none; }
+.lb-ask {
+  font-family: Didot, "Bodoni 72", Georgia, serif;
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--ink);
+  text-align: center;
+  margin: 12px 0 0;
+}
 .lb-cta,
 .leaflet-container a.lb-cta {
   display: block;
