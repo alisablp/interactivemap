@@ -932,7 +932,7 @@
         ? "No restored pianos in " + esc(qStateName) + " yet &mdash; yours could be the first."
         : "No pianos match &ldquo;" + esc(q) + "&rdquo; yet &mdash; yours could be the next story on this map.") +
         "</div>" +
-        "<a class='sg-cta' href='https://www.brighamlarsonpianos.com/pages/free-family-heirloom-restoration-evaluation' " +
+        "<a class='sg-cta' href='https://forms.gle/oaXeHRzng2G4Piq88' " +
         "target='_blank' rel='noopener'>Get a FREE Restoration Evaluation</a>";
       suggestEl.innerHTML = h;
       suggestEl.hidden = false;
