@@ -501,6 +501,13 @@
     if (tags.length) {
       h += "<div class='tags'>" + tags.map(function (t) { return "<span class='tag'>" + esc(t) + "</span>"; }).join("") + "</div>";
     }
+    if (p.yt) {
+      // the after-video: nothing loads until the visitor asks to listen
+      h += "<button type='button' class='hear-btn' data-yt='" + esc(p.yt) + "'>" +
+        "<svg width='11' height='12' viewBox='0 0 12 14' fill='currentColor' aria-hidden='true'>" +
+        "<path d='M1 1.6c0-.9 1-1.4 1.7-1L11 6c.8.5.8 1.6 0 2.1L2.7 13.4c-.7.5-1.7 0-1.7-1z'/></svg>" +
+        "Hear This Piano</button><div class='yt-slot'></div>";
+    }
     var isHeirloom = p.c.indexOf("Family Heirloom") !== -1;
     var isNew = p.y === "New";
     var what = [p.mk, p.tp].filter(Boolean).join(" ") || "piano";
@@ -556,6 +563,20 @@
     "<path d='M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7'/>" +
     "<path d='M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7'/></svg>" +
     "Share this piano";
+
+  // "Hear This Piano" — build the player only when asked
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest(".hear-btn") : null;
+    if (!b) return;
+    var card = b.closest(".pcard");
+    var slot = card && card.querySelector(".yt-slot");
+    if (!slot) return;
+    slot.innerHTML = "<iframe src='https://www.youtube-nocookie.com/embed/" +
+      b.getAttribute("data-yt") + "?autoplay=1&rel=0' title='Hear this piano' " +
+      "allow='autoplay; encrypted-media; picture-in-picture' allowfullscreen></iframe>";
+    slot.classList.add("on");
+    b.style.display = "none";
+  });
 
   // share buttons live inside injected popup/sheet HTML — delegate the click
   document.addEventListener("click", function (e) {
@@ -670,6 +691,7 @@
       if (kv[0] === "type" && p.tp !== kv[1]) return false;
       if (kv[0] === "cat" && p.c.indexOf(kv[1]) === -1) return false;
       if (kv[0] === "gallery" && !(p.bp && p.ap)) return false; // before/after slider pianos
+      if (kv[0] === "video" && !p.yt) return false; // pianos you can hear
     }
     if (state.loc) {
       if (p.st !== state.loc.st) return false;

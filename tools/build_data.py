@@ -32,6 +32,9 @@ OUT_PATH = os.path.join(HERE, "..", "js", "data.js")
 # J=9 category tags, P=15 after photos, BO=66 marketing title, BV=73 Shopify URL
 COL_OWNER, COL_SERIAL, COL_SUMMARY, COL_YEAR, COL_MAKE, COL_MODEL, COL_CAT = 1, 2, 3, 4, 5, 6, 9
 COL_AFTER_PHOTOS, COL_TITLE, COL_URL = 15, 66, 73
+COL_AFTER_VIDEO = 17  # R — the piano playing after restoration
+
+YT_PAT = re.compile(r"(?:youtu\.be/|youtube\.com/(?:watch\?v=|shorts/|embed/))([\w-]{6,20})")
 
 # Trigger rule: a piano appears on the map when it has a showable AFTER
 # photo, OR when it sits below the log's "SOLD" divider row and has a
@@ -334,6 +337,11 @@ def main():
         rec = dict(id=pid, t=title[:80], y=year, mk=make[:30], md=model[:30], tp=typ,
                    c=cats[:8], u=url, ct=city, st=st,
                    la=round(lat, 4), lo=round(lng, 4))
+        # "hear this piano" — after-video YouTube id (a few bytes each)
+        if len(r) > COL_AFTER_VIDEO:
+            ytm = YT_PAT.search(r[COL_AFTER_VIDEO])
+            if ytm:
+                rec["yt"] = ytm.group(1)
         ph = photos.get(piano_key(r))
         if ph:
             for side, field in (("b", "bp"), ("a", "ap")):
