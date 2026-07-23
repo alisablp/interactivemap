@@ -35,6 +35,48 @@ COL_AFTER_PHOTOS, COL_TITLE, COL_URL = 15, 66, 73
 COL_AFTER_VIDEO = 17  # R — the piano playing after restoration
 
 YT_PAT = re.compile(r"(?:youtu\.be/|youtube\.com/(?:watch\?v=|shorts/|embed/))([\w-]{6,20})")
+YT_TITLE_CACHE = os.path.join(HERE, "yt_titles.json")
+VIDEO_STORIES = os.path.join(HERE, "video_stories.json")
+
+
+def pick_after_video(cell, title_cache):
+    """Choose the true AFTER video from a log cell. Links labeled
+    'progress' in the cell are skipped; ambiguous picks are verified
+    against the YouTube title (real after-videos are titled 'AFTER: …').
+    Returns a YouTube id or None."""
+    matches = list(YT_PAT.finditer(cell))
+    if not matches:
+        return None
+    candidates = []
+    prev_end = 0
+    for m in matches:
+        context = cell[prev_end:m.start()].lower()
+        prev_end = m.end()
+        if "progress" in context:
+            continue
+        candidates.append(("after" in context, m.group(1)))
+    if not candidates:
+        return None
+    # a link explicitly labeled 'after' wins; otherwise first non-progress link
+    candidates.sort(key=lambda c: not c[0])
+    labeled_after, vid = candidates[0]
+    # verify by title unless the cell already said 'after'
+    if vid not in title_cache:
+        try:
+            req = urllib.request.Request(
+                "https://www.youtube.com/oembed?url=https://youtu.be/%s&format=json" % vid,
+                headers={"User-Agent": "Mozilla/5.0"})
+            title_cache[vid] = json.loads(urllib.request.urlopen(req, timeout=20).read())["title"]
+        except Exception:
+            title_cache[vid] = None  # private/deleted — don't show a dead player
+    title = title_cache[vid]
+    if title is None:
+        return None
+    if "progress" in title.lower():
+        return None
+    if not labeled_after and "after" not in title.lower():
+        return None  # unsure and the title doesn't confirm — leave it off
+    return vid
 
 # Trigger rule: a piano appears on the map when it has a showable AFTER
 # photo, OR when it sits below the log's "SOLD" divider row and has a
@@ -265,6 +307,8 @@ def find_locations(lookup, zips, owner):
 def main():
     lookup = load_cities()
     zips = load_zips()
+    yt_titles = json.load(open(YT_TITLE_CACHE)) if os.path.exists(YT_TITLE_CACHE) else {}
+    video_stories = json.load(open(VIDEO_STORIES)) if os.path.exists(VIDEO_STORIES) else {}
     print("fetching piano log …")
     raw = urllib.request.urlopen(CSV_URL, timeout=120).read().decode("utf-8")
     rows = list(csv.reader(io.StringIO(raw)))
@@ -337,11 +381,14 @@ def main():
         rec = dict(id=pid, t=title[:80], y=year, mk=make[:30], md=model[:30], tp=typ,
                    c=cats[:8], u=url, ct=city, st=st,
                    la=round(lat, 4), lo=round(lng, 4))
-        # "hear this piano" — after-video YouTube id (a few bytes each)
+        # "hear this piano" — verified after-video YouTube id
         if len(r) > COL_AFTER_VIDEO:
-            ytm = YT_PAT.search(r[COL_AFTER_VIDEO])
-            if ytm:
-                rec["yt"] = ytm.group(1)
+            vid = pick_after_video(r[COL_AFTER_VIDEO], yt_titles)
+            if vid:
+                rec["yt"] = vid
+                if vid in video_stories:
+                    # a description written from this piano's own after-video
+                    rec["vs"] = video_stories[vid]
         ph = photos.get(piano_key(r))
         if ph:
             for side, field in (("b", "bp"), ("a", "ap")):
@@ -372,6 +419,7 @@ def main():
         f.write("// Auto-generated from the Piano Log — city/state only, no personal information.\n")
         f.write("// Regenerate with tools/build_data.py\n")
         f.write("const PIANOS = " + json.dumps(out, separators=(",", ":")) + ";\n")
+    json.dump(yt_titles, open(YT_TITLE_CACHE, "w"), indent=0)
     print("wrote %d pianos to js/data.js" % len(out))
     if skipped:
         print("held back %d rows (no after photo and not sold-with-URL)" % skipped)

@@ -512,7 +512,11 @@
     var isNew = p.y === "New";
     var what = [p.mk, p.tp].filter(Boolean).join(" ") || "piano";
     var story;
-    if (isNew && !isHeirloom) {
+    if (p.vs) {
+      // a story written from this piano's own after-video — takes
+      // precedence over the generic template when one exists
+      story = "<p class='resto'>" + esc(p.vs) + "</p>";
+    } else if (isNew && !isHeirloom) {
       story = "<p class='resto'>A beautiful piece of musical history in the making. Brand new, this " +
         esc(what) + " represents the finest of modern piano craftsmanship. Delivered to its new home, " +
         "we are proud that this instrument's legacy begins in " + esc(p.ct + ", " + p.st) + ".</p>";
@@ -552,7 +556,13 @@
           " miles between our Utah workshop and " + esc(p.ct + ", " + p.st) + ".</p>";
       }
     }
-    h += "<button type='button' class='share-btn' data-pid='" + esc(p.id) + "'>" + SHARE_LABEL + "</button>";
+    h += "<div class='card-bottom'>" +
+      "<button type='button' class='share-btn' data-pid='" + esc(p.id) + "'>" + SHARE_LABEL + "</button>" +
+      "<button type='button' class='next-btn' data-pid='" + esc(p.id) + "' aria-label='Next piano'>" +
+      "<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
+      "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='9 6 15 12 9 18'/></svg>" +
+      "<span>Next Piano</span></button>" +
+      "</div>";
     h += "</div></div>";
     return h;
   }
@@ -563,6 +573,23 @@
     "<path d='M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7'/>" +
     "<path d='M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7'/></svg>" +
     "Share this piano";
+
+  // "Next Piano" — cycle through whatever's currently visible/filtered,
+  // so the arrow always matches what the visitor is looking at
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest(".next-btn") : null;
+    if (!b) return;
+    var pid = b.getAttribute("data-pid");
+    var pool = lastVisibleMarkers.length ? lastVisibleMarkers : markers;
+    var idx = -1;
+    for (var i = 0; i < pool.length; i++) {
+      if (pool[i]._piano.id === pid) { idx = i; break; }
+    }
+    if (idx === -1 || pool.length < 2) return;
+    var nextMarker = pool[(idx + 1) % pool.length];
+    var gi = markers.indexOf(nextMarker);
+    if (gi !== -1) goToPiano(gi);
+  });
 
   // "Hear This Piano" — build the player only when asked
   document.addEventListener("click", function (e) {

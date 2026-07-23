@@ -2,3 +2,5 @@ tools/cities500.txt
 .DS_Store
 Icon?
 tools/USzips.txt
+tools/yt_titles.json
+tools/transcripts.json
