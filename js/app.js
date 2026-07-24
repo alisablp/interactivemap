@@ -481,7 +481,7 @@
     var meta = [p.y, p.mk, p.tp].filter(Boolean).join(" · ");
     var place = p.ct + ", " + p.st;
     var tags = p.c.filter(function (c) { return CARD_TAGS.indexOf(c) !== -1; }).slice(0, 4);
-    var h = "<div class='pcard'><div class='strip'></div>";
+    var h = "<div class='pcard' data-pid='" + esc(p.id) + "'><div class='strip'></div>";
     if (p.ap && p.bp) {
       // before/after slider — drag to sweep across the piano
       h += "<div class='ba' style='--cut:50%'>" +
@@ -578,14 +578,10 @@
     "<path d='M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7'/></svg>" +
     "Share this piano";
 
-  // prev/next piano arrows beside the title — step back and forth through
-  // whatever's currently visible/filtered, so they always match what the
-  // visitor is looking at
-  document.addEventListener("click", function (e) {
-    var b = e.target.closest ? e.target.closest(".pnav") : null;
-    if (!b) return;
-    var pid = b.getAttribute("data-pid");
-    var dir = parseInt(b.getAttribute("data-dir"), 10);
+  // prev/next piano navigation — step back and forth through whatever's
+  // currently visible/filtered, so it always matches what the visitor is
+  // looking at. Triggered by the arrow buttons AND by swiping the card.
+  function stepPiano(pid, dir) {
     var pool = lastVisibleMarkers.length ? lastVisibleMarkers : markers;
     var idx = -1;
     for (var i = 0; i < pool.length; i++) {
@@ -595,7 +591,35 @@
     var stepMarker = pool[(idx + dir + pool.length) % pool.length];
     var gi = markers.indexOf(stepMarker);
     if (gi !== -1) goToPiano(gi);
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest(".pnav") : null;
+    if (!b) return;
+    stepPiano(b.getAttribute("data-pid"), parseInt(b.getAttribute("data-dir"), 10));
   });
+
+  // swipe the card left/right to move to the next/previous piano
+  (function () {
+    var startX = null, startY = null, swipeCard = null;
+    document.addEventListener("touchstart", function (e) {
+      var card = e.target.closest ? e.target.closest(".pcard") : null;
+      if (!card || e.target.closest(".ba, .hear-btn, .yt-slot")) { swipeCard = null; return; }
+      swipeCard = card;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    document.addEventListener("touchend", function (e) {
+      if (!swipeCard || startX === null) return;
+      var dx = e.changedTouches[0].clientX - startX;
+      var dy = e.changedTouches[0].clientY - startY;
+      var pid = swipeCard.getAttribute("data-pid");
+      swipeCard = null;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        stepPiano(pid, dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+  })();
 
   // "Hear This Piano" — build the player only when asked
   document.addEventListener("click", function (e) {
