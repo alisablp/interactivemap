@@ -496,7 +496,15 @@
       h += "<img class='pcard-photo' src='" + photoURL(p.ap) + "' alt='" + esc(p.t) + "' loading='lazy'>";
     }
     h += "<div class='pad'>";
-    h += "<h3>" + esc(p.t) + "</h3>";
+    h += "<div class='title-row'>" +
+      "<button type='button' class='pnav prev' data-pid='" + esc(p.id) + "' data-dir='-1' aria-label='Previous piano'>" +
+      "<svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
+      "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='15 6 9 12 15 18'/></svg></button>" +
+      "<h3>" + esc(p.t) + "</h3>" +
+      "<button type='button' class='pnav next' data-pid='" + esc(p.id) + "' data-dir='1' aria-label='Next piano'>" +
+      "<svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
+      "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='9 6 15 12 9 18'/></svg></button>" +
+      "</div>";
     h += "<div class='meta'>" + esc(meta ? meta + " · " + place : place) + "</div>";
     if (tags.length) {
       h += "<div class='tags'>" + tags.map(function (t) { return "<span class='tag'>" + esc(t) + "</span>"; }).join("") + "</div>";
@@ -558,10 +566,6 @@
     }
     h += "<div class='card-bottom'>" +
       "<button type='button' class='share-btn' data-pid='" + esc(p.id) + "'>" + SHARE_LABEL + "</button>" +
-      "<button type='button' class='next-btn' data-pid='" + esc(p.id) + "' aria-label='Next piano'>" +
-      "<svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
-      "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='9 6 15 12 9 18'/></svg>" +
-      "<span>Next Piano</span></button>" +
       "</div>";
     h += "</div></div>";
     return h;
@@ -574,20 +578,22 @@
     "<path d='M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7'/></svg>" +
     "Share this piano";
 
-  // "Next Piano" — cycle through whatever's currently visible/filtered,
-  // so the arrow always matches what the visitor is looking at
+  // prev/next piano arrows beside the title — step back and forth through
+  // whatever's currently visible/filtered, so they always match what the
+  // visitor is looking at
   document.addEventListener("click", function (e) {
-    var b = e.target.closest ? e.target.closest(".next-btn") : null;
+    var b = e.target.closest ? e.target.closest(".pnav") : null;
     if (!b) return;
     var pid = b.getAttribute("data-pid");
+    var dir = parseInt(b.getAttribute("data-dir"), 10);
     var pool = lastVisibleMarkers.length ? lastVisibleMarkers : markers;
     var idx = -1;
     for (var i = 0; i < pool.length; i++) {
       if (pool[i]._piano.id === pid) { idx = i; break; }
     }
     if (idx === -1 || pool.length < 2) return;
-    var nextMarker = pool[(idx + 1) % pool.length];
-    var gi = markers.indexOf(nextMarker);
+    var stepMarker = pool[(idx + dir + pool.length) % pool.length];
+    var gi = markers.indexOf(stepMarker);
     if (gi !== -1) goToPiano(gi);
   });
 

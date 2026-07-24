@@ -699,14 +699,12 @@ body.suggest-open .leaflet-control-container {
   border: 0;
 }
 
-/* share + next-piano row at the bottom of the card */
+/* share row at the bottom of the card */
 .card-bottom {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
   margin-top: 8px;
-  flex-wrap: wrap;
 }
 .share-btn {
   display: flex;
@@ -725,26 +723,32 @@ body.suggest-open .leaflet-control-container {
 .share-btn svg { flex: none; }
 .share-btn:hover { color: #8a6a14; text-decoration: underline; }
 
-/* gold "next piano" arrow — hop to the next pin on the map */
-.next-btn {
+/* prev/next piano arrows flanking the title — step through whatever's
+   currently visible on the map, one pin at a time */
+.title-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 3px;
+}
+.title-row h3 { margin: 0; }
+.pnav {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
   border: 1px solid var(--gold);
-  border-radius: 999px;
+  border-radius: 50%;
   background: linear-gradient(180deg, #fff8e4, #f7ecc9);
   color: #6e5210;
-  font: inherit;
-  font-size: .68rem;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(201, 162, 39, .25);
+  box-shadow: 0 2px 8px rgba(201, 162, 39, .22);
 }
-.next-btn svg { flex: none; }
-.next-btn:hover { background: linear-gradient(180deg, #fffbef, #f9efd2); }
+.pnav svg { display: block; }
+.pnav:hover { background: linear-gradient(180deg, #fffbef, #f9efd2); }
 
 /* ---------- gallery card popup ---------- */
 .leaflet-popup-content-wrapper {
