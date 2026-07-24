@@ -498,11 +498,11 @@
     h += "<div class='pad'>";
     h += "<div class='title-row'>" +
       "<button type='button' class='pnav prev' data-pid='" + esc(p.id) + "' data-dir='-1' aria-label='Previous piano'>" +
-      "<svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
+      "<svg width='26' height='26' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
       "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='15 6 9 12 15 18'/></svg></button>" +
       "<h3>" + esc(p.t) + "</h3>" +
       "<button type='button' class='pnav next' data-pid='" + esc(p.id) + "' data-dir='1' aria-label='Next piano'>" +
-      "<svg width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
+      "<svg width='26' height='26' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6' " +
       "stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><polyline points='9 6 15 12 9 18'/></svg></button>" +
       "</div>";
     h += "<div class='meta'>" + esc(meta ? meta + " · " + place : place) + "</div>";

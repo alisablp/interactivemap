@@ -738,17 +738,16 @@ body.suggest-open .leaflet-control-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border: 1px solid var(--gold);
-  border-radius: 50%;
-  background: linear-gradient(180deg, #fff8e4, #f7ecc9);
-  color: #6e5210;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(201, 162, 39, .22);
 }
 .pnav svg { display: block; }
-.pnav:hover { background: linear-gradient(180deg, #fffbef, #f9efd2); }
+.pnav:hover { color: var(--brass); }
 
 /* ---------- gallery card popup ---------- */
 .leaflet-popup-content-wrapper {
