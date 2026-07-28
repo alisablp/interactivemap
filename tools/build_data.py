@@ -403,10 +403,12 @@ def main():
         # photograph well
         if "ap" not in rec:
             rec.pop("bp", None)
-        # qualify: showable after photo, OR below the SOLD divider with a
-        # product URL, OR tagged Family Heirloom — the latter two without
-        # photos get a restoration-story card
-        if "ap" not in rec and not (below_sold and rec["u"]) and "Family Heirloom" not in cats:
+        # qualify: showable after photo, OR below the SOLD divider (an
+        # address alone is enough there — no photo or product URL required),
+        # OR tagged Family Heirloom — the latter two without photos get a
+        # restoration-story card instead. (locs was already confirmed
+        # non-empty above, so every row reaching this point has an address.)
+        if "ap" not in rec and not below_sold and "Family Heirloom" not in cats:
             skipped += 1
             continue
         out.append(rec)
