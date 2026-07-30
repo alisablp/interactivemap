@@ -4,3 +4,7 @@ Icon?
 tools/USzips.txt
 tools/yt_titles.json
 tools/transcripts.json
+tools/audio_cache/
+tools/transcribe_progress.log
+tools/transcripts2.json
+tools/pending_video_meta.json
